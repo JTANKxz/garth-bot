@@ -21,7 +21,6 @@ export default {
 
     const groupConfig = getGroupConfig(from)
     const prefix = groupConfig?.prefix || "!"
-    const botConfig = getBotConfig()
 
     const ownerCmds = []
     for (const [, cmd] of commands) {
