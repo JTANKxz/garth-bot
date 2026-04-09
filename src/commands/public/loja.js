@@ -1,5 +1,4 @@
 import { getShopItems } from "../../utils/economyManager.js";
-import sock from "../../index.js"; // Se precisar de algo específico, mas no run já recebe
 
 export default {
     name: "loja",
