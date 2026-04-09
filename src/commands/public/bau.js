@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { getDrop, clearDrop } from "../../utils/drops.js";
 import { getGroupConfig, updateGroupConfig } from "../../utils/groups.js";
+import { formatMoney } from "../../utils/saldo.js";
 
 const dbLuckyPath = path.resolve("src/database/lucky.json");
 
@@ -19,7 +20,7 @@ const PRIZE_GAIN_MAX = 100;
 // chance de cair em armadilha (0 a 100)
 const TRAP_CHANCE = 20;
 
-// dentro da armadilha, chance de ser MUTE (o resto vira perda de cash)
+// dentro da armadilha, chance de ser MUTE (o resto vira perda de moedas)
 const TRAP_MUTE_CHANCE = 35; // %
 const TRAP_MUTE_MIN_MINUTES = 1;
 const TRAP_MUTE_MAX_MINUTES = 5;
@@ -61,17 +62,6 @@ function ensureLuckyUser(db, groupId, userId) {
 
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function formatNumber(valor) {
-  return valor.toLocaleString("pt-BR");
-}
-
-function formatMoney(valor) {
-  if (valor >= 1_000_000_000) return `${formatNumber(valor)}B`;
-  if (valor >= 1_000_000) return `${formatNumber(valor)}M`;
-  if (valor >= 1_000) return `${formatNumber(valor)}K`;
-  return formatNumber(valor);
 }
 
 export default {
@@ -179,11 +169,11 @@ export default {
           return;
         }
 
-        // ARMADILHA: perde cash
+        // ARMADILHA: perde moedas
         const loss = randInt(TRAP_LOSS_MIN, TRAP_LOSS_MAX);
         user.money = Math.max(0, user.money - loss);
 
-        text += `💥 *ARMADILHA!* Você perdeu *${formatMoney(loss)} fyne coins* 😬`;
+        text += `💥 *ARMADILHA!* Você perdeu *${formatMoney(loss)}* 😬`;
 
         saveJSON(dbLuckyPath, luckyDB);
         await sock.sendMessage(from, { text }, { quoted: msg });
@@ -194,7 +184,7 @@ export default {
       const gain = randInt(PRIZE_GAIN_MIN, PRIZE_GAIN_MAX);
       user.money += gain;
 
-      text += `✨ *PRÊMIO!* Você ganhou *${formatMoney(gain)} fyne coins* 🎉`;
+      text += `✨ *PRÊMIO!* Você ganhou *${formatMoney(gain)}* 🎉`;
 
       saveJSON(dbLuckyPath, luckyDB);
       await sock.sendMessage(from, { text }, { quoted: msg });

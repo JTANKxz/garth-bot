@@ -9,6 +9,8 @@ const __dirname = path.dirname(__filename)
 export function readJSON(relativePath) {
     const fullPath = path.join(__dirname, "..", relativePath)
 
+    if (!fs.existsSync(fullPath)) return null;
+
     const content = fs.readFileSync(fullPath, "utf8")
     return JSON.parse(content)
 }

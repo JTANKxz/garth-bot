@@ -47,7 +47,7 @@ export default {
                 const balance = getUserBalance(from, sender);
 
                 if (balance < cost) {
-                    return sock.sendMessage(from, { text: `❌ Você não tem cash suficiente! (Custo: ${formatMoney(cost)})` }, { quoted: msg });
+                    return sock.sendMessage(from, { text: `❌ Você não tem moedas suficientes! (Custo: ${formatMoney(cost)})` }, { quoted: msg });
                 }
 
                 removeMoney(from, sender, cost);
@@ -60,7 +60,7 @@ export default {
 
                 writeJSON(DB_LOTTERY, db);
 
-                return sock.sendMessage(from, { text: `✅ *${pushName}* comprou *${qty}* tickets da loteria!\n💰 Pote atual: *${formatMoney(groupData.pot)} cash*` }, { quoted: msg });
+                return sock.sendMessage(from, { text: `✅ *${pushName}* comprou *${qty}* tickets da loteria!\n💰 Pote atual: *${formatMoney(groupData.pot)}*` }, { quoted: msg });
             }
 
             // 2. SORTEAR (Criador apenas)
@@ -81,7 +81,7 @@ export default {
 
                 const text = `🎉 *SORTEIO REALIZADO!*\n\n` +
                     `🏆 *Vencedor:* @${winnerId.split("@")[0]}\n` +
-                    `💰 *Prêmio:* ${formatMoney(prize)} cash!\n\n` +
+                    `💰 *Prêmio:* ${formatMoney(prize)}!\n\n` +
                     `Parabéns! O pote foi zerado para o próximo round.`;
 
                 groupData.pot = 0;

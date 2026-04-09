@@ -78,13 +78,13 @@ export default {
         const roubado = Math.floor(vitima.money * percent);
         
         addMoney(from, sender, roubado);
-        removeMoney(from, target, roubado);
+        const userBalance = removeMoney(from, target, roubado);
         
-        text = `🕵️‍♂️ *${pushName}* roubou *${formatMoney(roubado)} fyne coins* de @${target.split("@")[0]}! 💰`;
+        text = `🕵️‍♂️ *${pushName}* roubou *${formatMoney(roubado)}* de @${target.split("@")[0]}! 💰`;
       } else {
         const perda = Math.floor(ladrao.money * 0.05) || 50;
         removeMoney(from, sender, perda);
-        text = `🚨 *${pushName}* falhou no roubo e perdeu *${formatMoney(perda)} fyne coins* na fuga!`;
+        text = `🚨 *${pushName}* falhou no roubo e perdeu *${formatMoney(perda)}* na fuga!`;
       }
 
       ladrao.lastroubo = now;

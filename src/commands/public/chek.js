@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { formatMoney } from "../../utils/saldo.js";
 
 const dbPath = path.resolve("src/database/lucky.json");
 
@@ -112,8 +113,8 @@ export default {
         from,
         {
           text:
-            `💰 *Daily Fyne Coins Resgatado!*\n\n` +
-            `🎉 *${pushName}* ganhou *${ganho} fyne coins* 💵` +
+            `💰 *Daily Resgatado!*\n\n` +
+            `🎉 *${pushName}* ganhou *${formatMoney(ganho)}* 💵` +
             bonusText +
             `\n🪙 Volte amanhã para ganhar mais!`
         },

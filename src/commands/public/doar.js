@@ -70,7 +70,7 @@ export default {
             }
 
             if (target === sender) {
-                await sock.sendMessage(from, { text: "🚫 Você não pode doar cash para si mesmo." }, { quoted: msg });
+                await sock.sendMessage(from, { text: "🚫 Você não pode doar moedas para si mesmo." }, { quoted: msg });
                 return;
             }
 
@@ -98,9 +98,9 @@ export default {
                     {
                         text:
                             `🚫 Você não pode doar dinheiro emprestado.\n\n` +
-                            `💰 Disponível para doar: *${formatMoney(disponivelParaDoar)} cash*\n` +
-                            `📌 Seu saldo: *${formatMoney(saldoDoador)} cash*\n` +
-                            `🧾 Dívidas: *${formatMoney(dividaTotal)} cash*`,
+                            `💰 Disponível para doar: *${formatMoney(disponivelParaDoar)}*\n` +
+                            `📌 Seu saldo: *${formatMoney(saldoDoador)}*\n` +
+                            `🧾 Dívidas: *${formatMoney(dividaTotal)}*`,
                     },
                     { quoted: msg }
                 );
@@ -114,7 +114,7 @@ export default {
             saveDB(db);
 
             const texto =
-                `💸 *${msg.pushName || "Você"}* doou *${formatMoney(valor)} cash* ` +
+                `💸 *${msg.pushName || "Você"}* doou *${formatMoney(valor)}* ` +
                 `para @${target.split("@")[0]} 💰`;
 
             await sock.sendMessage(

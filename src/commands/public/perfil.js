@@ -89,24 +89,34 @@ export default {
       // 6. Gerar Card (se VIP ou Admin)
       const renderVipCard = isVip || (targetId === botConfig.botCreator);
       
-      const legend = `
-> ───⟪ *PERFIL DE USUÁRIO* ⟫───
-> 👤 *Nome:* ${displayName}
-> 🏷️ *Status:* ${status}
-> 💍 *Casado(a) com:* ${casadoCom ? "@" + casadoCom : "Solteiro(a)"}
-> ${isVip ? "👑 *VIP ATIVO*" : ""}
-> ──────────────
-> 🆙 *Nível:* ${level}
-> ✨ *XP:* ${xp}
-> 📊 *Progresso:* [${progress.bar}] ${progress.percent}%
-> ──────────────
-> 💼 *Emprego:* ${currentJob ? currentJob.name : "Desempregado"}
-> 💰 *Saldo:* ${formatMoney(luckyUser.money || 0)} cash
-> 💬 *Mensagens:* ${userData.messages}
-> ──────────────
-> 💪 FOR: ${userData.forca} | ❤️ VID: ${userData.life}
-> 🛡️ PRO: ${userData.protection} | ⚡ AGI: ${userData.agility}
-`.trim();
+      let legend = `> ───⟪ *PERFIL DE USUÁRIO* ⟫───\n`;
+      legend += `> 👤 *Nome:* ${displayName}\n`;
+      legend += `> 🏷️ *Status:* ${status}\n`;
+      if (casadoCom) {
+        legend += `> 💍 *Casado(a) com:* @${casadoCom}\n`;
+      }
+      if (isVip) legend += `> 👑 *VIP ATIVO*\n`;
+      legend += `> ──────────────\n`;
+      
+      // Se for VIP, não mostra stats de RPG nem mensagens na legenda
+      if (!isVip) {
+        legend += `> 🆙 *Nível:* ${level}\n`;
+        legend += `> ✨ *XP:* ${xp}\n`;
+        legend += `> 📊 *Progresso:* [${progress.bar}] ${progress.percent}%\n`;
+        legend += `> ──────────────\n`;
+      }
+
+      legend += `> 💼 *Emprego:* ${currentJob ? currentJob.name : "Desempregado"}\n`;
+      legend += `> 💰 *Saldo:* ${formatMoney(luckyUser.money || 0)}\n`;
+      
+      if (!isVip) {
+        legend += `> 💬 *Mensagens:* ${userData.messages}\n`;
+        legend += `> ──────────────\n`;
+        legend += `> 💪 FOR: ${userData.forca} | ❤️ VID: ${userData.life}\n`;
+        legend += `> 🛡️ PRO: ${userData.protection} | ⚡ AGI: ${userData.agility}\n`;
+      }
+
+      legend = legend.trim();
 
       if (renderVipCard) {
         const cardPng = await generateProfileCard({

@@ -75,8 +75,8 @@ export default {
 
             const texto =
                 target === sender
-                    ? `✅ Saldo adicionado com sucesso!\n💰 Valor: *${formatMoney(valor)} cash*\n📊 Total atual: *${formatMoney(db[from][target].money)} cash*`
-                    : `👤 Usuário: @${target.split("@")[0]}\n💰 Valor: *${formatMoney(valor)} cash*\n📊 Total atual: *${formatMoney(db[from][target].money)} cash*`;
+                    ? `✅ Saldo adicionado com sucesso!\n💰 Valor: *${formatMoney(valor)}*\n📊 Total atual: *${formatMoney(db[from][target].money)}*`
+                    : `👤 Usuário: @${target.split("@")[0]}\n💰 Valor: *${formatMoney(valor)}*\n📊 Total atual: *${formatMoney(db[from][target].money)}*`;
 
             await sock.sendMessage(
                 from,
