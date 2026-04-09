@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { getGroupConfig } from "../../utils/groups.js";
 import { getBotConfig } from "../../config/botConfig.js";
-import { SHOP_ITEMS } from "../public/loja.js"; // <-- AJUSTE O PATH AQUI
+import { getShopItems } from "../../utils/economyManager.js";
 
 const dbPath = path.resolve("src/database/lucky.json");
 
@@ -113,7 +113,7 @@ export default {
     }
 
     // Pega o item VIP da loja (pra ficar igual ao comprar)
-    const vipItem = SHOP_ITEMS.find((i) => i.key === "vip_profile");
+    const vipItem = getShopItems().find((i) => i.key === "vip_profile");
     if (!vipItem) {
       return sock.sendMessage(
         from,

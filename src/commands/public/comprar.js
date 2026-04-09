@@ -89,7 +89,7 @@ export default {
         else if (item.duration) bonusText = `\n⏱️ Item ativado por ${item.duration}!`;
 
         await sock.sendMessage(from, {
-            text: `🛒 *Compra realizada!*\n\n🏷️ Item: *${item.name}*\n💰 Valor: *${item.price} cash*${bonusText}`
+            text: `🛒 *Compra realizada!*\n\n🏷️ Item: *${item.name}*\n💰 Valor: *${item.price} fyne coins*${bonusText}`
         }, { quoted: msg });
     }
 }
