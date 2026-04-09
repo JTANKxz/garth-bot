@@ -11,7 +11,7 @@ let loaded = false;
 const defaultConfig = {
     botMaster: "",
     botCreator: "244246317662300@lid",
-    botName: "GARTH-BOT V4",
+    botName: "GARTH-BOT V5",
     prefix: "!",
     allowedGroups: []
 };
