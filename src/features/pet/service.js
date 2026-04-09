@@ -7,14 +7,23 @@ import {
 
 // adicione no service.js
 
-export function sync(pet) {
+export function sync(db, jid, sender) {
+  const u = ensureUser(db, jid, sender);
+  const pet = u.pet;
+  if (!pet) return;
+
   // migração automática (se existir pet antigo no db)
   if (pet?.type === "cat") pet.type = "1";
   if (pet?.type === "dog") pet.type = "2";
   if (pet?.type === "penguin") pet.type = "3";
   if (pet?.type === "pinguim") pet.type = "3";
 
-  applyDecay(pet, Date.now());
+  const hasDeparted = applyDecay(pet, Date.now());
+
+  if (hasDeparted) {
+    u.pet = null;
+    u.petFarewell = true; // Flag para mensagem de despedida
+  }
 }
 
 function clamp(n, min, max) {

@@ -60,9 +60,26 @@ export default {
 
         try {
             const db = loadDB();
-            PetService.ensureUser(db, jid, sender);
+            const u = PetService.ensureUser(db, jid, sender);
 
-            const pet = PetService.getPet(db, jid, sender);
+            // 1. Sincronizar (Aplica Decay/Morte)
+            if (u.pet) {
+                PetService.sync(db, jid, sender);
+                saveDB(db);
+            }
+
+            const pet = u.pet;
+
+            // 2. Mensagem de Despedida (se o pet acabou de ir embora por negligência)
+            if (!pet && u.petFarewell) {
+                u.petFarewell = false;
+                saveDB(db);
+                await sock.sendMessage(jid, { 
+                    text: `😢 *DESPEDIDA:* Seu antigo companheiro se sentiu muito fraco e negligenciado, e acabou partindo em busca de uma nova família que pudesse cuidar melhor dele...\n\nPode ser difícil, mas se quiser, você pode adotar um novo parceiro usando: *${prefix}pet criar <nome>*` 
+                }, { quoted: msg });
+                await sock.sendMessage(jid, { react: { text: "💔", key: msg.key } });
+                return;
+            }
 
             const helpText =
                 `🐾 *Sistema de Pet*\n\n` +
@@ -92,11 +109,6 @@ export default {
                     await sock.sendMessage(jid, { text: helpText }, { quoted: msg });
                     await sock.sendMessage(jid, { react: { text: "✅", key: msg.key } });
                     return;
-                }
-
-                if (typeof PetService.sync === "function") {
-                    PetService.sync(pet);
-                    saveDB(db);
                 }
 
                 const img = await renderPetImage(pet);
@@ -195,11 +207,6 @@ export default {
             // status/ver
             // status/ver
             if (option === "status" || option === "ver") {
-                if (typeof PetService.sync === "function") {
-                    PetService.sync(pet);
-                    saveDB(db);
-                }
-
                 const img = await renderPetImage(pet);
 
                 await sock.sendMessage(
