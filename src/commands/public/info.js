@@ -1,4 +1,5 @@
 import { readJSON } from "../../utils/readJSON.js";
+import { commands } from "../../handler/commandsHandler.js";
 import moment from "moment-timezone";
 
 export default {
@@ -25,9 +26,13 @@ export default {
             const hours = Math.floor(uptimeSeconds / 3600);
             const minutes = Math.floor((uptimeSeconds % 3600) / 60);
 
-            // 3. Comandos (opcional: se tivermos tracking)
+            // 3. Comandos (Filtra para não mostrar Dono/Criador)
             const usage = readJSON("database/commandUsage.json") || {};
             const topCmds = Object.entries(usage)
+                .filter(([name]) => {
+                    const cmd = commands.get(name);
+                    return cmd && cmd.category !== "owner" && cmd.category !== "creator";
+                })
                 .sort(([, a], [, b]) => b - a)
                 .slice(0, 5)
                 .map(([name, count]) => `> *${name}*: ${count}x`)
@@ -41,7 +46,7 @@ export default {
                 `══════════════════\n` +
                 (topCmds ? `🔥 *Comandos Mais Usados:*\n${topCmds}\n` : "") +
                 `══════════════════\n` +
-                `> 🤖 *GARTH-BOT V4*`;
+                `> 🤖 *GARTH-BOT V5*`;
 
             await sock.sendMessage(from, { text }, { quoted: msg });
 

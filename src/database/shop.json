@@ -13,25 +13,25 @@
     "category": "🕵️ *ROUBO*",
     "key": "roubo_bonus_cash",
     "name": "Rouba +200 fyne coins",
-    "description": "💰 Em caso de sucesso no roubo",
+    "description": "💰 Bônus em caso de sucesso no roubo",
     "duration": "24h",
-    "price": 2500
+    "price": 500
   },
   {
     "id": 3,
     "category": "🕵️ *ROUBO*",
     "key": "roubo_bonus_chance",
     "name": "+5% de chance em roubo",
-    "description": "🎯 Aumenta as chances de sucesso",
+    "description": "🎯 Aumenta as chances de sucesso no crime",
     "duration": "24h",
-    "price": 3500
+    "price": 600
   },
   {
     "id": 4,
     "category": "💰 *ECONOMIA*",
     "key": "daily_double",
     "name": "Daily dobrado",
-    "description": "💸 Receba o dobro no daily",
+    "description": "💸 Receba o dobro no daily por 7 dias",
     "duration": "7 dias",
     "price": 4000
   },
@@ -39,17 +39,17 @@
     "id": 5,
     "category": "💰 *ECONOMIA*",
     "key": "bet_bonus",
-    "name": "+10% de sucesso em aposta",
-    "description": "🎲 Aumenta suas chances",
+    "name": "+5% de sucesso em aposta",
+    "description": "🎲 Melhora sua sorte em jogos",
     "duration": "24h",
-    "price": 3000
+    "price": 1000
   },
   {
     "id": 6,
     "category": "🎮 *RANKING & POPULARIDADE*",
     "key": "msg_bonus",
     "name": "+100 mensagens no ranking",
-    "description": "📈 Aumenta sua posição",
+    "description": "📈 Aumenta sua posição no ranking global",
     "price": 4500
   },
   {
@@ -57,7 +57,7 @@
     "category": "🎮 *RANKING & POPULARIDADE*",
     "key": "popularity",
     "name": "+1 popularidade",
-    "description": "🔥 Aumenta sua popularidade",
+    "description": "🔥 Aumenta sua popularidade visível no perfil",
     "price": 5000
   },
   {
@@ -65,9 +65,9 @@
     "category": "🎭 *PERSONALIZAÇÃO*",
     "key": "vip_profile",
     "name": "Perfil VIP",
-    "description": "👑 Um perfil especial com destaque e bônus",
+    "description": "👑 Acesso ao layout VIP e bônus exclusivos",
     "duration": "15 dias",
-    "price": 45000
+    "price": 70000
   },
   {
     "id": 9,

@@ -161,13 +161,15 @@ export async function handleCommand({ sock, msg }) {
             const { addGlobalXP } = await import("../features/progress/levelSystem.js");
             addGlobalXP(jid, sender, 10); // +10 XP por comando usado
 
-            // ✅ Tracking de uso de comandos
-            const { readJSON, writeJSON } = await import("../utils/readJSON.js");
-            try {
-                const usage = readJSON("database/commandUsage.json") || {};
-                usage[command.name] = (usage[command.name] || 0) + 1;
-                writeJSON("database/commandUsage.json", usage);
-            } catch {}
+            // ✅ Tracking de uso de comandos (Ignora Admin/Dono/Criador)
+            if (command.permission !== "owner" && command.permission !== "creator") {
+                const { readJSON, writeJSON } = await import("../utils/readJSON.js");
+                try {
+                    const usage = readJSON("database/commandUsage.json") || {};
+                    usage[command.name] = (usage[command.name] || 0) + 1;
+                    writeJSON("database/commandUsage.json", usage);
+                } catch {}
+            }
 
             updateGroupName(jid, sock).catch(() => { })
         }
