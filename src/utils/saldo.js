@@ -84,3 +84,9 @@ export function setUserBalance(groupId, user, amount) {
     saveDB(db);
     return db[groupId][user].money;
 }
+
+// Aliases para compatibilidade
+export {
+    addUserBalance as addMoney,
+    removeUserBalance as removeMoney
+};
