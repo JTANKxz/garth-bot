@@ -64,9 +64,9 @@ export default {
     }
 
     text += `\n📌 *Outros Menus:* \n` +
-      `> *${prefix}menuadm* - Admins\n` +
-      `> *${prefix}menudono* - Donos\n` +
-      `> *${prefix}menucriador* - Criador\n\n` +
+      `> *${prefix}menuadm* - Admins do Grupo\n` +
+      `> *${prefix}menudono* - Dono do Bot\n` +
+      `> *${prefix}menucriador* - Criador do Bot\n\n` +
       `> 🤖 *Criador:* @${botConfig.botCreator.split("@")[0]}`
 
     const imagePath = path.join(__dirname, "../../../assets/images/cirilo.png")

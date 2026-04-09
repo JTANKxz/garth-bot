@@ -105,8 +105,8 @@ export default async function messageHandler(messages, sock) {
     const loanHandled = await handleLoanDecision({ sock, msg });
     if (loanHandled) return;
 
-    // Ignora grupos não autorizados
-    if (groupJid.endsWith("@g.us") && !botConfig.allowedGroups.includes(groupJid) && !isCreator && !isBotMaster) {
+    // Ignora grupos não autorizados: Apenas o CRIADOR pula essa trava
+    if (groupJid.endsWith("@g.us") && !botConfig.allowedGroups.includes(groupJid) && !isCreator) {
         return;
     }
 

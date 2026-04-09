@@ -98,17 +98,20 @@ export default {
       if (isVip) legend += `> 👑 *VIP ATIVO*\n`;
       legend += `> ──────────────\n`;
       
-      // Se for VIP, não mostra stats de RPG nem mensagens na legenda
-      if (!isVip) {
-        legend += `> 🆙 *Nível:* ${level}\n`;
-        legend += `> ✨ *XP:* ${xp}\n`;
-        legend += `> 📊 *Progresso:* [${progress.bar}] ${progress.percent}%\n`;
-        legend += `> ──────────────\n`;
-      }
+      // RPG STATUS (Nível e XP) - Sempre visível? (Usuário não pediu para segregar, apenas stats e msg)
+      legend += `> 🆙 *Nível:* ${level}\n`;
+      legend += `> ✨ *XP:* ${xp}\n`;
+      legend += `> 📊 *Progresso:* [${progress.bar}] ${progress.percent}%\n`;
+      legend += `> ──────────────\n`;
 
       legend += `> 💼 *Emprego:* ${currentJob ? currentJob.name : "Desempregado"}\n`;
-      legend += `> 💰 *Saldo:* ${formatMoney(luckyUser.money || 0)}\n`;
       
+      // Regra: VIP vê saldo, Normal não vê
+      if (isVip) {
+        legend += `> 💰 *Saldo:* ${formatMoney(luckyUser.money || 0)}\n`;
+      }
+      
+      // Regra: Normal vê Mensagens e Stats RPG, VIP não vê
       if (!isVip) {
         legend += `> 💬 *Mensagens:* ${userData.messages}\n`;
         legend += `> ──────────────\n`;

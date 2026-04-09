@@ -12,13 +12,11 @@ export default {
     const from = msg.key.remoteJid
     const sender = msg.key.participant || msg.key.remoteJid
     
-    if (!from.endsWith("@g.us")) return
+    const botConfig = getBotConfig()
+    const isSuperUser = sender === botConfig.botCreator || sender === botConfig.botMaster
 
-    const groupMetadata = await sock.groupMetadata(from)
-    const isSuperAdmin = groupMetadata.participants.find(p => p.id === sender)?.admin === "superadmin"
-
-    if (!isSuperAdmin) {
-      return sock.sendMessage(from, { text: "❌ Apenas o *Dono do Grupo* pode usar este menu!" }, { quoted: msg })
+    if (!isSuperUser) {
+      return sock.sendMessage(from, { text: "❌ Apenas o *Dono do Bot* pode usar este menu!" }, { quoted: msg })
     }
 
     const groupConfig = getGroupConfig(from)
@@ -32,7 +30,7 @@ export default {
       }
     }
 
-    let text = `👑 *MENU DO DONO DO GRUPO*\n` +
+    let text = `👑 *MENU DO DONO DO BOT*\n` +
       `══════════════════\n` +
       (ownerCmds.length ? ownerCmds.sort().join("\n") : "_Nenhum comando encontrado._") +
       `\n══════════════════\n` +

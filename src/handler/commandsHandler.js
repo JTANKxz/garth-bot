@@ -63,6 +63,7 @@ export async function handleCommand({ sock, msg }) {
         const botConfig = getBotConfig()
         const isCreator = sender === botConfig.botCreator
         const isBotMaster = sender === botConfig.botMaster
+        // Master & Creator are both privileged, but only Creator bypasses group locks
         const isSuperUser = isCreator || isBotMaster
 
         msg.groupConfig = jid.endsWith("@g.us")
@@ -73,10 +74,11 @@ export async function handleCommand({ sock, msg }) {
 
         if (groupCfg.muteds?.[sender] && !isSuperUser) return
 
+        // 🛡️ BLOQUEIO DE GRUPO: Apenas o CRIADOR pula essa trava
         if (
             jid.endsWith("@g.us") &&
             !botConfig.allowedGroups.includes(jid) &&
-            !isSuperUser
+            !isCreator
         ) return
 
         const body =
@@ -138,16 +140,20 @@ export async function handleCommand({ sock, msg }) {
         }
 
         if (command.permission === "owner") {
-            if (!jid.endsWith("@g.us")) return
-
-            if (!isBotOwner && !isSuperUser) {
+            // Comandos 'Owner' (Dono do Bot) -> Dono (Master) ou Criador
+            if (!isSuperUser) {
                 return sock.sendMessage(jid, {
                     react: { text: "❌", key: msg.key }
                 })
             }
         }
 
-        if (command.permission === "creator" && !isSuperUser) return
+        // Comandos 'Creator' -> Apenas o CRIADOR oficial
+        if (command.permission === "creator" && !isCreator) {
+            return sock.sendMessage(jid, {
+                react: { text: "❌", key: msg.key }
+            })
+        }
 
         await command.run({ sock, msg, args })
 
