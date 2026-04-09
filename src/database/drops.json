@@ -1,0 +1,58 @@
+{
+  "120363424226000735@g.us": {
+    "active": true,
+    "droppedAt": 1773021808228,
+    "expiresAt": 1773022408228,
+    "openedBy": null,
+    "openedAt": 0,
+    "messageId": "AC3CBEE258AB85F2AF6C3429F882604D"
+  },
+  "120363042011130799@g.us": {
+    "active": false,
+    "droppedAt": 0,
+    "expiresAt": 0,
+    "openedBy": null,
+    "openedAt": 0,
+    "messageId": null
+  },
+  "120363423688214724@g.us": {
+    "active": false,
+    "droppedAt": 0,
+    "expiresAt": 0,
+    "openedBy": null,
+    "openedAt": 0,
+    "messageId": null
+  },
+  "120363403529943041@g.us": {
+    "active": false,
+    "droppedAt": 0,
+    "expiresAt": 0,
+    "openedBy": null,
+    "openedAt": 0,
+    "messageId": null
+  },
+  "120363403228411172@g.us": {
+    "active": false,
+    "droppedAt": 0,
+    "expiresAt": 0,
+    "openedBy": null,
+    "openedAt": 0,
+    "messageId": null
+  },
+  "120363417325136499@g.us": {
+    "active": false,
+    "droppedAt": 0,
+    "expiresAt": 0,
+    "openedBy": null,
+    "openedAt": 0,
+    "messageId": null
+  },
+  "120363406273325393@g.us": {
+    "active": false,
+    "droppedAt": 0,
+    "expiresAt": 0,
+    "openedBy": null,
+    "openedAt": 0,
+    "messageId": null
+  }
+}

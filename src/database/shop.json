@@ -1,0 +1,99 @@
+[
+  {
+    "id": 1,
+    "category": "🕵️ *ROUBO*",
+    "key": "anti_roubo",
+    "name": "Proteção anti-roubo",
+    "description": "🛡️ Impede que roubem você",
+    "duration": "24h",
+    "price": 800
+  },
+  {
+    "id": 2,
+    "category": "🕵️ *ROUBO*",
+    "key": "roubo_bonus_cash",
+    "name": "Rouba +200 fyne coins",
+    "description": "💰 Em caso de sucesso no roubo",
+    "duration": "24h",
+    "price": 2500
+  },
+  {
+    "id": 3,
+    "category": "🕵️ *ROUBO*",
+    "key": "roubo_bonus_chance",
+    "name": "+5% de chance em roubo",
+    "description": "🎯 Aumenta as chances de sucesso",
+    "duration": "24h",
+    "price": 3500
+  },
+  {
+    "id": 4,
+    "category": "💰 *ECONOMIA*",
+    "key": "daily_double",
+    "name": "Daily dobrado",
+    "description": "💸 Receba o dobro no daily",
+    "duration": "7 dias",
+    "price": 4000
+  },
+  {
+    "id": 5,
+    "category": "💰 *ECONOMIA*",
+    "key": "bet_bonus",
+    "name": "+10% de sucesso em aposta",
+    "description": "🎲 Aumenta suas chances",
+    "duration": "24h",
+    "price": 3000
+  },
+  {
+    "id": 6,
+    "category": "🎮 *RANKING & POPULARIDADE*",
+    "key": "msg_bonus",
+    "name": "+100 mensagens no ranking",
+    "description": "📈 Aumenta sua posição",
+    "price": 4500
+  },
+  {
+    "id": 7,
+    "category": "🎮 *RANKING & POPULARIDADE*",
+    "key": "popularity",
+    "name": "+1 popularidade",
+    "description": "🔥 Aumenta sua popularidade",
+    "price": 5000
+  },
+  {
+    "id": 8,
+    "category": "🎭 *PERSONALIZAÇÃO*",
+    "key": "vip_profile",
+    "name": "Perfil VIP",
+    "description": "👑 Um perfil especial com destaque e bônus",
+    "duration": "15 dias",
+    "price": 45000
+  },
+  {
+    "id": 9,
+    "category": "🐾 *PET RPG*",
+    "key": "pet_food_pro",
+    "name": "Ração Premium",
+    "description": "🍖 Recupera +80 de fome do seu pet instantaneamente.",
+    "price": 1200,
+    "type": "pet_use"
+  },
+  {
+    "id": 10,
+    "category": "🐾 *PET RPG*",
+    "key": "pet_toy",
+    "name": "Brinquedo de Corda",
+    "description": "🎾 Aumenta o carinho do pet em +50.",
+    "price": 800,
+    "type": "pet_use"
+  },
+  {
+    "id": 11,
+    "category": "🐾 *PET RPG*",
+    "key": "luck_charm",
+    "name": "Amuleto da Sorte",
+    "description": "🍀 +15% de chance em apostas por 1 hora.",
+    "price": 5000,
+    "type": "temp_buff"
+  }
+]

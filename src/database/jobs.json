@@ -1,0 +1,336 @@
+{
+  "120363424226000735@g.us": {
+    "244246317662300@lid": {
+      "job": "policia",
+      "quitUntil": 0,
+      "workCooldownUntil": 1771813608612,
+      "jobXP": 42,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "101546582929477@lid": {
+      "job": "entregador",
+      "quitUntil": 0,
+      "workCooldownUntil": 1771537534819,
+      "jobXP": 5,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "13696684310760@lid": {
+      "job": null,
+      "quitUntil": 0,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "108478710423569@lid": {
+      "job": null,
+      "quitUntil": 1771623285725,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "83486278959289@lid": {
+      "job": "policia",
+      "quitUntil": 1771625632319,
+      "workCooldownUntil": 1771693347838,
+      "jobXP": 60,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "19306431643670@lid": {
+      "job": "entregador",
+      "quitUntil": 0,
+      "workCooldownUntil": 1771674017600,
+      "jobXP": 25,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "149113345732753@lid": {
+      "job": null,
+      "quitUntil": 0,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "209968368205890@lid": {
+      "job": null,
+      "quitUntil": 1771714342701,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "36258785009849@lid": {
+      "job": "policia",
+      "quitUntil": 0,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "244448583778461@lid": {
+      "job": null,
+      "quitUntil": 1771722687780,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "100580081012837@lid": {
+      "job": null,
+      "quitUntil": 1771718324706,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "151706935541996@lid": {
+      "job": "policia",
+      "quitUntil": 1771632899709,
+      "workCooldownUntil": 1771691578537,
+      "jobXP": 12,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "230493798830180@lid": {
+      "job": "entregador",
+      "quitUntil": 0,
+      "workCooldownUntil": 1771694582603,
+      "jobXP": 35,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "61087437295772@lid": {
+      "job": null,
+      "quitUntil": 1771632907655,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "7022657450231@lid": {
+      "job": "entregador",
+      "quitUntil": 0,
+      "workCooldownUntil": 1771611849248,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "205635182411892@lid": {
+      "job": null,
+      "quitUntil": 1771737628565,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "266103708225761@lid": {
+      "job": null,
+      "quitUntil": 1771713528308,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "203903991824539@lid": {
+      "job": "entregador",
+      "quitUntil": 0,
+      "workCooldownUntil": 1771554501403,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "188862798258180@lid": {
+      "job": "entregador",
+      "quitUntil": 0,
+      "workCooldownUntil": 1771634471410,
+      "jobXP": 5,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "82596935503945@lid": {
+      "job": "entregador",
+      "quitUntil": 0,
+      "workCooldownUntil": 1771697383885,
+      "jobXP": 25,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "39132034285603@lid": {
+      "job": null,
+      "quitUntil": 0,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "9346066948208@lid": {
+      "job": null,
+      "quitUntil": 0,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "129618388472058@lid": {
+      "job": null,
+      "quitUntil": 0,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "166417198530742@lid": {
+      "job": "policia",
+      "quitUntil": 0,
+      "workCooldownUntil": 1771697494261,
+      "jobXP": 18,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "18060991828026@lid": {
+      "job": "policia",
+      "quitUntil": 0,
+      "workCooldownUntil": 1771697545349,
+      "jobXP": 6,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "12198260797530@lid": {
+      "job": null,
+      "quitUntil": 1771712574048,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "75686517686330@lid": {
+      "job": "entregador",
+      "quitUntil": 0,
+      "workCooldownUntil": 1771691610948,
+      "jobXP": 5,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "83824927101116@lid": {
+      "job": "policia",
+      "quitUntil": 0,
+      "workCooldownUntil": 1771694413483,
+      "jobXP": 12,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "278421775114443@lid": {
+      "job": null,
+      "quitUntil": 1771724549278,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 1771633986648,
+      "thiefJailReduction": 3,
+      "bossPendingIncome": 0
+    },
+    "114624741523691@lid": {
+      "job": null,
+      "quitUntil": 0,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "78452644442275@lid": {
+      "job": null,
+      "quitUntil": 0,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 0,
+      "thiefJailReduction": 0,
+      "bossPendingIncome": 0
+    },
+    "45269458641125@lid": {
+      "job": null,
+      "quitUntil": 1771735901397,
+      "workCooldownUntil": 0,
+      "jobXP": 0,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 1771696131991,
+      "thiefJailReduction": 3,
+      "bossPendingIncome": 0
+    }
+  },
+  "120363423688214724@g.us": {
+    "244246317662300@lid": {
+      "job": "ladrao",
+      "quitUntil": 0,
+      "workCooldownUntil": 1771881686097,
+      "jobXP": 6,
+      "jobLevel": 1,
+      "thiefJailBuffUntil": 1771884386097,
+      "thiefJailReduction": 3,
+      "bossPendingIncome": 0
+    }
+  }
+}

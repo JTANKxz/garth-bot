@@ -1,0 +1,52 @@
+{
+  "defaultType": "1",
+  "createPrice": 500,
+  "types": {
+    "1": {
+      "label": "Gato",
+      "layout": "layouts/cat.png",
+      "price": 0,
+      "skins": {
+        "default": { "label": "Padrão", "file": "sprites/1/default.png", "price": 0 },
+        "black": { "label": "Preto", "file": "sprites/1/black.png", "price": 100 },
+        "lazy": { "label": "Preguiça", "file": "sprites/1/lazy.png", "price": 150 }
+      }
+    },
+    "2": {
+      "label": "Cachorro",
+      "layout": "layouts/dog.png",
+      "price": 200,
+      "skins": {
+        "default": { "label": "Padrão", "file": "sprites/2/default.png", "price": 0 }
+      }
+    },
+    "3": {
+      "label": "Pinguim",
+      "layout": "layouts/pinguim.png",
+      "price": 300,
+      "skins": {
+        "default": { "label": "Padrão", "file": "sprites/3/default.png", "price": 0 },
+        "kowalski": { "label": "Kowalski", "file": "sprites/3/kowalski.png", "price": 800 }
+      }
+    },
+    "4": {
+      "label": "Dragão",
+      "layout": "layouts/dragon.png",
+      "price": 300,
+      "skins": {
+        "default": { "label": "Padrão", "file": "sprites/4/default.png", "price": 0 },
+        "night": { "label": "Fúria da Noite", "file": "sprites/4/night.png", "price": 350 },
+        "blue": { "label": "Azul", "file": "sprites/4/blue.png", "price": 250 }
+      }
+    },
+    "5": {
+      "label": "Serpente",
+      "layout": "layouts/snake.png",
+      "price": 300,
+      "skins": {
+        "default": { "label": "Padrão", "file": "sprites/5/default.png", "price": 0 },
+        "fire": { "label": "Fogo", "file": "sprites/5/fire.png", "price": 350 }
+      }
+    }
+  }
+}

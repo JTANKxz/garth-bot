@@ -1,0 +1,648 @@
+{
+  "120363424226000735@g.us": {
+    "101546582929477@lid": {
+      "money": 74,
+      "items": {},
+      "lastroubo": 0,
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0
+    },
+    "244246317662300@lid": {
+      "money": 472,
+      "items": {},
+      "lastroubo": 0,
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0
+    },
+    "13696684310760@lid": {
+      "money": 0,
+      "lastroubo": 1771535609038,
+      "items": {},
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastDaily": "20/02/2026",
+      "lastBet": 1771617517876
+    },
+    "151706935541996@lid": {
+      "money": 779,
+      "lastroubo": 0,
+      "items": {},
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastDaily": "21/02/2026"
+    },
+    "108478710423569@lid": {
+      "money": 399,
+      "items": {},
+      "lastroubo": 1771540667406,
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastBet": 1771536760203,
+      "lastDaily": "20/02/2026"
+    },
+    "230493798830180@lid": {
+      "money": 1300,
+      "lastUsed": 0,
+      "items": {},
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastDaily": "21/02/2026"
+    },
+    "83486278959289@lid": {
+      "money": 5,
+      "items": {},
+      "lastroubo": 0,
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastDaily": "21/02/2026",
+      "debts": {},
+      "lastBet": 1771694305350
+    },
+    "244448583778461@lid": {
+      "money": 50,
+      "debts": {},
+      "items": {},
+      "lastDaily": "21/02/2026",
+      "jailUntil": 0,
+      "robberySuccess": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "lastBet": 1771653541964
+    },
+    "19306431643670@lid": {
+      "money": 642,
+      "items": {
+        "anti_roubo": 1771726226224
+      },
+      "lastroubo": 1771639219052,
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "customPhrase": "",
+      "lastBet": 1771641391335
+    },
+    "209968368205890@lid": {
+      "money": 600,
+      "lastroubo": 0,
+      "items": {},
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastDaily": "20/02/2026",
+      "lastBet": 1771632265820,
+      "debts": {}
+    },
+    "36258785009849@lid": {
+      "money": 42,
+      "lastUsed": 0,
+      "items": {},
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0
+    },
+    "39132034285603@lid": {
+      "money": 399,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {
+        "anti_roubo": 1771642889774
+      },
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastroubo": 1771643275023,
+      "customPhrase": ""
+    },
+    "259755981426692@lid": {
+      "money": 450,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {
+        "anti_roubo": 1771759048928
+      },
+      "customPhrase": ""
+    },
+    "100580081012837@lid": {
+      "money": 345,
+      "lastDaily": "19/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {},
+      "jailUntil": 1771547084491,
+      "jailStrikes": 1,
+      "bailCost": 800,
+      "lastJailAt": 1771543484491,
+      "robberySuccess": 0,
+      "lastroubo": 1771543484491
+    },
+    "4630276735202@lid": {
+      "money": 350,
+      "lastDaily": "19/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {}
+    },
+    "75686517686330@lid": {
+      "money": 801,
+      "lastDaily": "20/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {},
+      "jailUntil": 0,
+      "robberySuccess": 0,
+      "debts": {}
+    },
+    "215461362983006@lid": {
+      "money": 705,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {}
+    },
+    "61087437295772@lid": {
+      "money": 5880,
+      "items": {
+        "anti_roubo": 1771783640004
+      },
+      "lastroubo": 0,
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastDaily": "21/02/2026",
+      "debts": {},
+      "dailyDoubleDays": 0,
+      "customPhrase": ""
+    },
+    "7022657450231@lid": {
+      "money": 532,
+      "lastroubo": 1771549961295,
+      "items": {},
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastDaily": "20/02/2026"
+    },
+    "266103708225761@lid": {
+      "money": 28,
+      "items": {},
+      "lastroubo": 0,
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastDaily": "21/02/2026"
+    },
+    "203903991824539@lid": {
+      "money": 0,
+      "items": {},
+      "lastroubo": 1771565658527,
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastBet": 1771648310451,
+      "lastDaily": "21/02/2026"
+    },
+    "82596935503945@lid": {
+      "money": 533,
+      "lastroubo": 1771812707066,
+      "items": {},
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 1,
+      "lastDaily": "21/02/2026",
+      "debts": {}
+    },
+    "228230602703086@lid": {
+      "money": 350,
+      "lastroubo": 0,
+      "items": {},
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastDaily": "20/02/2026"
+    },
+    "114624741523691@lid": {
+      "money": 698,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {},
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastroubo": 1771631728373
+    },
+    "32092264108186@lid": {
+      "money": 945,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {},
+      "debts": {
+        "83824927101116@lid": 350
+      },
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0
+    },
+    "131202711314471@lid": {
+      "money": 700,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {},
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0
+    },
+    "262336619257986@lid": {
+      "money": 0,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {},
+      "lastBet": 1771643512448
+    },
+    "9346066948208@lid": {
+      "money": 349,
+      "lastroubo": 1771560790496,
+      "items": {},
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastDaily": "21/02/2026"
+    },
+    "86341828268092@lid": {
+      "money": 765,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {}
+    },
+    "83824927101116@lid": {
+      "money": 401,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {},
+      "jailUntil": 0,
+      "robberySuccess": 0
+    },
+    "38092618621126@lid": {
+      "money": 355,
+      "lastDaily": "20/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {}
+    },
+    "18060991828026@lid": {
+      "money": 111,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {
+        "anti_roubo": 1771781042463
+      },
+      "lastBet": 1771694617273,
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastroubo": 1771696588302,
+      "customPhrase": ""
+    },
+    "129618388472058@lid": {
+      "money": 350,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {},
+      "lastBet": 1771620719456,
+      "jailUntil": 1771612377968,
+      "jailStrikes": 1,
+      "bailCost": 800,
+      "lastJailAt": 1771608777968,
+      "robberySuccess": 0,
+      "lastroubo": 1771608777968
+    },
+    "78452644442275@lid": {
+      "money": 4,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {},
+      "lastBet": 1771671940525,
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastroubo": 1771693316436
+    },
+    "192462467412068@lid": {
+      "money": 140,
+      "lastUsed": 0
+    },
+    "35313908990049@lid": {
+      "money": 416,
+      "items": {},
+      "lastroubo": 0,
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "lastDaily": "20/02/2026"
+    },
+    "2431589081340@lid": {
+      "money": 365,
+      "lastDaily": "20/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {}
+    },
+    "12198260797530@lid": {
+      "money": 50,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {},
+      "lastBet": 1771652879607,
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0,
+      "lastroubo": 1771639312358
+    },
+    "205635182411892@lid": {
+      "money": 62,
+      "debts": {},
+      "items": {},
+      "lastDaily": "21/02/2026",
+      "jailUntil": 0,
+      "robberySuccess": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "lastBet": 1771694333605,
+      "lastroubo": 1771694457017
+    },
+    "268367256645706@lid": {
+      "money": 350,
+      "lastDaily": "20/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {}
+    },
+    "166417198530742@lid": {
+      "money": 909,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {},
+      "jailUntil": 0,
+      "robberySuccess": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0
+    },
+    "_pendingLoans": {
+      "1771626225389_eaf6b298473848": {
+        "id": "1771626225389_eaf6b298473848",
+        "status": "expired",
+        "createdAt": 1771626225389,
+        "expiresAt": 1771626285389,
+        "lenderId": "244246317662300@lid",
+        "lenderName": "_-JoãoTank",
+        "borrowerId": "166417198530742@lid",
+        "amount": 50
+      },
+      "1771626299990_52db6eadfb8dc": {
+        "id": "1771626299990_52db6eadfb8dc",
+        "status": "accepted",
+        "createdAt": 1771626299990,
+        "expiresAt": 1771626359990,
+        "lenderId": "244246317662300@lid",
+        "lenderName": "_-JoãoTank",
+        "borrowerId": "82596935503945@lid",
+        "amount": 50,
+        "completedAt": 1771626307225
+      },
+      "1771628340507_bd0352ffe2e8a8": {
+        "id": "1771628340507_bd0352ffe2e8a8",
+        "status": "accepted",
+        "createdAt": 1771628340507,
+        "expiresAt": 1771628400507,
+        "borrowerId": "75686517686330@lid",
+        "borrowerName": "Loloh",
+        "lenderId": "244246317662300@lid",
+        "amount": 100,
+        "completedAt": 1771628353454
+      },
+      "1771629311381_f286d3ba46da88": {
+        "id": "1771629311381_f286d3ba46da88",
+        "status": "accepted",
+        "createdAt": 1771629311381,
+        "expiresAt": 1771629371381,
+        "borrowerId": "83486278959289@lid",
+        "borrowerName": "🥷🏽",
+        "lenderId": "61087437295772@lid",
+        "amount": 350,
+        "completedAt": 1771629342687
+      },
+      "1771629919282_258c6117d195c": {
+        "id": "1771629919282_258c6117d195c",
+        "status": "accepted",
+        "createdAt": 1771629919282,
+        "expiresAt": 1771629979282,
+        "borrowerId": "83486278959289@lid",
+        "borrowerName": "🥷🏽",
+        "lenderId": "61087437295772@lid",
+        "amount": 750,
+        "completedAt": 1771629939236
+      },
+      "1771630102707_80cef0208f76c8": {
+        "id": "1771630102707_80cef0208f76c8",
+        "status": "accepted",
+        "createdAt": 1771630102707,
+        "expiresAt": 1771630162707,
+        "borrowerId": "61087437295772@lid",
+        "borrowerName": "emilly",
+        "lenderId": "83486278959289@lid",
+        "amount": 1500,
+        "completedAt": 1771630104561
+      },
+      "1771637902833_c51573fd2d407": {
+        "id": "1771637902833_c51573fd2d407",
+        "status": "expired",
+        "createdAt": 1771637902833,
+        "expiresAt": 1771637962833,
+        "borrowerId": "12198260797530@lid",
+        "borrowerName": "swag vasuki",
+        "lenderId": "244448583778461@lid",
+        "amount": 24
+      }
+    },
+    "278421775114443@lid": {
+      "money": 30,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {},
+      "jailUntil": 1771733842003,
+      "jailStrikes": 5,
+      "bailCost": 10000,
+      "lastJailAt": 1771647442003,
+      "robberySuccess": 5,
+      "lastroubo": 1771647442003,
+      "lastBet": 1771644581939
+    },
+    "188862798258180@lid": {
+      "money": 62,
+      "items": {},
+      "lastroubo": 0,
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0
+    },
+    "72095992176871@lid": {
+      "money": 350,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {}
+    },
+    "45269458641125@lid": {
+      "money": 224,
+      "lastDaily": "21/02/2026",
+      "dailyDoubleDays": 0,
+      "items": {},
+      "lastBet": 1771692741085,
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 1,
+      "lastroubo": 1771693324308
+    },
+    "112798843556058@lid": {
+      "money": 35,
+      "lastUsed": 0
+    },
+    "109320238797036@lid": {
+      "money": 15,
+      "lastUsed": 0
+    },
+    "149113345732753@lid": {
+      "money": 10,
+      "lastUsed": 0
+    },
+    "270828105162989@lid": {
+      "money": 5,
+      "lastUsed": 0
+    },
+    "244697389887500@lid": {
+      "money": 15,
+      "lastUsed": 0
+    }
+  },
+  "120363042011130799@g.us": {
+    "244246317662300@lid": {
+      "money": 76,
+      "items": {},
+      "lastroubo": 0,
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0
+    }
+  },
+  "120363423688214724@g.us": {
+    "92720039256185@lid": {
+      "money": 15,
+      "lastUsed": 0
+    },
+    "75686517686330@lid": {
+      "money": 32,
+      "lastUsed": 0,
+      "items": {},
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 0
+    },
+    "244246317662300@lid": {
+      "money": 45,
+      "lastUsed": 0,
+      "items": {
+        "vip_profile": 1774581244286,
+        "anti_roubo": 1774581244286,
+        "roubo_bonus_chance": 1774581244286,
+        "roubo_bonus_cash": 1774581244286,
+        "bet_bonus": 1774581244286,
+        "daily_double": 1774581244286
+      },
+      "jailUntil": 0,
+      "jailStrikes": 0,
+      "bailCost": 0,
+      "lastJailAt": 0,
+      "robberySuccess": 1,
+      "lastroubo": 1771880763869,
+      "customPhrase": "",
+      "dailyDoubleDays": 0
+    }
+  },
+  "120363403529943041@g.us": {
+    "244246317662300@lid": {
+      "money": 2615,
+      "lastUsed": 0
+    }
+  },
+  "120363403228411172@g.us": {
+    "244246317662300@lid": {
+      "money": 15,
+      "lastUsed": 0
+    }
+  },
+  "120363417325136499@g.us": {
+    "244246317662300@lid": {
+      "money": 5,
+      "lastUsed": 0
+    }
+  }
+}

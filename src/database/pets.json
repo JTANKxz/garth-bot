@@ -1,0 +1,27 @@
+{
+  "120363403529943041@g.us": {
+    "244246317662300@lid": {
+      "pet": {
+        "name": "totó",
+        "type": "2",
+        "skin": "default",
+        "stats": {
+          "life": 100,
+          "affection": 50,
+          "hunger": 80,
+          "thirst": 80
+        },
+        "timestamps": {
+          "createdAt": 1772677513645,
+          "updatedAt": 1772677913827,
+          "lastCareAt": 0,
+          "lastFeedAt": 0,
+          "lastWaterAt": 0
+        },
+        "ownedSkins": [
+          "default"
+        ]
+      }
+    }
+  }
+}

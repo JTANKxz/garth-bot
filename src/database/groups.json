@@ -1,0 +1,94 @@
+{
+  "120363403228411172@g.us": {
+    "groupName": "Adeemis topis 🕶",
+    "prefix": "/",
+    "welcomeMessage": "Seja bem-vindo(a)!",
+    "onlyAdmins": false,
+    "leaveGroupMessage": false,
+    "welcomeGroup": false,
+    "antilink": false,
+    "antifig": false,
+    "auto": false,
+    "autoLearn": false,
+    "ai": false,
+    "blacklisteds": [],
+    "warnings": {},
+    "muteds": {},
+    "botOwners": [],
+    "allowedUsers": [],
+    "blockedUsers": [],
+    "vip": {
+      "enabled": false,
+      "expiresAt": null
+    }
+  },
+  "120363417325136499@g.us": {
+    "groupName": "Preview Bot",
+    "prefix": "!",
+    "welcomeMessage": "Seja bem-vindo(a)!",
+    "onlyAdmins": false,
+    "leaveGroupMessage": false,
+    "welcomeGroup": false,
+    "antilink": false,
+    "antifig": false,
+    "auto": false,
+    "autoLearn": false,
+    "ai": false,
+    "blacklisteds": [],
+    "warnings": {},
+    "muteds": {},
+    "botOwners": [],
+    "allowedUsers": [],
+    "blockedUsers": [],
+    "vip": {
+      "enabled": false,
+      "expiresAt": null
+    }
+  },
+  "120363403529943041@g.us": {
+    "groupName": "ksk",
+    "prefix": "!",
+    "welcomeMessage": "Seja bem-vindo(a)!",
+    "onlyAdmins": false,
+    "leaveGroupMessage": false,
+    "welcomeGroup": false,
+    "antilink": false,
+    "antifig": false,
+    "auto": false,
+    "autoLearn": false,
+    "ai": false,
+    "blacklisteds": [],
+    "warnings": {},
+    "muteds": {},
+    "botOwners": [],
+    "allowedUsers": [],
+    "blockedUsers": [],
+    "vip": {
+      "enabled": false,
+      "expiresAt": null
+    }
+  },
+  "120363406273325393@g.us": {
+    "groupName": "spam",
+    "prefix": "!",
+    "welcomeMessage": "Seja bem-vindo(a)!",
+    "onlyAdmins": false,
+    "leaveGroupMessage": false,
+    "welcomeGroup": false,
+    "antilink": false,
+    "antifig": false,
+    "auto": false,
+    "autoLearn": false,
+    "ai": false,
+    "blacklisteds": [],
+    "warnings": {},
+    "muteds": {},
+    "botOwners": [],
+    "allowedUsers": [],
+    "blockedUsers": [],
+    "vip": {
+      "enabled": false,
+      "expiresAt": null
+    }
+  }
+}

@@ -1,0 +1,134 @@
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { messageCount, initializeAttributes } from "../../features/messageCounts.js";
+import { getGroupConfig } from "../../utils/groups.js";
+import { getBotConfig } from "../../config/botConfig.js";
+import { generateProfileCard } from "../../utils/cardprofile.js";
+import { calculateLevel, getXPProgressBar } from "../../features/progress/levelSystem.js";
+import { getJobsUser } from "../../features/jobs/service.js";
+import { getJobByKey } from "../../features/jobs/catalog.js";
+import { readJSON } from "../../utils/readJSON.js";
+import { formatMoney } from "../../utils/saldo.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const LUCKY_DB = "database/lucky.json";
+
+export default {
+  name: "perfil",
+  aliases: ["p", "me"],
+  description: "Mostra seu perfil com nível, economia e emprego",
+  category: "utils",
+
+  async run({ sock, msg }) {
+    const from = msg.key.remoteJid;
+    const botConfig = getBotConfig();
+    const senderId = msg.key.participant || msg.key.remoteJid;
+    
+    await sock.sendMessage(from, { react: { text: "⏳", key: msg.key } });
+
+    try {
+      const mentionedJid = msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
+      const targetId = mentionedJid || senderId;
+      const pushName = (targetId === senderId) ? msg.pushName : null;
+
+      // 1. Carregar Dados de Mensagens/XP
+      initializeAttributes(from, targetId);
+      const userData = messageCount[from][targetId];
+      const xp = userData.xp || 0;
+      const level = calculateLevel(xp);
+      const progress = getXPProgressBar(xp);
+
+      // 2. Carregar Dados de Emprego
+      const jobData = getJobsUser(from, targetId);
+      const currentJob = jobData.job ? getJobByKey(jobData.job) : null;
+
+      // 3. Carregar Lucky (Dinheiro/VIP)
+      const luckyDB = readJSON(LUCKY_DB);
+      const luckyUser = luckyDB[from]?.[targetId] || { money: 0, items: {} };
+      const isVip = (luckyUser.items?.vip_profile || 0) > Date.now();
+
+      // 4. Metadata do Grupo
+      let status = "👤 Membro";
+      let displayName = pushName || targetId.split("@")[0];
+      
+      try {
+        const metadata = await sock.groupMetadata(from);
+        const part = metadata.participants.find(p => p.id === targetId);
+        if (part) {
+          if (part.admin === "superadmin") status = "👑 Fundador";
+          else if (part.admin === "admin") status = "⭐ Admin";
+          displayName = part.notify || part.name || displayName;
+        }
+      } catch {}
+
+      // 5. Casamento
+      let casadoCom = null;
+      try {
+        const casaDB = readJSON("database/casamentos.json");
+        const groupCasa = casaDB[from] || {};
+        const marriage = Object.values(groupCasa).find(c => c.requester === targetId || c.target === targetId);
+        if (marriage) {
+            const spouseId = marriage.requester === targetId ? marriage.target : marriage.requester;
+            casadoCom = spouseId.split("@")[0];
+        }
+      } catch {}
+
+      // 6. Foto de Perfil
+      let imageBuffer;
+      try {
+        const url = await sock.profilePictureUrl(targetId, "image");
+        const response = await fetch(url);
+        imageBuffer = Buffer.from(await response.arrayBuffer());
+      } catch {
+        imageBuffer = fs.readFileSync(path.join(__dirname, "../../../assets/images/boi.png"));
+      }
+
+      // 6. Gerar Card (se VIP ou Admin)
+      const renderVipCard = isVip || (targetId === botConfig.botCreator);
+      
+      const legend = `
+> ───⟪ *PERFIL DE USUÁRIO* ⟫───
+> 👤 *Nome:* ${displayName}
+> 🏷️ *Status:* ${status}
+> 💍 *Casado(a) com:* ${casadoCom ? "@" + casadoCom : "Solteiro(a)"}
+> ${isVip ? "👑 *VIP ATIVO*" : ""}
+> ──────────────
+> 🆙 *Nível:* ${level}
+> ✨ *XP:* ${xp}
+> 📊 *Progresso:* [${progress.bar}] ${progress.percent}%
+> ──────────────
+> 💼 *Emprego:* ${currentJob ? currentJob.name : "Desempregado"}
+> 💰 *Saldo:* ${formatMoney(luckyUser.money || 0)} cash
+> 💬 *Mensagens:* ${userData.messages}
+> ──────────────
+> 💪 FOR: ${userData.forca} | ❤️ VID: ${userData.life}
+> 🛡️ PRO: ${userData.protection} | ⚡ AGI: ${userData.agility}
+`.trim();
+
+      if (renderVipCard) {
+        const cardPng = await generateProfileCard({
+          avatarBuffer: imageBuffer,
+          username: displayName,
+          messages: userData.messages,
+          popularity: userData.popularity,
+          victories: userData.victories || 0,
+          defeats: userData.defeats || 0,
+          phrase: luckyUser.customPhrase || "Explorando o Garth Bot V4...",
+        });
+
+        await sock.sendMessage(from, { image: cardPng, caption: legend, mentions: [targetId] }, { quoted: msg });
+      } else {
+        await sock.sendMessage(from, { image: imageBuffer, caption: legend, mentions: [targetId] }, { quoted: msg });
+      }
+
+      await sock.sendMessage(from, { react: { text: "✅", key: msg.key } });
+
+    } catch (err) {
+      console.error("Erro no comando perfil:", err);
+      await sock.sendMessage(from, { text: "❌ Erro ao carregar perfil." }, { quoted: msg });
+    }
+  }
+};
