@@ -50,19 +50,30 @@ export default {
       const luckyUser = luckyDB[from]?.[targetId] || { money: 0, items: {} };
       const isVip = (luckyUser.items?.vip_profile || 0) > Date.now();
 
-      // 4. Metadata do Grupo
+      // 4. Metadata do Grupo e Check de Privilégios
       let status = "👤 Membro";
       let displayName = pushName || targetId.split("@")[0];
+      let isGroupAdmin = false;
       
       try {
         const metadata = await sock.groupMetadata(from);
         const part = metadata.participants.find(p => p.id === targetId);
         if (part) {
-          if (part.admin === "superadmin") status = "👑 Fundador";
-          else if (part.admin === "admin") status = "⭐ Admin";
+          if (part.admin === "superadmin") {
+            status = "👑 Fundador";
+            isGroupAdmin = true;
+          } else if (part.admin === "admin") {
+            status = "⭐ Admin";
+            isGroupAdmin = true;
+          }
           displayName = part.notify || part.name || displayName;
         }
       } catch {}
+
+      // 5. Determinar se usa Layout VIP (Item VIP ou Staff do Bot)
+      const isVipItem = (luckyUser.items?.vip_profile || 0) > Date.now();
+      const isBotStaff = targetId === botConfig.botCreator || targetId === botConfig.botMaster;
+      const isVipStyle = isVipItem || isBotStaff;
 
       // 5. Casamento
       let casadoCom = null;
@@ -86,8 +97,8 @@ export default {
         imageBuffer = fs.readFileSync(path.join(__dirname, "../../../assets/images/boi.png"));
       }
 
-      // 6. Gerar Card (se VIP ou Admin)
-      const renderVipCard = isVip || (targetId === botConfig.botCreator);
+      // 6. Gerar Card (se Estilo VIP)
+      const renderVipCard = isVipStyle;
       
       let legend = `> ───⟪ *PERFIL DE USUÁRIO* ⟫───\n`;
       legend += `> 👤 *Nome:* ${displayName}\n`;
@@ -95,10 +106,10 @@ export default {
       if (casadoCom) {
         legend += `> 💍 *Casado(a) com:* @${casadoCom}\n`;
       }
-      if (isVip) legend += `> 👑 *VIP ATIVO*\n`;
+      if (isVipStyle) legend += `> 👑 *VIP ATIVO*\n`;
       legend += `> ──────────────\n`;
       
-      // RPG STATUS (Nível e XP) - Sempre visível? (Usuário não pediu para segregar, apenas stats e msg)
+      // RPG STATUS (Nível e XP) - Sempre visível
       legend += `> 🆙 *Nível:* ${level}\n`;
       legend += `> ✨ *XP:* ${xp}\n`;
       legend += `> 📊 *Progresso:* [${progress.bar}] ${progress.percent}%\n`;
@@ -106,13 +117,8 @@ export default {
 
       legend += `> 💼 *Emprego:* ${currentJob ? currentJob.name : "Desempregado"}\n`;
       
-      // Regra: VIP vê saldo, Normal não vê
-      if (isVip) {
-        legend += `> 💰 *Saldo:* ${formatMoney(luckyUser.money || 0)}\n`;
-      }
-      
-      // Regra: Normal vê Mensagens e Stats RPG, VIP não vê
-      if (!isVip) {
+      // Regra: Normal vê Mensagens e Stats RPG, Estilo VIP não vê
+      if (!isVipStyle) {
         legend += `> 💬 *Mensagens:* ${userData.messages}\n`;
         legend += `> ──────────────\n`;
         legend += `> 💪 FOR: ${userData.forca} | ❤️ VID: ${userData.life}\n`;
@@ -129,7 +135,7 @@ export default {
           popularity: userData.popularity,
           victories: userData.victories || 0,
           defeats: userData.defeats || 0,
-          phrase: luckyUser.customPhrase || "Explorando o Garth Bot V4...",
+          phrase: luckyUser.customPhrase || "Explorando o Garth Bot V5...",
         });
 
         await sock.sendMessage(from, { image: cardPng, caption: legend, mentions: [targetId] }, { quoted: msg });
