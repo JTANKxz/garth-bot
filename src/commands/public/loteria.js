@@ -95,7 +95,7 @@ export default {
             const userTickets = groupData.tickets.filter(t => t === sender).length;
             const status = `🎰 *LOTERIA DO GRUPO*\n` +
                 `══════════════════\n` +
-                `💰 *Pote Atual:* ${formatMoney(groupData.pot)} fyne coins\n` +
+                `💰 *Pote Atual:* ${formatMoney(groupData.pot)}\n` +
                 `🎫 *Preço do Ticket:* ${formatMoney(ticketPrice)}\n` +
                 `🎟️ *Seus Tickets:* ${userTickets}\n` +
                 `📈 *Sua Chance:* ${groupData.tickets.length > 0 ? ((userTickets / groupData.tickets.length) * 100).toFixed(2) : 0}%\n` +
