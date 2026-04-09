@@ -100,13 +100,12 @@ export default {
       // 6. Gerar Card (se Estilo VIP)
       const renderVipCard = isVipStyle;
       
-      let legend = `> ───⟪ *PERFIL DE USUÁRIO* ⟫───\n`;
+      let legend = `> ───⟪ *${isVipStyle ? "PERFIL VIP" : "PERFIL DE USUÁRIO"}* ⟫───\n`;
       legend += `> 👤 *Nome:* ${displayName}\n`;
       legend += `> 🏷️ *Status:* ${status}\n`;
       if (casadoCom) {
         legend += `> 💍 *Casado(a) com:* @${casadoCom}\n`;
       }
-      if (isVipStyle) legend += `> 👑 *VIP ATIVO*\n`;
       legend += `> ──────────────\n`;
       
       // RPG STATUS (Nível e XP) - Sempre visível
