@@ -24,11 +24,30 @@ export default {
             return sock.sendMessage(from, { text: "🎒 Sua mochila está vazia!" }, { quoted: msg });
         }
 
-        // Busca o item no inventário (suporta busca parcial)
-        const itemKey = Object.keys(user.inventory).find(k => k.includes(itemQuery));
+        // Mapeamento de nomes amigáveis para chaves internas
+        const ITEM_MAP = {
+            "brinquedo": "pet_toy",
+            "toy": "pet_toy",
+            "racao": "pet_food_pro",
+            "premium": "pet_food_pro",
+            "amuleto": "luck_charm",
+            "sorte": "luck_charm",
+            "charm": "luck_charm"
+        };
 
-        if (!itemKey || user.inventory[itemKey] <= 0) {
-            return sock.sendMessage(from, { text: "❌ Você não possui este item." }, { quoted: msg });
+        // 1. Tenta encontrar pelo De/Para (aliasing)
+        let itemKey = ITEM_MAP[itemQuery];
+
+        // 2. Se não encontrou, tenta busca aproximada nas chaves do inventário
+        if (!itemKey) {
+            itemKey = Object.keys(user.inventory).find(k => 
+                k.toLowerCase().includes(itemQuery) || 
+                itemQuery.includes(k.toLowerCase())
+            );
+        }
+
+        if (!itemKey || !user.inventory[itemKey] || user.inventory[itemKey] <= 0) {
+            return sock.sendMessage(from, { text: `❌ Você não possui o item "${itemQuery}" na sua mochila.` }, { quoted: msg });
         }
 
         const petsDB = readJSON(DB_PETS) || {};

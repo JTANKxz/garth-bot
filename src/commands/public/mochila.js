@@ -20,9 +20,9 @@ export default {
         }
 
         const itemDescriptions = {
-            pet_food_pro: "🍖 *Ração Premium*: Recupera muita fome.",
-            pet_toy: "🎾 *Brinquedo*: Aumenta o carinho do pet.",
-            luck_charm: "🍀 *Amuleto*: Aumenta a sorte em apostas.",
+            pet_food_pro: "🍖 *Ração Premium*: `!usar racao`",
+            pet_toy: "🎾 *Brinquedo*: `!usar brinquedo`",
+            luck_charm: "🍀 *Amuleto*: `!usar amuleto`",
         };
 
         const lines = Object.entries(user.inventory).map(([key, count]) => {

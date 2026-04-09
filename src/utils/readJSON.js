@@ -11,8 +11,14 @@ export function readJSON(relativePath) {
 
     if (!fs.existsSync(fullPath)) return null;
 
-    const content = fs.readFileSync(fullPath, "utf8")
-    return JSON.parse(content)
+    try {
+        const content = fs.readFileSync(fullPath, "utf8").trim();
+        if (!content) return null;
+        return JSON.parse(content);
+    } catch (err) {
+        console.error(`❌ Erro ao ler/parsear JSON em: ${fullPath}`, err);
+        return null;
+    }
 }
 
 export function writeJSON(relativePath, data) {

@@ -134,7 +134,7 @@ export default {
           popularity: userData.popularity,
           victories: userData.victories || 0,
           defeats: userData.defeats || 0,
-          phrase: luckyUser.customPhrase || "Explorando o Garth Bot V5...",
+          phrase: luckyUser.customPhrase || "",
         });
 
         await sock.sendMessage(from, { image: cardPng, caption: legend, mentions: [targetId] }, { quoted: msg });

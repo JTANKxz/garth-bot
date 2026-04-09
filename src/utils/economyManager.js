@@ -50,5 +50,6 @@ export function getSetting(groupId, key) {
  * Busca a lista de itens da loja.
  */
 export function getShopItems() {
-    return readJSON("database/shop.json") || [];
+    const items = readJSON("database/shop.json");
+    return Array.isArray(items) ? items : [];
 }
