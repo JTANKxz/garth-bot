@@ -62,12 +62,12 @@ export default {
         // ===== COOLDOWN (por grupo + usuário) =====
         const isCreator = sender === botConfig.botCreator;
         const cdDB = loadCooldown();
+        const now = Date.now();
         
         if (!isCreator) {
             if (!cdDB[jid]) cdDB[jid] = {};
             if (!cdDB[jid][sender]) cdDB[jid][sender] = 0;
 
-            const now = Date.now();
             const lastUse = cdDB[jid][sender];
 
             if (now - lastUse < COOLDOWN_MS) {
@@ -172,9 +172,11 @@ export default {
             } catch { }
             outputFile = null;
 
-            // grava cooldown SOMENTE se deu certo
-            cdDB[jid][sender] = now;
-            saveCooldown(cdDB);
+            // grava cooldown SOMENTE se deu certo e não for criador
+            if (!isCreator) {
+                cdDB[jid][sender] = now;
+                saveCooldown(cdDB);
+            }
 
             await sock.sendMessage(jid, { react: { text: "✅", key: msg.key } });
         } catch (err) {
