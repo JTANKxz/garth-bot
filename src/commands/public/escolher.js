@@ -3,8 +3,8 @@ import { pendingSerieChoices } from './serie.js';
 import { getGroupConfig } from '../../utils/groups.js';
 import fetch from 'node-fetch';
 
-const WATCH_MOVIE_URL = 'https://maxcine.online/filme/';
-const WATCH_SERIE_URL = 'https://maxcine.online/serie/';
+const WATCH_MOVIE_URL = 'https://fynecine.online/filme/';
+const WATCH_SERIE_URL = 'https://fynecine.online/serie/';
 const TMDB_API_KEY = 'edcd52275afd8b8c152c82f1ce3933a2';
 
 let genreMap = {};
@@ -72,15 +72,15 @@ export default {
             genres: genreNames,
         };
 
-        const imageUrl = item.backdrop_path 
-            ? `https://image.tmdb.org/t/p/w780${item.backdrop_path}` 
+        const imageUrl = item.backdrop_path
+            ? `https://image.tmdb.org/t/p/w780${item.backdrop_path}`
             : `https://image.tmdb.org/t/p/w500${item.poster_path}`;
 
         const tmdbId = item.id;
         const videoUrl = `${watchUrl}${tmdbId}`;
 
         const caption =
-`═════ ❖ *MAXCINE* ❖ ═════
+            `═════ ❖ *MAXCINE* ❖ ═════
 > Título: ${metadata.title || 'Indisponível'}
 
 > Ano: ${metadata.year || '—'}
