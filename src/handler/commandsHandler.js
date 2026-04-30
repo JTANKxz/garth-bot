@@ -140,8 +140,8 @@ export async function handleCommand({ sock, msg }) {
         }
 
         if (command.permission === "owner") {
-            // Comandos 'Owner' (Dono do Bot) -> Dono (Master) ou Criador
-            if (!isSuperUser) {
+            // Comandos 'Owner' (Dono do Bot) -> Dono (Master), Criador ou BotOwner do grupo
+            if (!isSuperUser && !isBotOwner) {
                 return sock.sendMessage(jid, {
                     react: { text: "❌", key: msg.key }
                 })

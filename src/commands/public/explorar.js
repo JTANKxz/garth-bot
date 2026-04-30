@@ -1,5 +1,5 @@
 import { readJSON, writeJSON } from "../../utils/readJSON.js";
-import { addMoney, formatMoney } from "../../utils/saldo.js";
+import { formatMoney } from "../../utils/saldo.js";
 import { getPet } from "../../features/pet/service.js";
 
 const DB_PETS = "database/pets.json";
@@ -57,7 +57,7 @@ export default {
         if (luck < 60) {
             // Ganho de Cash
             const foundInput = Math.floor(Math.random() * 800) + 200;
-            addMoney(from, sender, foundInput);
+            user.money = (user.money || 0) + foundInput;
             resultMsg = `✨ *${pet.name}* explorou os arredores e encontrou *${formatMoney(foundInput)} fyne coins* jogados no chão!`;
         } else if (luck < 90) {
             // Ganho de Item

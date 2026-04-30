@@ -80,6 +80,11 @@ export default {
         addMoney(from, sender, roubado);
         const userBalance = removeMoney(from, target, roubado);
         
+        // Incrementar contador de roubos bem-sucedidos (requisito para empregos)
+        if (!luckyDB[from]) luckyDB[from] = {};
+        if (!luckyDB[from][sender]) luckyDB[from][sender] = { money: 0 };
+        luckyDB[from][sender].robberySuccess = (luckyDB[from][sender].robberySuccess || 0) + 1;
+        
         text = `🕵️‍♂️ *${pushName}* roubou *${formatMoney(roubado)}* de @${target.split("@")[0]}! 💰`;
       } else {
         const perda = Math.floor(ladrao.money * 0.05) || 50;

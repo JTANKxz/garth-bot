@@ -11,6 +11,7 @@ import { handleMarriageResponse } from '../features/marriage.js'
 import { getBotConfig } from "../config/botConfig.js"
 import { ticTacToeListener } from "../features/games/velha/handler.js"
 import { minesweeperListener } from "../features/games/minado/handler.js"
+import { termoListener } from "../features/games/termo/handler.js"
 import { getAutoResponse, learnAutoResponse } from "../utils/autoResponse.js"
 import { getGroupConfig } from "../utils/groups.js"
 import { maybeDropChest } from "../utils/maybeDropChest.js";
@@ -157,6 +158,7 @@ export default async function messageHandler(messages, sock) {
 
     if (await ticTacToeListener(sock, msg, text)) return; // Jogo da velha
     if (await minesweeperListener(sock, msg, text)) return; // Campo minado
+    if (await termoListener(sock, msg, text)) return; // Termo (Wordle)
     if (await buscarAppListener(sock, msg, text)) return; // Play Store
 
     // AUTO LEARN

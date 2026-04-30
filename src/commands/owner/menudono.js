@@ -1,5 +1,5 @@
 import { commands } from "../../handler/commandsHandler.js"
-import { getGroupConfig } from "../../utils/groups.js"
+import { getGroupConfig, isBotOwner } from "../../utils/groups.js"
 import { getBotConfig } from "../../config/botConfig.js"
 
 export default {
@@ -14,8 +14,9 @@ export default {
     
     const botConfig = getBotConfig()
     const isSuperUser = sender === botConfig.botCreator || sender === botConfig.botMaster
+    const isOwner = isBotOwner(from, sender)
 
-    if (!isSuperUser) {
+    if (!isSuperUser && !isOwner) {
       return sock.sendMessage(from, { text: "❌ Apenas o *Dono do Bot* pode usar este menu!" }, { quoted: msg })
     }
 
