@@ -48,8 +48,32 @@ export function getSetting(groupId, key) {
 
 /**
  * Busca a lista de itens da loja.
+ * Se groupId for informado, aplica overrides de preço do grupo (shopOverrides).
+ * @param {string} [groupId] - ID do grupo (opcional)
  */
-export function getShopItems() {
-    const items = readJSON("database/shop.json");
-    return Array.isArray(items) ? items : [];
+export function getShopItems(groupId) {
+  const items = readJSON("database/shop.json");
+  if (!Array.isArray(items)) return [];
+
+  // Se não tem groupId, retorna itens globais sem override
+  if (!groupId) return items;
+
+  // Busca overrides do grupo
+  try {
+    const groupsData = readJSON(GROUPS_DB) || {};
+    const groupConfig = groupsData[groupId];
+    const overrides = groupConfig?.shopOverrides;
+
+    if (!overrides || typeof overrides !== "object") return items;
+
+    // Aplica overrides de preço
+    return items.map(item => {
+      if (overrides[item.key] !== undefined) {
+        return { ...item, price: overrides[item.key] };
+      }
+      return item;
+    });
+  } catch {
+    return items;
+  }
 }

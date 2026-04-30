@@ -113,7 +113,7 @@ export default {
     }
 
     // Pega o item VIP da loja (pra ficar igual ao comprar)
-    const vipItem = getShopItems().find((i) => i.key === "vip_profile");
+    const vipItem = getShopItems(from).find((i) => i.key === "vip_profile");
     if (!vipItem) {
       return sock.sendMessage(
         from,

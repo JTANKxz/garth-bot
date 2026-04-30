@@ -8,7 +8,7 @@ export default {
 
     async run({ sock, msg }) {
         const from = msg.key.remoteJid;
-        const items = getShopItems();
+        const items = getShopItems(from);
 
         if (items.length === 0) {
             return sock.sendMessage(from, { text: "🏪 *LOJA VAZIA*\n\nNenhum item disponível no momento." }, { quoted: msg });

@@ -44,7 +44,7 @@ export default {
         const id = parseInt(args[0]);
         if (!id) return sock.sendMessage(from, { text: "❌ Use: *comprar <id>*" }, { quoted: msg });
 
-        const items = getShopItems();
+        const items = getShopItems(from);
         const item = items.find(i => i.id === id);
         if (!item) return sock.sendMessage(from, { text: "❌ Item inválido." }, { quoted: msg });
 
