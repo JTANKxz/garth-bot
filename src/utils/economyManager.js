@@ -4,24 +4,24 @@
  */
 
 import { readJSON } from "./readJSON.js";
+import { getGroupConfig } from "./groups.js";
 
 const GLOBAL_SETTINGS_DB = "database/globalSettings.json";
-const GROUPS_DB = "database/groups.json";
 
 /**
  * Busca uma configuração, respeitando a hierarquia:
- * 1. Override do Grupo (em groups.json)
+ * 1. Override do Grupo (via cache do groups.js → config.economy)
  * 2. Config Global (em globalSettings.json)
  * 3. Valor padrão seguro (Hardcoded)
  */
 export function getSetting(groupId, key) {
   try {
-    // 1. Tenta buscar no Grupo
-    const groupsData = readJSON(GROUPS_DB) || {};
-    const groupConfig = groupsData[groupId];
-    
-    if (groupConfig && groupConfig.economy && groupConfig.economy[key] !== undefined) {
-      return groupConfig.economy[key];
+    // 1. Tenta buscar no grupo (via cache)
+    if (groupId) {
+      const groupConfig = getGroupConfig(groupId);
+      if (groupConfig?.economy?.[key] !== undefined) {
+        return groupConfig.economy[key];
+      }
     }
 
     // 2. Tenta buscar Global
@@ -58,10 +58,9 @@ export function getShopItems(groupId) {
   // Se não tem groupId, retorna itens globais sem override
   if (!groupId) return items;
 
-  // Busca overrides do grupo
+  // Busca overrides do grupo via cache
   try {
-    const groupsData = readJSON(GROUPS_DB) || {};
-    const groupConfig = groupsData[groupId];
+    const groupConfig = getGroupConfig(groupId);
     const overrides = groupConfig?.shopOverrides;
 
     if (!overrides || typeof overrides !== "object") return items;

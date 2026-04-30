@@ -1,8 +1,6 @@
-import { readJSON, writeJSON } from "../../utils/readJSON.js";
 import { getBotConfig } from "../../config/botConfig.js";
 import { getGroupConfig, updateGroupConfig } from "../../utils/groups.js";
-
-const GROUPS_DB = "database/groups.json";
+import { readJSON } from "../../utils/readJSON.js";
 
 // Chaves booleanas do grupo (para converter "true"/"false" automaticamente)
 const BOOLEAN_KEYS = [
@@ -23,7 +21,6 @@ function parseValue(key, rawValue) {
   if (STRING_KEYS.includes(key)) {
     return rawValue;
   }
-  // Numérico (economy, shop)
   const num = parseFloat(rawValue);
   return isNaN(num) ? rawValue : num;
 }
@@ -44,19 +41,19 @@ export default {
     }
 
     // Detectar se o primeiro argumento é um ID de grupo ou uma chave
-    let targetJid, key, value;
+    let targetJid, key, isRemote;
 
     if (args[0] && args[0].endsWith("@g.us")) {
-      // Modo remoto: !setgroup <ID> <chave> <valor...>
       targetJid = args[0];
       key = args[1];
-      value = args.slice(2).join(" ");
+      isRemote = true;
     } else {
-      // Modo local: !setgroup <chave> <valor...> → usa o grupo atual
       targetJid = from;
       key = args[0];
-      value = args.slice(1).join(" ");
+      isRemote = false;
     }
+
+    const value = args.slice(isRemote ? 2 : 1).join(" ");
 
     if (!key || value === undefined || value === "") {
       const prefix = getGroupConfig(from)?.prefix || "!";
@@ -77,18 +74,9 @@ export default {
     }
 
     try {
-      const db = readJSON(GROUPS_DB) || {};
-
-      if (!db[targetJid]) {
-        // Se for o grupo atual, inicializa
-        if (targetJid === from) {
-          getGroupConfig(targetJid); // Força criação da config
-        } else {
-          return sock.sendMessage(from, { text: "❌ Grupo não encontrado no banco de dados." }, { quoted: msg });
-        }
-      }
-
-      const groupName = db[targetJid]?.groupName || targetJid;
+      // Garante que a config existe no cache
+      const config = getGroupConfig(targetJid);
+      const groupName = config.groupName || targetJid;
       let resultText = "";
 
       // ===== CONFIG DIRETA DO GRUPO =====
@@ -99,8 +87,8 @@ export default {
       }
       // ===== ECONOMIA DO GRUPO (economy.*) =====
       else if (key === "economy") {
-        const econKey = args[targetJid === from ? 1 : 2];
-        const econValue = args[targetJid === from ? 2 : 3];
+        const econKey = args[isRemote ? 2 : 1];
+        const econValue = args[isRemote ? 3 : 2];
 
         if (!econKey || econValue === undefined) {
           return sock.sendMessage(from, {
@@ -108,21 +96,16 @@ export default {
           }, { quoted: msg });
         }
 
-        // Recarrega para garantir
-        const freshDB = readJSON(GROUPS_DB) || {};
-        if (!freshDB[targetJid]) freshDB[targetJid] = {};
-        if (!freshDB[targetJid].economy) freshDB[targetJid].economy = {};
-
         const numVal = parseFloat(econValue);
-        freshDB[targetJid].economy[econKey] = isNaN(numVal) ? econValue : numVal;
-        writeJSON(GROUPS_DB, freshDB);
+        const economy = { ...(config.economy || {}), [econKey]: isNaN(numVal) ? econValue : numVal };
+        updateGroupConfig(targetJid, { economy });
 
         resultText = `✅ *${groupName}*\n> *economy.${econKey}* = *${econValue}*`;
       }
       // ===== PREÇOS DA LOJA POR GRUPO (shop.*) =====
       else if (key === "shop") {
-        const itemKey = args[targetJid === from ? 1 : 2];
-        const priceValue = args[targetJid === from ? 2 : 3];
+        const itemKey = args[isRemote ? 2 : 1];
+        const priceValue = args[isRemote ? 3 : 2];
 
         if (!itemKey || priceValue === undefined) {
           return sock.sendMessage(from, {
@@ -145,12 +128,8 @@ export default {
           }, { quoted: msg });
         }
 
-        const freshDB = readJSON(GROUPS_DB) || {};
-        if (!freshDB[targetJid]) freshDB[targetJid] = {};
-        if (!freshDB[targetJid].shopOverrides) freshDB[targetJid].shopOverrides = {};
-
-        freshDB[targetJid].shopOverrides[itemKey] = price;
-        writeJSON(GROUPS_DB, freshDB);
+        const shopOverrides = { ...(config.shopOverrides || {}), [itemKey]: price };
+        updateGroupConfig(targetJid, { shopOverrides });
 
         resultText = `✅ *${groupName}*\n> Preço de *${itemExists.name}* = *${price} fyne coins*`;
       }
