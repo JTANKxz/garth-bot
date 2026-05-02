@@ -5,12 +5,12 @@ import fs from "fs";
 import path from "path";
 import { tmpdir } from "os";
 import { downloadContentFromMessage } from "baileys";
-import { processResizeVideo } from "../../services/video.js";
+import { processExtractAudio } from "../../services/audio.js";
 
 export default {
-    name: "resize",
-    aliases: ["redimensionar", "rv"],
-    description: "Redimensiona um vídeo para 512x512 e reenvia",
+    name: "getaudio",
+    aliases: ["extrairaudio", "ta"],
+    description: "Extrai o áudio de um vídeo respondido",
     usage: "",
 
     async run({ sock, msg, args }) {
@@ -25,7 +25,7 @@ export default {
         if (!webMessage || !webMessage.videoMessage) {
             await sock.sendMessage(
                 jid,
-                { text: "❌ Marque ou responda um vídeo para redimensionar!" },
+                { text: "❌ Marque ou responda um vídeo para extrair o áudio!" },
                 { quoted: msg }
             );
             return;
@@ -51,11 +51,13 @@ export default {
             for await (const chunk of stream) writeStream.write(chunk);
             writeStream.end();
 
-            outputPath = await processResizeVideo(inputPath);
+            outputPath = await processExtractAudio(inputPath);
 
+            // Mimetype 'audio/mpeg' e ptt: true (envia como áudio de voz gravado, ou falso para música normal)
+            // Vou mandar como arquivo de áudio normal (música). Se quiser como voz, seria ptt: true
             await sock.sendMessage(
                 jid,
-                { video: { url: outputPath }, caption: "✅ Vídeo redimensionado" },
+                { audio: { url: outputPath }, mimetype: 'audio/mpeg' },
                 { quoted: msg }
             );
 
@@ -76,10 +78,10 @@ export default {
             });
 
         } catch (err) {
-            console.error("Erro no comando resize:", err);
+            console.error("Erro no comando toaudio:", err);
             await sock.sendMessage(
                 jid,
-                { text: "❌ Ocorreu um erro ao redimensionar o vídeo." },
+                { text: "❌ Ocorreu um erro ao extrair o áudio do vídeo." },
                 { quoted: msg }
             );
             await sock.sendMessage(jid, {
