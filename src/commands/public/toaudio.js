@@ -10,8 +10,8 @@ import { processExtractAudio } from "../../services/audio.js";
 export default {
     name: "getaudio",
     aliases: ["extrairaudio", "ta"],
-    description: "Extrai o áudio de um vídeo respondido",
-    usage: "",
+    description: "Extrai o áudio de um vídeo respondido com opção de corte",
+    usage: "[início] [fim] (ex: !getaudio 10 30 ou !getaudio 01:00 01:30)",
 
     async run({ sock, msg, args }) {
         const jid = msg.key.remoteJid;
@@ -51,7 +51,11 @@ export default {
             for await (const chunk of stream) writeStream.write(chunk);
             writeStream.end();
 
-            outputPath = await processExtractAudio(inputPath);
+            // Pega o início e o fim passados nos argumentos, ex: !getaudio 10 20 (segundos) ou !getaudio 01:20 01:40
+            const start = args[0] || null;
+            const end = args[1] || null;
+
+            outputPath = await processExtractAudio(inputPath, start, end);
 
             // Mimetype 'audio/mpeg' e ptt: true (envia como áudio de voz gravado, ou falso para música normal)
             // Vou mandar como arquivo de áudio normal (música). Se quiser como voz, seria ptt: true

@@ -9,12 +9,16 @@ function getRandomName(ext = "mp3") {
     return Math.random().toString(36).substring(2, 10) + "." + ext;
 }
 
-export async function processExtractAudio(inputPath) {
+export async function processExtractAudio(inputPath, start = null, end = null) {
     return new Promise((resolve, reject) => {
         const outFile = path.resolve(TEMP_DIR, getRandomName("mp3"));
 
+        let timeArgs = "";
+        if (start) timeArgs += `-ss ${start} `;
+        if (end) timeArgs += `-to ${end} `;
+
         // Filtro para extrair o áudio e salvar como MP3
-        const cmd = `ffmpeg -y -i "${inputPath}" -vn -acodec libmp3lame -q:a 2 "${outFile}"`;
+        const cmd = `ffmpeg -y -i "${inputPath}" ${timeArgs}-vn -acodec libmp3lame -q:a 2 "${outFile}"`;
 
         exec(cmd, async (err, _, stderr) => {
             try {
