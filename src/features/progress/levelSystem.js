@@ -30,17 +30,17 @@ export function getXPProgressBar(xp) {
   const currentLevel = calculateLevel(xp);
   const currentLevelXP = Math.pow(currentLevel - 1, 2) * 100;
   const nextLevelXP = xpForNextLevel(currentLevel);
-  
+
   const needed = nextLevelXP - currentLevelXP;
   const earned = xp - currentLevelXP;
-  
+
   const percent = Math.floor((earned / needed) * 100);
   const totalBars = 10;
   const filledBars = Math.floor((percent / 100) * totalBars);
   const emptyBars = totalBars - filledBars;
-  
+
   return {
-    bar: "🟦".repeat(filledBars) + "⬜".repeat(emptyBars),
+    bar: ">".repeat(filledBars) + "=".repeat(emptyBars),
     percent,
     remaining: nextLevelXP - xp
   };
@@ -56,7 +56,7 @@ export function addGlobalXP(groupId, userId, amount) {
 
     const user = db[groupId][userId];
     const oldLevel = calculateLevel(user.xp || 0);
-    
+
     user.xp = (user.xp || 0) + amount;
     const newLevel = calculateLevel(user.xp);
 

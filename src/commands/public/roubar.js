@@ -62,8 +62,11 @@ export default {
 
       // Proteção
       if (vitima.items?.anti_roubo > now || (vitima.items?.vip_profile > now)) {
-        ladrao.lastroubo = now;
-        writeJSON(DB_LUCKY, luckyDB);
+        const db = readJSON(DB_LUCKY);
+        if (!db[from]) db[from] = {};
+        if (!db[from][sender]) db[from][sender] = { money: 0 };
+        db[from][sender].lastroubo = now;
+        writeJSON(DB_LUCKY, db);
         return sock.sendMessage(from, { text: `🛡️ @${target.split("@")[0]} está sob proteção e não pôde ser roubado!`, mentions: [target] }, { quoted: msg });
       }
 
@@ -78,22 +81,31 @@ export default {
         const roubado = Math.floor(vitima.money * percent);
         
         addMoney(from, sender, roubado);
-        const userBalance = removeMoney(from, target, roubado);
+        removeMoney(from, target, roubado);
         
-        // Incrementar contador de roubos bem-sucedidos (requisito para empregos)
-        if (!luckyDB[from]) luckyDB[from] = {};
-        if (!luckyDB[from][sender]) luckyDB[from][sender] = { money: 0 };
-        luckyDB[from][sender].robberySuccess = (luckyDB[from][sender].robberySuccess || 0) + 1;
+        // Incrementar contador de roubos bem-sucedidos (requisito para empregos) e atualizar cooldown
+        const db = readJSON(DB_LUCKY);
+        if (!db[from]) db[from] = {};
+        if (!db[from][sender]) db[from][sender] = { money: 0 };
+        db[from][sender].robberySuccess = (db[from][sender].robberySuccess || 0) + 1;
+        db[from][sender].lastroubo = now;
+        writeJSON(DB_LUCKY, db);
         
         text = `🕵️‍♂️ *${pushName}* roubou *${formatMoney(roubado)}* de @${target.split("@")[0]}! 💰`;
       } else {
         const perda = Math.floor(ladrao.money * 0.05) || 50;
         removeMoney(from, sender, perda);
+        
+        // Atualizar cooldown
+        const db = readJSON(DB_LUCKY);
+        if (!db[from]) db[from] = {};
+        if (!db[from][sender]) db[from][sender] = { money: 0 };
+        db[from][sender].lastroubo = now;
+        writeJSON(DB_LUCKY, db);
+        
         text = `🚨 *${pushName}* falhou no roubo e perdeu *${formatMoney(perda)}* na fuga!`;
       }
 
-      ladrao.lastroubo = now;
-      writeJSON(DB_LUCKY, luckyDB);
       await sock.sendMessage(from, { text, mentions: [target] }, { quoted: msg });
 
     } catch (err) {

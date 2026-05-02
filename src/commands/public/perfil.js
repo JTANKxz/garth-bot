@@ -26,7 +26,7 @@ export default {
     const from = msg.key.remoteJid;
     const botConfig = getBotConfig();
     const senderId = msg.key.participant || msg.key.remoteJid;
-    
+
     await sock.sendMessage(from, { react: { text: "⏳", key: msg.key } });
 
     try {
@@ -54,7 +54,7 @@ export default {
       let status = "👤 Membro";
       let displayName = pushName || targetId.split("@")[0];
       let isGroupAdmin = false;
-      
+
       try {
         const metadata = await sock.groupMetadata(from);
         const part = metadata.participants.find(p => p.id === targetId);
@@ -68,7 +68,7 @@ export default {
           }
           displayName = part.notify || part.name || displayName;
         }
-      } catch {}
+      } catch { }
 
       // 5. Determinar se usa Layout VIP (Item VIP ou Staff do Bot)
       const isVipItem = (luckyUser.items?.vip_profile || 0) > Date.now();
@@ -77,15 +77,16 @@ export default {
 
       // 5. Casamento
       let casadoCom = null;
+      let spouseIdForMention = null;
       try {
         const casaDB = readJSON("database/casamentos.json");
         const groupCasa = casaDB[from] || {};
         const marriage = Object.values(groupCasa).find(c => c.requester === targetId || c.target === targetId);
         if (marriage) {
-            const spouseId = marriage.requester === targetId ? marriage.target : marriage.requester;
-            casadoCom = spouseId.split("@")[0];
+          spouseIdForMention = marriage.requester === targetId ? marriage.target : marriage.requester;
+          casadoCom = spouseIdForMention.split("@")[0];
         }
-      } catch {}
+      } catch { }
 
       // 6. Foto de Perfil
       let imageBuffer;
@@ -99,23 +100,23 @@ export default {
 
       // 6. Gerar Card (se Estilo VIP)
       const renderVipCard = isVipStyle;
-      
+
       let legend = `> ───⟪ *${isVipStyle ? "PERFIL VIP" : "PERFIL DE USUÁRIO"}* ⟫───\n`;
       legend += `> 👤 *Nome:* ${displayName}\n`;
-      legend += `> 🏷️ *Status:* ${status}\n`;
+      legend += `> *Cargo:* ${status}\n`;
       if (casadoCom) {
         legend += `> 💍 *Casado(a) com:* @${casadoCom}\n`;
       }
       legend += `> ──────────────\n`;
-      
+
       // RPG STATUS (Nível e XP) - Sempre visível
-      legend += `> 🆙 *Nível:* ${level}\n`;
-      legend += `> ✨ *XP:* ${xp}\n`;
-      legend += `> 📊 *Progresso:* [${progress.bar}] ${progress.percent}%\n`;
+      legend += `> *Nível:* ${level}\n`;
+      legend += `> *XP:* ${xp}\n`;
+      legend += `> *Progresso:* [${progress.bar}] ${progress.percent}%\n`;
       legend += `> ──────────────\n`;
 
-      legend += `> 💼 *Emprego:* ${currentJob ? currentJob.name : "Desempregado"}\n`;
-      
+      legend += `> *Emprego:* ${currentJob ? currentJob.name : "Desempregado"}\n`;
+
       // Regra: Normal vê Mensagens e Stats RPG, Estilo VIP não vê
       if (!isVipStyle) {
         legend += `> 💬 *Mensagens:* ${userData.messages}\n`;
@@ -125,6 +126,11 @@ export default {
       }
 
       legend = legend.trim();
+
+      const mentionsArray = [targetId];
+      if (spouseIdForMention) {
+        mentionsArray.push(spouseIdForMention);
+      }
 
       if (renderVipCard) {
         const cardPng = await generateProfileCard({
@@ -137,9 +143,9 @@ export default {
           phrase: luckyUser.customPhrase || "",
         });
 
-        await sock.sendMessage(from, { image: cardPng, caption: legend, mentions: [targetId] }, { quoted: msg });
+        await sock.sendMessage(from, { image: cardPng, caption: legend, mentions: mentionsArray }, { quoted: msg });
       } else {
-        await sock.sendMessage(from, { image: imageBuffer, caption: legend, mentions: [targetId] }, { quoted: msg });
+        await sock.sendMessage(from, { image: imageBuffer, caption: legend, mentions: mentionsArray }, { quoted: msg });
       }
 
       await sock.sendMessage(from, { react: { text: "✅", key: msg.key } });
