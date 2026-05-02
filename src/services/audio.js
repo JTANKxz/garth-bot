@@ -35,3 +35,28 @@ export async function processExtractAudio(inputPath, start = null, end = null) {
         });
     });
 }
+
+export async function processEarrape(inputPath, isVideo) {
+    return new Promise((resolve, reject) => {
+        const ext = isVideo ? "mp4" : "mp3";
+        const outFile = path.resolve(TEMP_DIR, getRandomName(ext));
+
+        // Multiplica o volume absurdamente (earrape)
+        const videoArgs = isVideo ? "-c:v copy" : "";
+        const cmd = `ffmpeg -y -i "${inputPath}" ${videoArgs} -af "volume=20,bass=g=20" "${outFile}"`;
+
+        exec(cmd, async (err, _, stderr) => {
+            try {
+                if (err) {
+                    console.error("FFmpeg erro (earrape):", stderr);
+                    return reject(new Error("Erro ao estourar o áudio."));
+                }
+
+                resolve(outFile);
+            } catch (e) {
+                if (fs.existsSync(outFile)) fs.unlinkSync(outFile);
+                reject(e);
+            }
+        });
+    });
+}

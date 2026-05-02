@@ -31,3 +31,26 @@ export async function processResizeVideo(inputPath) {
         });
     });
 }
+
+export async function processLowQuality(inputPath) {
+    return new Promise((resolve, reject) => {
+        const outFile = path.resolve(TEMP_DIR, getRandomName("mp4"));
+
+        // Reduz a resolução (144p), bitrate de vídeo, bitrate de áudio e FPS
+        const cmd = `ffmpeg -y -i "${inputPath}" -vf "scale=256:144" -b:v 50k -b:a 24k -r 15 -preset ultrafast "${outFile}"`;
+
+        exec(cmd, async (err, _, stderr) => {
+            try {
+                if (err) {
+                    console.error("FFmpeg erro (low quality):", stderr);
+                    return reject(new Error("Erro ao baixar a qualidade do vídeo."));
+                }
+
+                resolve(outFile);
+            } catch (e) {
+                if (fs.existsSync(outFile)) fs.unlinkSync(outFile);
+                reject(e);
+            }
+        });
+    });
+}
