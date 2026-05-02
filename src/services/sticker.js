@@ -89,7 +89,7 @@ export async function processStaticSticker(inputPath, metadata) {
     return new Promise((resolve, reject) => {
         const outFile = path.resolve(TEMP_DIR, getRandomName("webp"));
 
-        const cmd = `ffmpeg -y -i "${inputPath}" -vf "scale=512:512:force_original_aspect_ratio=decrease" -vframes 1 -q:v 80 -f webp "${outFile}"`;
+        const cmd = `ffmpeg -y -i "${inputPath}" -vf "scale=512:512:force_original_aspect_ratio=increase,crop=512:512" -vframes 1 -q:v 80 -f webp "${outFile}"`;
 
         exec(cmd, async (err, _, stderr) => {
             try {
@@ -158,7 +158,7 @@ export async function processAnimatedStickerFromVideo(inputPath, metadata) {
     return new Promise((resolve, reject) => {
         const outFile = path.resolve(TEMP_DIR, getRandomName("webp"));
 
-        const cmd = `ffmpeg -y -i "${inputPath}" -vcodec libwebp -filter:v "fps=15,scale=512:512:force_original_aspect_ratio=decrease" -loop 0 -an -preset picture "${outFile}"`;
+        const cmd = `ffmpeg -y -i "${inputPath}" -vcodec libwebp -filter:v "fps=15,scale=512:512:force_original_aspect_ratio=increase,crop=512:512" -loop 0 -an -preset picture "${outFile}"`;
 
         exec(cmd, async (err, _, stderr) => {
             try {
