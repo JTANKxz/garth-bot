@@ -12,6 +12,7 @@ export default {
     aliases: ["extrairaudio", "ta"],
     description: "Extrai o áudio de um vídeo respondido com opção de corte",
     usage: "[início] [fim] (ex: !getaudio 10 30 ou !getaudio 01:00 01:30)",
+    category: "utils",
 
     async run({ sock, msg, args }) {
         const jid = msg.key.remoteJid;

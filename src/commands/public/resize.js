@@ -12,6 +12,7 @@ export default {
     aliases: ["redimensionar", "rv"],
     description: "Redimensiona um vídeo para 512x512 e reenvia",
     usage: "",
+    category: "utils",
 
     async run({ sock, msg, args }) {
         const jid = msg.key.remoteJid;

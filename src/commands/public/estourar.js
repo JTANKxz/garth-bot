@@ -11,6 +11,7 @@ export default {
     aliases: ["earrape", "alto", "estourado"],
     description: "Deixa o áudio estourado (funciona em áudio e vídeo)",
     usage: "",
+    category: "utils",
 
     async run({ sock, msg, args }) {
         const jid = msg.key.remoteJid;

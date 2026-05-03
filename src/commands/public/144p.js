@@ -11,6 +11,7 @@ export default {
     aliases: ["lowquality", "lq", "ruim", "tekpix"],
     description: "Diminui drasticamente a qualidade de um vídeo (144p)",
     usage: "",
+    category: "utils",
 
     async run({ sock, msg, args }) {
         const jid = msg.key.remoteJid;
