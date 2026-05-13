@@ -2,6 +2,7 @@
 import { muteMiddleware } from "../middlewares/mute.js"
 import { antiFigMiddleware } from "../middlewares/antiFig.js"
 import { antiLinkMiddleware } from "../middlewares/antilink.js"
+import { ausenteMiddleware } from "../middlewares/ausente.js"
 import { handleCommand } from "./commandsHandler.js"
 import { sleep } from '../utils/sleep.js'
 import { GLOBALS } from '../utils/globals.js'
@@ -116,6 +117,9 @@ export default async function messageHandler(messages, sock) {
 
     if (!muted) {
         if (antiSpam(sender)) return;
+
+        // ============ MIDDLEWARE - AUSENTE ============
+        await ausenteMiddleware(msg, sock);
 
         // ❌ ignora reações e mensagens técnicas
         const ignoredTypes = [
