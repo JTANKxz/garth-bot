@@ -89,6 +89,13 @@ export default {
         if (!db[from][sender]) db[from][sender] = { money: 0 };
         db[from][sender].robberySuccess = (db[from][sender].robberySuccess || 0) + 1;
         db[from][sender].lastroubo = now;
+
+        // Salva dados do crime pro boletim
+        db[from][sender].lastRobberyAt = now;
+        db[from][sender].lastRobberyVictim = target;
+        db[from][sender].lastRobberyAmount = roubado;
+        db[from][sender].lastRobberyCaseId = `${from}-${sender}-${now}`;
+
         writeJSON(DB_LUCKY, db);
         
         text = `🕵️‍♂️ *${pushName}* roubou *${formatMoney(roubado)}* de @${target.split("@")[0]}! 💰`;
@@ -101,6 +108,13 @@ export default {
         if (!db[from]) db[from] = {};
         if (!db[from][sender]) db[from][sender] = { money: 0 };
         db[from][sender].lastroubo = now;
+
+        // Salva dados do crime pro boletim (mesmo falhando)
+        db[from][sender].lastRobberyAt = now;
+        db[from][sender].lastRobberyVictim = target;
+        db[from][sender].lastRobberyAmount = 0;
+        db[from][sender].lastRobberyCaseId = `${from}-${sender}-${now}`;
+
         writeJSON(DB_LUCKY, db);
         
         text = `🚨 *${pushName}* falhou no roubo e perdeu *${formatMoney(perda)}* na fuga!`;
