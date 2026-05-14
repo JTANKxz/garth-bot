@@ -120,6 +120,7 @@ export default {
       // Regra: Normal vê Mensagens e Stats RPG, Estilo VIP não vê
       if (!isVipStyle) {
         legend += `> 💬 *Mensagens:* ${userData.messages}\n`;
+        legend += `> 🔥 *Popularidade:* ${userData.popularity || 0}\n`;
         legend += `> ──────────────\n`;
         legend += `> 💪 FOR: ${userData.forca} | ❤️ VID: ${userData.life}\n`;
         legend += `> 🛡️ PRO: ${userData.protection} | ⚡ AGI: ${userData.agility}\n`;
