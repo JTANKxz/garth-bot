@@ -54,3 +54,25 @@ export function normalize(word) {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
 }
+
+/**
+ * Adiciona dinamicamente uma palavra ao banco de dados e memória
+ */
+export function addNewWord(word) {
+  const w = normalize(word);
+  if (w.length !== 5 || !/^[A-Z]{5}$/.test(w)) return false;
+  if (extraWords.has(w)) return true; // Já existe
+
+  wordList.push(w);
+  extraWords.add(w);
+  
+  // Salva no JSON
+  try {
+    const dictPath = path.join(__dirname, "dict.json");
+    fs.writeFileSync(dictPath, JSON.stringify(wordList));
+    return true;
+  } catch (e) {
+    console.error("Erro ao salvar nova palavra:", e);
+    return false;
+  }
+}
