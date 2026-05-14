@@ -43,8 +43,11 @@ export default {
     // Detectar se o primeiro argumento é um ID de grupo ou uma chave
     let targetJid, key, isRemote;
 
-    if (args[0] && args[0].endsWith("@g.us")) {
-      targetJid = args[0];
+    // Testa se args[0] parece um número de grupo (mesmo sem @g.us)
+    const isJid = args[0] && (args[0].endsWith("@g.us") || /^\d{10,}$/.test(args[0].split("@")[0]));
+
+    if (isJid) {
+      targetJid = args[0].includes("@") ? args[0] : `${args[0]}@g.us`;
       key = args[1];
       isRemote = true;
     } else {

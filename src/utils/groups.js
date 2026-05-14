@@ -243,3 +243,24 @@ export function isGroupAiEnabled(groupId) {
   const config = getGroupConfig(groupId);
   return Boolean(config.ai);
 }
+
+// Reseta customizações de economia de todos os grupos
+export function resetAllGroupsEconomy() {
+  loadCache();
+  let count = 0;
+  for (const groupId of Object.keys(groupCache)) {
+    let changed = false;
+    if (groupCache[groupId].economy !== undefined) {
+      delete groupCache[groupId].economy;
+      changed = true;
+    }
+    if (groupCache[groupId].shopOverrides !== undefined) {
+      delete groupCache[groupId].shopOverrides;
+      changed = true;
+    }
+    if (changed) count++;
+  }
+  
+  if (count > 0) saveCache();
+  return count;
+}

@@ -53,6 +53,29 @@ export async function minesweeperListener(sock, msg, text) {
         return true
     }
 
+    // 🏆 VENCEU
+    let won = true;
+    for (let i = 0; i < board.length; i++) {
+        for (let j = 0; j < board[i].length; j++) {
+            if (!board[i][j].bomb && !board[i][j].revealed) {
+                won = false;
+                break;
+            }
+        }
+        if (!won) break;
+    }
+
+    if (won) {
+        const finalBoard = renderBoard(board, true)
+        endGame(player)
+
+        await sock.sendMessage(jid, {
+            text: `🏆 *VITÓRIA!* Você encontrou todos os espaços seguros! 🎉\n\n${finalBoard}`
+        }, { quoted: msg })
+
+        return true
+    }
+
     // Continua jogo
     const boardText = renderBoard(board)
 

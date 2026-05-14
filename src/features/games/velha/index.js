@@ -1,4 +1,8 @@
-export const games = {}  // { [groupJid]: { challenger, opponent, board, turn, status } }
+import { readJSON, writeJSON } from "../../../utils/readJSON.js";
+import { formatMoney } from "../../../utils/saldo.js";
+
+const LUCKY_DB = "database/lucky.json";
+export const games = {}  // { [groupJid]: { challenger, opponent, board, turn, status, bet } }
 
 /** Renderiza o tabuleiro com bordas e números/ícones */
 function renderBoard(board) {
@@ -36,7 +40,7 @@ function checkWin(b) {
 }
 
 /** Cria o desafio */
-export async function createChallenge(sock, msg) {
+export async function createChallenge(sock, msg, args = []) {
     const from = msg.key.remoteJid
     const sender = msg.key.participant || from
     const mention = msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0]
@@ -50,16 +54,39 @@ export async function createChallenge(sock, msg) {
     if (games[from])
         return sock.sendMessage(from, { text: '🎮 Já existe um jogo em andamento neste grupo.' }, { quoted: msg })
 
+    let bet = 0;
+    if (args[1] && !isNaN(parseInt(args[1]))) {
+        bet = parseInt(args[1]);
+        if (bet < 0) bet = 0;
+    }
+
+    if (bet > 0) {
+        const luckyDB = readJSON(LUCKY_DB) || {};
+        const groupDb = luckyDB[from] || {};
+        const challengerMoney = groupDb[sender]?.money || 0;
+        const opponentMoney = groupDb[mention]?.money || 0;
+
+        if (challengerMoney < bet) {
+            return sock.sendMessage(from, { text: `❌ Você não tem ${formatMoney(bet)} para apostar.` }, { quoted: msg });
+        }
+        if (opponentMoney < bet) {
+            return sock.sendMessage(from, { text: `❌ O oponente @${mention.split('@')[0]} não tem ${formatMoney(bet)} para cobrir a aposta.` }, { quoted: msg });
+        }
+    }
+
     games[from] = {
         challenger: sender,
         opponent: mention,
         board: Array(9).fill(null),
         turn: sender,
-        status: 'waiting'
+        status: 'waiting',
+        bet
     }
 
+    let apostaText = bet > 0 ? `\n💰 *Aposta:* ${formatMoney(bet)}\n_(O valor será descontado de ambos se o oponente aceitar)_` : "";
+
     await sock.sendMessage(from, {
-        text: `🎮 @${sender.split('@')[0]} desafiou @${mention.split('@')[0]} para um jogo da velha!\n\nDigite:\n1️⃣ para *Aceitar*\n2️⃣ para *Recusar*`,
+        text: `🎮 @${sender.split('@')[0]} desafiou @${mention.split('@')[0]} para um jogo da velha!${apostaText}\n\nDigite:\n1️⃣ para *Aceitar*\n2️⃣ para *Recusar*`,
         mentions: [sender, mention]
     }, { quoted: msg })
 }
@@ -77,8 +104,31 @@ export async function handleTicTacToe(sock, msg, text) {
     if (g.status === 'waiting' && ['1', '2'].includes(body) && sender === g.opponent) {
         if (body === '1') {
             g.status = 'playing'
+            
+            // Cobra a aposta se houver
+            if (g.bet > 0) {
+                const luckyDB = readJSON(LUCKY_DB) || {};
+                if (!luckyDB[from]) luckyDB[from] = {};
+                if (!luckyDB[from][g.challenger]) luckyDB[from][g.challenger] = { money: 0, items: {} };
+                if (!luckyDB[from][g.opponent]) luckyDB[from][g.opponent] = { money: 0, items: {} };
+
+                const challengerMoney = luckyDB[from][g.challenger].money;
+                const opponentMoney = luckyDB[from][g.opponent].money;
+
+                if (challengerMoney < g.bet || opponentMoney < g.bet) {
+                    delete games[from];
+                    return sock.sendMessage(from, { text: `❌ Aposta cancelada! Alguém gastou o dinheiro antes de aceitar.` }, { quoted: msg });
+                }
+
+                luckyDB[from][g.challenger].money -= g.bet;
+                luckyDB[from][g.opponent].money -= g.bet;
+                writeJSON(LUCKY_DB, luckyDB);
+            }
+
+            let betText = g.bet > 0 ? `\n💰 *Aposta cobrada:* ${formatMoney(g.bet)} de cada.` : "";
+
             await sock.sendMessage(from, {
-                text: `✅ @${g.opponent.split('@')[0]} aceitou!\n${renderBoard(g.board)}\n🎯 Vez de @${g.turn.split('@')[0]} (❌)`,
+                text: `✅ @${g.opponent.split('@')[0]} aceitou!${betText}\n${renderBoard(g.board)}\n🎯 Vez de @${g.turn.split('@')[0]} (❌)`,
                 mentions: [g.challenger, g.opponent]
             })
         } else {
@@ -103,8 +153,19 @@ export async function handleTicTacToe(sock, msg, text) {
         g.board[pos] = mark
 
         if (checkWin(g.board)) {
+            let winText = `🏆 Vitória de @${sender.split('@')[0]}!\n${renderBoard(g.board)}`;
+            
+            // Paga recompensa
+            if (g.bet > 0) {
+                const prize = g.bet * 2;
+                const luckyDB = readJSON(LUCKY_DB) || {};
+                luckyDB[from][sender].money += prize;
+                writeJSON(LUCKY_DB, luckyDB);
+                winText += `\n\n💰 *Prêmio:* ${formatMoney(prize)}`;
+            }
+
             await sock.sendMessage(from, {
-                text: `🏆 Vitória de @${sender.split('@')[0]}!\n${renderBoard(g.board)}`,
+                text: winText,
                 mentions: [g.challenger, g.opponent]
             })
             delete games[from]
@@ -112,8 +173,19 @@ export async function handleTicTacToe(sock, msg, text) {
         }
 
         if (g.board.every(Boolean)) {
+            let drawText = `🤝 Empate!\n${renderBoard(g.board)}`;
+
+            // Devolve o dinheiro
+            if (g.bet > 0) {
+                const luckyDB = readJSON(LUCKY_DB) || {};
+                luckyDB[from][g.challenger].money += g.bet;
+                luckyDB[from][g.opponent].money += g.bet;
+                writeJSON(LUCKY_DB, luckyDB);
+                drawText += `\n\n💰 *O valor apostado foi devolvido a ambos.*`;
+            }
+
             await sock.sendMessage(from, {
-                text: `🤝 Empate!\n${renderBoard(g.board)}`,
+                text: drawText,
                 mentions: [g.challenger, g.opponent]
             })
             delete games[from]

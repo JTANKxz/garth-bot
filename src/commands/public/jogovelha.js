@@ -7,14 +7,14 @@ export default {
     showInMenu: true,
     category: "fun",
 
-    async run({ sock, msg }) {
+    async run({ sock, msg, args }) {
         const from = msg.key.remoteJid;
         const pushName = msg.pushName || "Usuário";
 
         await sock.sendMessage(from, { react: { text: "⏳", key: msg.key } });
 
         try {
-            await createChallenge(sock, msg);
+            await createChallenge(sock, msg, args);
 
             await sock.sendMessage(from, { react: { text: "✅", key: msg.key } });
 
