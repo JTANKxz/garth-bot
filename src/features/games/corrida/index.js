@@ -6,7 +6,7 @@ const LUCKY_DB = "database/lucky.json";
 const activeRaces = new Set();
 
 const ANIMALS = ["🐎", "🐎", "🐎", "🐎"];
-const TRACK_LENGTH = 12;
+const TRACK_LENGTH = 20;
 
 function renderTrack(positions, isFinished = false, betInfo = null) {
     let text = isFinished ? "🏆 *CORRIDA FINALIZADA* 🏆\n\n" : "🚥 *CORRIDA EM ANDAMENTO* 🚥\n\n";
@@ -98,20 +98,28 @@ export async function startRace(sock, msg, args = []) {
         let winner = -1;
         let iters = 0;
 
-        while (winner === -1 && iters < 20) {
+        while (winner === -1 && iters < 30) {
             await sleep(1500); // 1.5s por frame
             
             let currentWinners = [];
 
-            for (let i = 0; i < ANIMALS.length; i++) {
-                const move = Math.floor(Math.random() * 3) + 1; // 1 a 3 casas
+            // Embaralha a ordem de processamento para garantir imparcialidade total
+            const indices = [0, 1, 2, 3].sort(() => Math.random() - 0.5);
+
+            for (const i of indices) {
+                // Movimento variado: 0 (tropeço), 1, 2, 3 ou 4 casas
+                const moveChance = Math.random();
+                let move = 0;
+                
+                if (moveChance > 0.9) move = 4;
+                else if (moveChance > 0.6) move = 3;
+                else if (moveChance > 0.3) move = 2;
+                else if (moveChance > 0.1) move = 1;
+
                 positions[i] += move;
                 
                 if (positions[i] >= TRACK_LENGTH) {
                     positions[i] = TRACK_LENGTH;
-                }
-
-                if (positions[i] === TRACK_LENGTH) {
                     currentWinners.push(i);
                 }
             }
