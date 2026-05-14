@@ -7,11 +7,11 @@ export default {
     showInMenu: true,
     category: "fun",
 
-    async run({ sock, msg }) {
+    async run({ sock, msg, args }) {
         const from = msg.key.remoteJid;
 
         try {
-            await startRace(sock, msg);
+            await startRace(sock, msg, args);
         } catch (err) {
             console.error("Erro no comando corrida:", err);
             await sock.sendMessage(from, { react: { text: "❌", key: msg.key } });
