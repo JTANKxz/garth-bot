@@ -33,7 +33,7 @@ export default {
         }
 
         const now = Date.now();
-        const lastExplore = pet.timestamps.lastExploreAt || 0;
+        const lastExplore = user.lastExploreAt || 0;
 
         if (now - lastExplore < COOLDOWN_MS) {
             return sock.sendMessage(from, { text: `⏳ Seu pet está cansado. Ele pode explorar novamente em *${formatTimeLeft(COOLDOWN_MS - (now - lastExplore))}*.` }, { quoted: msg });
@@ -56,7 +56,7 @@ export default {
 
         if (luck < 60) {
             // Ganho de Cash
-            const foundInput = Math.floor(Math.random() * 800) + 200;
+            const foundInput = Math.floor(Math.random() * 300) + 1;
             user.money = (user.money || 0) + foundInput;
             resultMsg = `✨ *${pet.name}* explorou os arredores e encontrou *${formatMoney(foundInput)} fyne coins* jogados no chão!`;
         } else if (luck < 90) {
@@ -74,7 +74,7 @@ export default {
         // Penalidade de Status
         pet.stats.hunger = Math.max(0, pet.stats.hunger - 20);
         pet.stats.thirst = Math.max(0, pet.stats.thirst - 20);
-        pet.timestamps.lastExploreAt = now;
+        user.lastExploreAt = now;
 
         writeJSON(DB_PETS, petsDB);
         writeJSON(DB_LUCKY, luckyDB);

@@ -77,7 +77,7 @@ export const JOBS = [
 ];
 
 export const ECONOMY_CONFIG = {
-  QUIT_COOLDOWN_MS: 12 * 60 * 60 * 1000, // 12h
+  QUIT_COOLDOWN_MS: 4 * 60 * 60 * 1000, // 4h
   WORK_COOLDOWN_MS: 30 * 60 * 1000,      // 30min
   JAIL_FINE_PERCENT: 5,
   JAIL_FINE_MIN: 150,

@@ -10,7 +10,7 @@ const dbJobsPath = path.resolve("src/database/jobs.json");
  * CONFIG (edite aqui fácil)
  * =========================
  */
-const JOB_QUIT_COOLDOWN_MS = 0.01 * 60 * 60 * 1000; // 0.01h (36s) de cooldown para pegar outro emprego após pedir demissão (pode ajustar para 24h: 24 * 60 * 60 * 1000)
+const JOB_QUIT_COOLDOWN_MS = 4 * 60 * 60 * 1000; // 4h de cooldown para pegar outro emprego após pedir demissão
 
 /**
  * =========================
@@ -60,7 +60,7 @@ function formatTimeLeft(ms) {
 export default {
   name: "demitir",
   aliases: ["demissao", "demissão", "sairdoemprego"],
-  description: "Peça demissão do seu emprego (só pode pegar outro após 24h)",
+  description: "Peça demissão do seu emprego (só pode pegar outro após 4h)",
   category: "fun",
   vipOnly: true,
 
@@ -135,7 +135,7 @@ export default {
         {
           text:
             `📝 *${pushName}* pediu demissão do emprego *${oldJob}*.\n` +
-            `⏳ Você poderá escolher outro emprego em *24h*.`
+            `⏳ Você poderá escolher outro emprego em *4h*.`
         },
         { quoted: msg }
       );

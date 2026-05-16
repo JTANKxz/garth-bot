@@ -5,8 +5,8 @@ import { formatMoney } from "../../../utils/saldo.js";
 const LUCKY_DB = "database/lucky.json";
 const activeRaces = new Set();
 
-const ANIMALS = ["🐎", "🐎", "🐎", "🐎"];
-const TRACK_LENGTH = 20;
+const ANIMALS = ["🐎", "🐎", "🐎", "🐎", "🐎", "🐎"];
+const TRACK_LENGTH = 25;
 
 function renderTrack(positions, isFinished = false, betInfo = null) {
     let text = isFinished ? "🏆 *CORRIDA FINALIZADA* 🏆\n\n" : "🚥 *CORRIDA EM ANDAMENTO* 🚥\n\n";
@@ -20,7 +20,7 @@ function renderTrack(positions, isFinished = false, betInfo = null) {
     for (let i = 0; i < ANIMALS.length; i++) {
         const animal = ANIMALS[i];
         const pos = positions[i];
-        
+
         let track = "";
         for (let j = 0; j <= TRACK_LENGTH; j++) {
             if (j === pos) {
@@ -28,10 +28,10 @@ function renderTrack(positions, isFinished = false, betInfo = null) {
             } else if (j === TRACK_LENGTH) {
                 track += "🏁";
             } else {
-                track += "➖"; 
+                track += "➖";
             }
         }
-        
+
         text += `${i + 1}️⃣ ${track}\n\n`;
     }
 
@@ -41,7 +41,7 @@ function renderTrack(positions, isFinished = false, betInfo = null) {
 export async function startRace(sock, msg, args = []) {
     const from = msg.key.remoteJid;
     const sender = msg.key.participant || msg.key.remoteJid;
-    
+
     if (activeRaces.has(from)) {
         return sock.sendMessage(from, { text: "⚠️ Já existe uma corrida acontecendo neste grupo! Espere terminar." }, { quoted: msg });
     }
@@ -59,8 +59,8 @@ export async function startRace(sock, msg, args = []) {
             return sock.sendMessage(from, { text: "❌ Valor de aposta inválido.\nUso: `!corrida [valor] [cavalo de 1 a 4]`\nEx: `!corrida 1000 2`" }, { quoted: msg });
         }
 
-        if (isNaN(chosenHorse) || chosenHorse < 1 || chosenHorse > 4) {
-            return sock.sendMessage(from, { text: "❌ Cavalo inválido. Escolha um cavalo de 1 a 4.\nEx: `!corrida 1000 2`" }, { quoted: msg });
+        if (isNaN(chosenHorse) || chosenHorse < 1 || chosenHorse > 6) {
+            return sock.sendMessage(from, { text: "❌ Cavalo inválido. Escolha um cavalo de 1 a 6.\nEx: `!corrida 1000 2`" }, { quoted: msg });
         }
 
         const luckyDB = readJSON(LUCKY_DB) || {};
@@ -90,34 +90,34 @@ export async function startRace(sock, msg, args = []) {
     activeRaces.add(from);
 
     try {
-        let positions = [0, 0, 0, 0];
-        
+        let positions = [0, 0, 0, 0, 0, 0];
+
         const initialText = renderTrack(positions, false, betInfo);
         const sentMsg = await sock.sendMessage(from, { text: initialText, mentions: betInfo ? [sender] : [] });
-        
+
         let winner = -1;
         let iters = 0;
 
         while (winner === -1 && iters < 30) {
             await sleep(1500); // 1.5s por frame
-            
+
             let currentWinners = [];
 
             // Embaralha a ordem de processamento para garantir imparcialidade total
-            const indices = [0, 1, 2, 3].sort(() => Math.random() - 0.5);
+            const indices = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5);
 
             for (const i of indices) {
                 // Movimento variado: 0 (tropeço), 1, 2, 3 ou 4 casas
                 const moveChance = Math.random();
                 let move = 0;
-                
+
                 if (moveChance > 0.9) move = 4;
                 else if (moveChance > 0.6) move = 3;
                 else if (moveChance > 0.3) move = 2;
                 else if (moveChance > 0.1) move = 1;
 
                 positions[i] += move;
-                
+
                 if (positions[i] >= TRACK_LENGTH) {
                     positions[i] = TRACK_LENGTH;
                     currentWinners.push(i);
@@ -130,7 +130,7 @@ export async function startRace(sock, msg, args = []) {
 
             const isFinished = winner !== -1;
             let finalMsg = renderTrack(positions, isFinished, betInfo);
-            
+
             if (isFinished) {
                 finalMsg += `\n\n🎉 O cavalo vencedor foi o Número ${winner + 1}!`;
 
@@ -140,21 +140,21 @@ export async function startRace(sock, msg, args = []) {
                         const luckyDB = readJSON(LUCKY_DB) || {};
                         luckyDB[from][sender].money += prize;
                         writeJSON(LUCKY_DB, luckyDB);
-                        finalMsg += `\n\n🎯 *PARABÉNS!* Seu cavalo ganhou!\nVocê faturou *${formatMoney(prize)} fyne coins*! 🤑`;
+                        finalMsg += `\n\n🎯 *PARABÉNS!* Seu cavalo ganhou!\nVocê faturou *${formatMoney(prize)}*! 🤑`;
                     } else {
-                        finalMsg += `\n\n💥 Que pena... O seu cavalo perdeu e você perdeu as *${formatMoney(betInfo.amount)} moedas*.`;
+                        finalMsg += `\n\n💥 Que pena... O seu cavalo perdeu e você perdeu as *${formatMoney(betInfo.amount)}*.`;
                     }
                 }
             }
 
             await sock.sendMessage(from, { text: finalMsg, edit: sentMsg.key, mentions: betInfo ? [sender] : [] });
-            
+
             iters++;
         }
-        
+
         if (winner === -1) {
             await sock.sendMessage(from, { text: renderTrack(positions, true, betInfo) + "\n\n😴 A corrida foi cancelada por cansaço dos cavalos.", edit: sentMsg.key, mentions: betInfo ? [sender] : [] });
-            
+
             // Devolve o dinheiro
             if (betInfo) {
                 const luckyDB = readJSON(LUCKY_DB) || {};

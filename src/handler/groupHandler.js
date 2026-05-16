@@ -79,7 +79,8 @@ export async function groupHandler(sock, update) {
 
             /* ====================== REMOVE ====================== */
             if (action === "remove") {
-                // contadores
+                // Mantemos os dados para persistência caso o usuário retorne
+                /*
                 removeUser(id, user);
                 removeSimpleUser(id, user);
 
@@ -94,6 +95,7 @@ export async function groupHandler(sock, update) {
 
                 // 💼 remove do jobs.json
                 removeJobsUser(id, user);
+                */
 
                 // mensagem de saída opcional
                 // if (config.leaveGroupMessage === true) {

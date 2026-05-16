@@ -28,7 +28,11 @@ export default {
         try {
             const db = loadDB();
 
-            db[jid] = {};
+            if (db[jid]) {
+                for (const userJid in db[jid]) {
+                    db[jid][userJid].money = 0;
+                }
+            }
 
             saveDB(db);
 
