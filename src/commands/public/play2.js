@@ -79,6 +79,10 @@ export default {
                   { quoted: msg }
               );
             }
+
+            // Grava o cooldown imediatamente para evitar múltiplas chamadas simultâneas
+            cdDB[jid][sender] = now;
+            saveCooldown(cdDB);
         }
         // =========================================
 
@@ -172,11 +176,6 @@ export default {
             } catch { }
             outputFile = null;
 
-            // grava cooldown SOMENTE se deu certo e não for criador
-            if (!isCreator) {
-                cdDB[jid][sender] = now;
-                saveCooldown(cdDB);
-            }
 
             await sock.sendMessage(jid, { react: { text: "✅", key: msg.key } });
         } catch (err) {

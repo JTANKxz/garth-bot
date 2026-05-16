@@ -26,14 +26,15 @@ export default {
         const sender = msg.key.participant || msg.key.remoteJid;
 
         const petsDB = readJSON(DB_PETS) || {};
-        const pet = getPet(petsDB, from, sender);
+        const userPetData = PetService.ensureUser(petsDB, from, sender);
+        const pet = userPetData.pet;
 
         if (!pet) {
             return sock.sendMessage(from, { text: "🐾 Você não tem um pet! Use !pet adotar para começar." }, { quoted: msg });
         }
 
         const now = Date.now();
-        const lastExplore = user.lastExploreAt || 0;
+        const lastExplore = userPetData.lastExploreAt || 0;
 
         if (now - lastExplore < COOLDOWN_MS) {
             return sock.sendMessage(from, { text: `⏳ Seu pet está cansado. Ele pode explorar novamente em *${formatTimeLeft(COOLDOWN_MS - (now - lastExplore))}*.` }, { quoted: msg });
@@ -74,7 +75,7 @@ export default {
         // Penalidade de Status
         pet.stats.hunger = Math.max(0, pet.stats.hunger - 20);
         pet.stats.thirst = Math.max(0, pet.stats.thirst - 20);
-        user.lastExploreAt = now;
+        userPetData.lastExploreAt = now;
 
         writeJSON(DB_PETS, petsDB);
         writeJSON(DB_LUCKY, luckyDB);

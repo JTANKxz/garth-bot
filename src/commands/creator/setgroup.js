@@ -100,10 +100,21 @@ export default {
         }
 
         const numVal = parseFloat(econValue);
-        const economy = { ...(config.economy || {}), [econKey]: isNaN(numVal) ? econValue : numVal };
-        updateGroupConfig(targetJid, { economy });
+        const finalValue = isNaN(numVal) ? econValue : numVal;
 
-        resultText = `✅ *${groupName}*\n> *economy.${econKey}* = *${econValue}*`;
+        // ✅ Se a chave for de um item da loja, redireciona para shopOverrides automaticamente
+        const shopItems = readJSON("database/shop.json") || [];
+        const isShopItem = shopItems.find(i => i.key === econKey);
+
+        if (isShopItem) {
+          const shopOverrides = { ...(config.shopOverrides || {}), [econKey]: parseInt(finalValue) };
+          updateGroupConfig(targetJid, { shopOverrides });
+          resultText = `✅ *${groupName}*\n> Preço de *${isShopItem.name}* = *${finalValue} fyne coins* (via economy)`;
+        } else {
+          const economy = { ...(config.economy || {}), [econKey]: finalValue };
+          updateGroupConfig(targetJid, { economy });
+          resultText = `✅ *${groupName}*\n> *economy.${econKey}* = *${finalValue}*`;
+        }
       }
       // ===== PREÇOS DA LOJA POR GRUPO (shop.*) =====
       else if (key === "shop") {
