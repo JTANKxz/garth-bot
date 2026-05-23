@@ -39,3 +39,4 @@ export default {
         await sock.sendMessage(from, { text }, { quoted: msg });
     }
 }
+//corigido bug
