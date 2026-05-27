@@ -6,6 +6,7 @@
 import { processGuess, getGameStatus } from "./index.js";
 import { hasActiveGame } from "./storage.js";
 import { normalize } from "./words.js";
+import { addMoney, formatMoney } from "../../../utils/saldo.js";
 
 /**
  * Listener do Termo. Intercepta mensagens de jogadores com sessão ativa.
@@ -49,13 +50,16 @@ export async function termoListener(sock, msg, text) {
 
   // Vitória
   if (result.won) {
+    const reward = 350;
+    addMoney(jid, sender, reward);
     const historyLines = result.session.results.join("\n");
     await sock.sendMessage(jid, {
       text:
         `🎉 *Parabéns! Você acertou!*\n\n` +
         `${historyLines}\n\n` +
         `✅ Palavra: *${result.word}*\n` +
-        `🎯 Tentativas usadas: *${result.attemptsUsed}/${result.session.maxAttempts}*`
+        `🎯 Tentativas usadas: *${result.attemptsUsed}/${result.session.maxAttempts}*\n` +
+        `💰 Recompensa: +${formatMoney(reward)}!`
     }, { quoted: msg });
     return true;
   }

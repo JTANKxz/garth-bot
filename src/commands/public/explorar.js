@@ -1,6 +1,6 @@
 import { readJSON, writeJSON } from "../../utils/readJSON.js";
 import { formatMoney } from "../../utils/saldo.js";
-import { getPet } from "../../features/pet/service.js";
+import { ensureUser } from "../../features/pet/service.js";
 
 const DB_PETS = "database/pets.json";
 const DB_LUCKY = "database/lucky.json";
@@ -26,7 +26,7 @@ export default {
         const sender = msg.key.participant || msg.key.remoteJid;
 
         const petsDB = readJSON(DB_PETS) || {};
-        const userPetData = PetService.ensureUser(petsDB, from, sender);
+        const userPetData = ensureUser(petsDB, from, sender);
         const pet = userPetData.pet;
 
         if (!pet) {

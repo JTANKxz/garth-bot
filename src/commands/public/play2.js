@@ -61,10 +61,25 @@ export default {
 
         // ===== COOLDOWN (por grupo + usuário) =====
         const isCreator = sender === botConfig.botCreator;
+
+        // Verifica VIP
+        let isVip = false;
+        const luckyPath = path.resolve("src/database/lucky.json");
+        if (fs.existsSync(luckyPath)) {
+            try {
+                const luckyDB = JSON.parse(fs.readFileSync(luckyPath, "utf8"));
+                const user = luckyDB[jid]?.[sender];
+                const vipUntil = user?.items?.vip_profile || 0;
+                if (vipUntil > Date.now()) {
+                    isVip = true;
+                }
+            } catch {}
+        }
+
         const cdDB = loadCooldown();
         const now = Date.now();
         
-        if (!isCreator) {
+        if (!isCreator && !isVip) {
             if (!cdDB[jid]) cdDB[jid] = {};
             if (!cdDB[jid][sender]) cdDB[jid][sender] = 0;
 

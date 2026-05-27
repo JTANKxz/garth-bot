@@ -7,6 +7,30 @@ import { getBotConfig } from "../../config/botConfig.js";
 
 const { ytmp4 } = dxz;
 
+// Cooldown DB (persistente, funciona mesmo se reiniciar)
+const cooldownPath = path.resolve("src/database/mp4Cooldown.json");
+const COOLDOWN_MS = 5 * 60 * 1000; // 5 min
+
+function loadCooldown() {
+    if (!fs.existsSync(cooldownPath)) {
+        fs.writeFileSync(cooldownPath, JSON.stringify({}, null, 2));
+    }
+    return JSON.parse(fs.readFileSync(cooldownPath, "utf8"));
+}
+
+function saveCooldown(db) {
+    fs.writeFileSync(cooldownPath, JSON.stringify(db, null, 2));
+}
+
+function formatWait(ms) {
+    const totalSec = Math.ceil(ms / 1000);
+    const min = Math.floor(totalSec / 60);
+    const sec = totalSec % 60;
+
+    if (min <= 0) return `${sec}s`;
+    return sec === 0 ? `${min}min` : `${min}min ${sec}s`;
+}
+
 export default {
     name: "mp4",
     aliases: ["video", "vid", "ytvideo"],
@@ -16,6 +40,7 @@ export default {
 
     async run({ sock, msg, args }) {
         const jid = msg.key.remoteJid;
+        const sender = msg.key.participant || msg.key.remoteJid;
         const gConfig = getGroupConfig(jid);
         const botConfig = getBotConfig();
         const botName = botConfig.botName || "BOT";
@@ -31,6 +56,48 @@ export default {
                 { quoted: msg }
             );
         }
+
+        // ===== COOLDOWN (por grupo + usuário) =====
+        const isCreator = sender === botConfig.botCreator;
+
+        // Verifica VIP
+        let isVip = false;
+        const luckyPath = path.resolve("src/database/lucky.json");
+        if (fs.existsSync(luckyPath)) {
+            try {
+                const luckyDB = JSON.parse(fs.readFileSync(luckyPath, "utf8"));
+                const user = luckyDB[jid]?.[sender];
+                const vipUntil = user?.items?.vip_profile || 0;
+                if (vipUntil > Date.now()) {
+                    isVip = true;
+                }
+            } catch {}
+        }
+
+        const cdDB = loadCooldown();
+        const now = Date.now();
+        
+        if (!isCreator && !isVip) {
+            if (!cdDB[jid]) cdDB[jid] = {};
+            if (!cdDB[jid][sender]) cdDB[jid][sender] = 0;
+
+            const lastUse = cdDB[jid][sender];
+
+            if (now - lastUse < COOLDOWN_MS) {
+              const wait = COOLDOWN_MS - (now - lastUse);
+              await sock.sendMessage(jid, { react: { text: "⏳", key: msg.key } });
+              return sock.sendMessage(
+                  jid,
+                  { text: `⏳ Espere *${formatWait(wait)}* para usar *${prefix}mp4* novamente.` },
+                  { quoted: msg }
+              );
+            }
+
+            // Grava o cooldown imediatamente para evitar múltiplas chamadas simultâneas
+            cdDB[jid][sender] = now;
+            saveCooldown(cdDB);
+        }
+        // =========================================
 
         await sock.sendMessage(jid, { react: { text: "⏳", key: msg.key } });
 
