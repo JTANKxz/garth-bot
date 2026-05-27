@@ -3,7 +3,7 @@
  * Listener para interceptar tentativas do jogo Termo no messageHandler.
  */
 
-import { processGuess, getGameStatus } from "./index.js";
+import { processGuess, getGameStatus, formatTermoBoard } from "./index.js";
 import { hasActiveGame } from "./storage.js";
 import { normalize } from "./words.js";
 import { addMoney, formatMoney } from "../../../utils/saldo.js";
@@ -52,7 +52,7 @@ export async function termoListener(sock, msg, text) {
   if (result.won) {
     const reward = 350;
     addMoney(jid, sender, reward);
-    const historyLines = result.session.results.join("\n");
+    const historyLines = formatTermoBoard(result.session);
     await sock.sendMessage(jid, {
       text:
         `🎉 *Parabéns! Você acertou!*\n\n` +
@@ -66,7 +66,7 @@ export async function termoListener(sock, msg, text) {
 
   // Derrota
   if (result.lost) {
-    const historyLines = result.session.results.join("\n");
+    const historyLines = formatTermoBoard(result.session);
     await sock.sendMessage(jid, {
       text:
         `💀 *Fim de jogo!*\n\n` +
@@ -78,7 +78,7 @@ export async function termoListener(sock, msg, text) {
   }
 
   // Jogo continua
-  const historyLines = result.session.results.join("\n");
+  const historyLines = formatTermoBoard(result.session);
   await sock.sendMessage(jid, {
     text:
       `${historyLines}\n\n` +

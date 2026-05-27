@@ -3,7 +3,7 @@
  * Comando !termo — Inicia o jogo Termo (Wordle em PT-BR)
  */
 
-import { startGame, getGameStatus, giveUp } from "../../features/games/termo/index.js";
+import { startGame, getGameStatus, giveUp, formatTermoBoard } from "../../features/games/termo/index.js";
 
 export default {
   name: "termo",
@@ -35,14 +35,14 @@ export default {
         return sock.sendMessage(from, {
           text:
             `📊 *Seu jogo de hoje:*\n\n` +
-            `${s.results.join("\n")}\n\n` +
+            `${formatTermoBoard(s)}\n\n` +
             `Status: *${statusLabel}*\n` +
             `Palavra: *${s.word}*`
         }, { quoted: msg });
       }
 
       const historyText = s.results.length
-        ? s.results.join("\n")
+        ? formatTermoBoard(s)
         : "_Nenhuma tentativa ainda_";
 
       return sock.sendMessage(from, {

@@ -123,3 +123,16 @@ export function giveUp(groupId, userId) {
   setUserSession(groupId, userId, session);
   return { ok: true, word: session.word };
 }
+
+/**
+ * Formata o tabuleiro do jogo mostrando os emojis e as palavras espaçadas.
+ */
+export function formatTermoBoard(session) {
+  if (!session || !session.results) return "";
+  return session.results.map((res, index) => {
+    const guess = session.attempts[index];
+    if (!guess) return res;
+    const spacedGuess = guess.split("").join(" ");
+    return `${res}   ${spacedGuess}`;
+  }).join("\n");
+}
