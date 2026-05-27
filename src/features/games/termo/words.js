@@ -12,6 +12,7 @@ const __dirname = path.dirname(__filename);
 
 let extraWords = new Set();
 let wordList = [];
+let secretWordsList = [];
 
 try {
   const dictPath = path.join(__dirname, "dict.json");
@@ -23,16 +24,25 @@ try {
   console.error("Erro ao carregar dict.json:", e);
 }
 
-
-
-
+try {
+  const secretsPath = path.join(__dirname, "secrets.json");
+  if (fs.existsSync(secretsPath)) {
+    secretWordsList = JSON.parse(fs.readFileSync(secretsPath, "utf8"));
+  } else {
+    secretWordsList = wordList;
+  }
+} catch (e) {
+  console.error("Erro ao carregar secrets.json:", e);
+  secretWordsList = wordList;
+}
 
 /**
  * Retorna uma palavra secreta aleatória.
  */
 export function getRandomWord() {
-  if (wordList.length === 0) return "TERMO"; // Fallback caso dê erro no arquivo
-  return wordList[Math.floor(Math.random() * wordList.length)];
+  const list = secretWordsList.length > 0 ? secretWordsList : wordList;
+  if (list.length === 0) return "TERMO"; // Fallback caso dê erro no arquivo
+  return list[Math.floor(Math.random() * list.length)];
 }
 
 /**
