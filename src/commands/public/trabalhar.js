@@ -10,6 +10,7 @@ function formatTimeLeft(ms) {
 }
 
 function formatMoney(v) {
+    if (v === undefined || v === null) return "0";
     return v.toLocaleString("pt-BR");
 }
 
@@ -51,9 +52,11 @@ export default {
                        `✨ XP ganho: *+${res.xpEarned}*`;
             } else {
                 text = `💼 *TRABALHO CONCLUÍDO*\n\n` +
-                       `✅ *${pushName}* trabalhou como *${job.name}*!\n` +
-                       `💰 Salário recebido: *+${formatMoney(res.salary)} fyne coins*.\n` +
-                       `✨ XP ganho: *+${res.xpEarned}*`;
+                       `✅ *${pushName}* trabalhou como *${job.name}*!\n`;
+                if (res.salary !== undefined && res.salary !== null) {
+                    text += `💰 Salário recebido: *+${formatMoney(res.salary)} fyne coins*.\n`;
+                }
+                text += `✨ XP ganho: *+${res.xpEarned}*`;
                 
                 if (job.key === "policia") {
                     text += `\n\n👮 _Dica: Use !prender para ganhar bônus capturando criminosos!_`;

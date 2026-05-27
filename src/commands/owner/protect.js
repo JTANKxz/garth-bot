@@ -1,12 +1,11 @@
 import { getGroupConfig } from "../../utils/groups.js"
-import { getBotConfig } from "../../config/botConfig.js"
 import { protectUser, unprotectUser, getProtectedBy } from "../../utils/protect.js"
 
 export default {
     name: "protect",
     description: "Protege um usuário contra mute, warn e ban pelo bot (ou desprotege se já estiver protegido).",
+    usage: "@usuário ou respondendo a mensagem",
     aliases: ["proteger", "unprotect"],
-    usage: "(@user)",
     category: "owner",
 
     async run({ sock, msg, args }) {
@@ -14,45 +13,38 @@ export default {
         if (!jid.endsWith("@g.us")) return
 
         const sender = msg.key.participant || msg.key.remoteJid
-        const botConfig = getBotConfig()
-        const gConfig = getGroupConfig(jid)
+        const groupConfig = getGroupConfig(jid)
+        const prefix = groupConfig.prefix || "!"
 
-        // Apenas o dono do bot / superuser pode usar (permission check also handled by command handler, but good to ensure)
-        const isSuperUser = sender === botConfig.botCreator || sender === botConfig.botMaster
-        const isBotOwner = (gConfig.botOwners || []).includes(sender)
+        const context = msg.message?.extendedTextMessage?.contextInfo
 
-        if (!isSuperUser && !isBotOwner) {
-            return sock.sendMessage(jid, { text: "❌ Apenas o dono do bot pode usar este comando." }, { quoted: msg })
+        const mentionedId = context?.mentionedJid?.[0]
+
+        let repliedId
+        if (context?.quotedMessage) {
+            repliedId = context.participant || context.quotedMessage?.key?.participant
         }
 
-        let target
-        const context = msg.message?.extendedTextMessage?.contextInfo
-        const quoted = context?.quotedMessage
-
-        if (quoted) {
-            target = context.participant
-        } else if (context?.mentionedJid?.length) {
-            target = context.mentionedJid[0]
-        } else {
-            const prefix = gConfig.prefix || "!"
+        const targetId = mentionedId || repliedId
+        if (!targetId) {
             return sock.sendMessage(jid, {
-                text: `❌ Marque ou responda o usuário que deseja proteger/desproteger.\nExemplo: ${prefix}protect @user`
+                text: `❌ Use: ${prefix}protect @usuário ou respondendo à mensagem de um usuário.`,
             }, { quoted: msg })
         }
 
-        const isProtected = getProtectedBy(jid, target)
+        const isProtected = getProtectedBy(jid, targetId)
 
         if (isProtected) {
-            unprotectUser(jid, target)
+            unprotectUser(jid, targetId)
             await sock.sendMessage(jid, {
-                text: `✅ O usuário @${target.split("@")[0]} não está mais protegido contra ameaças.`,
-                mentions: [target]
+                text: `✅ O usuário @${targetId.split("@")[0]} não está mais protegido contra ameaças.`,
+                mentions: [targetId]
             }, { quoted: msg })
         } else {
-            protectUser(jid, target, sender)
+            protectUser(jid, targetId, sender)
             await sock.sendMessage(jid, {
-                text: `Usuario @${target.split("@")[0]} agora está protegido contra ameça`,
-                mentions: [target]
+                text: `Usuario @${targetId.split("@")[0]} agora está protegido contra ameça`,
+                mentions: [targetId]
             }, { quoted: msg })
         }
     }
