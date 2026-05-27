@@ -43,7 +43,7 @@ export default {
     name: "ungive",
     aliases: [],
     description: "Remove money de um usuário específico",
-    category: "owner",
+    category: "creator",
 
     async run({ sock, msg, args }) {
         const from = msg.key.remoteJid;

@@ -1,4 +1,5 @@
 import { getGroupConfig, updateGroupConfig } from "../../utils/groups.js"
+import { getBotConfig } from "../../config/botConfig.js"
 
 export const commandExport = {
     name: "unwarn",
@@ -16,9 +17,15 @@ export async function removeWarning(jid, userJid, amount = 1) {
     if (groupConfig.warnings[userJid] <= 0) {
         const { [userJid]: _, ...rest } = groupConfig.warnings
         groupConfig.warnings = rest
+        if (groupConfig.warnedByCreator) {
+            delete groupConfig.warnedByCreator[userJid]
+        }
     }
 
-    updateGroupConfig(jid, { warnings: groupConfig.warnings })
+    updateGroupConfig(jid, { 
+        warnings: groupConfig.warnings,
+        warnedByCreator: groupConfig.warnedByCreator
+    })
 
     return groupConfig.warnings[userJid] || 0
 }
@@ -44,7 +51,6 @@ export default {
         if (quoted) {
             target = context.participant
         } else {
-            
             const mentions = context?.mentionedJid || []
             if (mentions.length === 0) {
                 return sock.sendMessage(jid, {
@@ -52,6 +58,13 @@ export default {
                 }, { quoted: msg })
             }
             target = mentions[0]
+        }
+
+        const botConfig = getBotConfig()
+        if (groupConfig.warnedByCreator?.[target] === true && sender !== botConfig.botCreator) {
+            return sock.sendMessage(jid, {
+                text: "❌ Esta advertência foi aplicada pelo criador do bot. Apenas ele pode desfazer."
+            }, { quoted: msg })
         }
 
         try {

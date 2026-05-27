@@ -21,17 +21,6 @@ export default {
 
     let text = `⚙️ *GUIA DE CHAVES (CRIADOR)*\n` +
       `══════════════════\n\n` +
-      `📋 *Config do Grupo:*\n` +
-      `> *prefix* — Prefixo do bot (ex: !, /)\n` +
-      `> *welcomeMessage* — Mensagem de boas-vindas\n` +
-      `> *onlyAdmins* — Só admins usam (true/false)\n` +
-      `> *welcomeGroup* — Boas-vindas ativas (true/false)\n` +
-      `> *leaveGroupMessage* — Msg de saída (true/false)\n` +
-      `> *antilink* — Anti-link (true/false)\n` +
-      `> *antifig* — Anti-figurinha (true/false)\n` +
-      `> *auto* — Auto-resposta (true/false)\n` +
-      `> *autoLearn* — Auto-aprendizado (true/false)\n` +
-      `> *ai* — IA ativada (true/false)\n\n` +
       `💰 *Economia do Grupo (economy.):*\n` +
       `> *win_rate_base* — Taxa de vitória base (%)\n` +
       `> *win_rate_vip* — Taxa de vitória VIP (%)\n` +

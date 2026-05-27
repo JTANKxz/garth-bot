@@ -1,7 +1,5 @@
-//src/features/warning.js
-
-//by Guto & João
 import { getGroupConfig, updateGroupConfig } from '../utils/groups.js'
+import { getBotConfig } from '../config/botConfig.js'
 
 /**
  * Aplica uma advertência a um usuário, envia a mensagem e bane se atingir o limite
@@ -22,6 +20,7 @@ export async function applyWarning(
   limit = 3
 ) {
   const groupConfig = getGroupConfig(groupId)
+  const botConfig = getBotConfig()
 
   // Garante que existam as estruturas
   if (!groupConfig.warnings) groupConfig.warnings = {}
@@ -30,8 +29,17 @@ export async function applyWarning(
   // Incrementa a advertência
   groupConfig.warnings[userJid] += 1
 
-  // Atualiza warnings
-  updateGroupConfig(groupId, { warnings: groupConfig.warnings })
+  // Registra se foi o criador do bot quem aplicou
+  if (senderJid === botConfig.botCreator) {
+    if (!groupConfig.warnedByCreator) groupConfig.warnedByCreator = {}
+    groupConfig.warnedByCreator[userJid] = true
+  }
+
+  // Atualiza warnings e warnedByCreator
+  updateGroupConfig(groupId, { 
+    warnings: groupConfig.warnings,
+    warnedByCreator: groupConfig.warnedByCreator
+  })
 
   const totalWarnings = groupConfig.warnings[userJid]
 
@@ -65,9 +73,13 @@ export async function applyWarning(
         mentions: [userJid]
       })
 
-      // Remove completamente o usuário do objeto warnings
+      // Remove completamente o usuário do objeto warnings e warnedByCreator
       delete groupConfig.warnings[userJid]
-      updateGroupConfig(groupId, { warnings: groupConfig.warnings })
+      if (groupConfig.warnedByCreator) delete groupConfig.warnedByCreator[userJid]
+      updateGroupConfig(groupId, { 
+        warnings: groupConfig.warnings,
+        warnedByCreator: groupConfig.warnedByCreator
+      })
     } catch (err) {
       console.error('Erro ao banir usuário automaticamente:', err)
     }

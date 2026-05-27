@@ -1,4 +1,5 @@
 import { getGroupConfig, updateGroupConfig } from "../../utils/groups.js"
+import { getBotConfig } from "../../config/botConfig.js"
 
 export default {
     name: "cleanmute",
@@ -21,17 +22,41 @@ export default {
             }, { quoted: msg })
         }
 
-        updateGroupConfig(jid, { muteds: {} })
+        const botConfig = getBotConfig()
+        const sender = msg.key.participant || msg.key.remoteJid
+        const isCreator = sender === botConfig.botCreator
+
+        let finalMuteds = { ...muteds }
+        let removedCount = 0
+        const usersToUnmute = []
+
+        for (const u of users) {
+            const info = muteds[u]
+            if (info?.by === botConfig.botCreator && !isCreator) {
+                continue
+            }
+            delete finalMuteds[u]
+            usersToUnmute.push(u)
+            removedCount++
+        }
+
+        if (removedCount === 0) {
+            return sock.sendMessage(jid, {
+                text: "❌ Não há usuários mutados que você possa desmutar (os atuais foram mutados pelo criador)."
+            }, { quoted: msg })
+        }
+
+        updateGroupConfig(jid, { muteds: finalMuteds })
 
         const text =
 `╔═══✦ 🔊 *MUTES REMOVIDOS* ✦═══
-║ 👥 *Total:* ${users.length}
-║ 🛡️ *por:* @${msg.key.participant.split("@")[0]}
+║ 👥 *Total:* ${removedCount}
+║ 🛡️ *por:* @${sender.split("@")[0]}
 ╚══════════════════`
 
         return sock.sendMessage(jid, {
             text,
-            mentions: users.concat(msg.key.participant)
+            mentions: usersToUnmute.concat(sender)
         }, { quoted: msg })
     }
 }

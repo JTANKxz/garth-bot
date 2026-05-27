@@ -1,4 +1,3 @@
-
 export default {
     name: 'roletaban',
     description: 'Roleta: o bot tenta acertar um membro aleatório do grupo',
@@ -26,6 +25,14 @@ export default {
         const shot = Math.floor(Math.random() * 6) + 1
 
         if (shot === 1) {
+            const { getProtectedBy } = await import("../../utils/protect.js")
+            const protectedBy = getProtectedBy(from, targetId)
+            if (protectedBy) {
+                return sock.sendMessage(from, {
+                    text: `💥 O tiro acertou @${targetId.split('@')[0]} mas ele está protegido contra ameaça por @${protectedBy.split('@')[0]}! 🛡️`,
+                    mentions: [targetId, protectedBy]
+                }, { quoted: msg })
+            }
             
             await sock.sendMessage(from, { text: `💥 ${targetName} foi atingido! 💀` }, { quoted: msg })
 
@@ -35,7 +42,6 @@ export default {
                 await sock.sendMessage(from, { text: `❌ Não consegui remover ${targetName}. Talvez eu não seja admin.` }, { quoted: msg })
             }
         } else {
-            
             await sock.sendMessage(from, { text: `😅 Ninguém foi atingido!` }, { quoted: msg })
         }
     }

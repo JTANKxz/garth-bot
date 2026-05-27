@@ -1,5 +1,5 @@
-
 import { getGroupConfig, updateGroupConfig } from "../../utils/groups.js"
+import { getBotConfig } from "../../config/botConfig.js"
 
 export default {
     name: "unmute",
@@ -43,6 +43,14 @@ export default {
             return sock.sendMessage(jid, {
                 text: `⚠️ O usuário @${target.split('@')[0]} não está mutado.`,
                 mentions: [target]
+            }, { quoted: msg })
+        }
+
+        const botConfig = getBotConfig()
+        const mutedInfo = gConfig.muteds[target]
+        if (mutedInfo && mutedInfo.by === botConfig.botCreator && sender !== botConfig.botCreator) {
+            return sock.sendMessage(jid, {
+                text: "❌ Este mute foi aplicado pelo criador do bot. Apenas ele pode desfazer."
             }, { quoted: msg })
         }
 

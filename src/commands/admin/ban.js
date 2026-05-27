@@ -35,6 +35,15 @@ export default {
             reason = args.slice(1).join(" ") || "Sem motivo especificado"
         }
 
+        const { getProtectedBy } = await import("../../utils/protect.js")
+        const protectedBy = getProtectedBy(jid, target)
+        if (protectedBy) {
+            return sock.sendMessage(jid, {
+                text: `Voce não pode banir o usuario protegido por: @${protectedBy.split('@')[0]}`,
+                mentions: [protectedBy]
+            }, { quoted: msg })
+        }
+
         const isCreator = target === botConfig.botCreator
         const isMaster = target === botConfig.botMaster
         const isOwner = gConfig.botOwners?.includes(target)
