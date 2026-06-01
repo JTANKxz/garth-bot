@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'url'
 import { GLOBALS } from '../utils/globals.js'
 import { getGroupConfig, updateGroupName } from "../utils/groups.js"
 import { getBotConfig } from "../config/botConfig.js"
+import { getDisabledCommand } from "../utils/disabledCommands.js"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -98,6 +99,16 @@ export async function handleCommand({ sock, msg }) {
 
         if (!command) return
 
+        const disabled = getDisabledCommand(command.name)
+        if (disabled && !isCreator) {
+            if (disabled.reason) {
+                return sock.sendMessage(jid, {
+                    text: `Comando inativo temporariamente.\nMotivo: ${disabled.reason}`
+                }, { quoted: msg })
+            }
+            return
+        }
+
         const isBotOwner = (groupCfg.botOwners || []).includes(sender)
         const isPrivileged = isSuperUser || isBotOwner
 
@@ -155,7 +166,7 @@ export async function handleCommand({ sock, msg }) {
             })
         }
 
-        await command.run({ sock, msg, args })
+        await command.run({ sock, msg, args, commandName: cmdName })
 
         if (jid.endsWith("@g.us")) {
             const { addGlobalXP } = await import("../features/progress/levelSystem.js");

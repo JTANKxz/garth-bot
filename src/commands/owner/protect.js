@@ -1,51 +1,60 @@
-import { getGroupConfig } from "../../utils/groups.js"
-import { protectUser, unprotectUser, getProtectedBy } from "../../utils/protect.js"
+import { getGroupConfig } from "../../utils/groups.js";
+import { protectUser, unprotectUser, getProtectedBy } from "../../utils/protect.js";
 
 export default {
-    name: "protect",
-    description: "Protege um usuário contra mute, warn e ban pelo bot (ou desprotege se já estiver protegido).",
-    usage: "@usuário ou respondendo a mensagem",
-    aliases: ["proteger", "unprotect"],
-    category: "owner",
+  name: "protect",
+  description: "Protege ou remove a protecao de um usuario contra acoes do bot.",
+  usage: "@usuario | rm @usuario",
+  aliases: ["proteger", "unprotect"],
+  category: "owner",
 
-    async run({ sock, msg, args }) {
-        const jid = msg.key.remoteJid
-        if (!jid.endsWith("@g.us")) return
+  async run({ sock, msg, args }) {
+    const jid = msg.key.remoteJid;
+    if (!jid.endsWith("@g.us")) return;
 
-        const sender = msg.key.participant || msg.key.remoteJid
-        const groupConfig = getGroupConfig(jid)
-        const prefix = groupConfig.prefix || "!"
+    const sender = msg.key.participant || msg.key.remoteJid;
+    const groupConfig = getGroupConfig(jid);
+    const prefix = groupConfig.prefix || "!";
+    const context = msg.message?.extendedTextMessage?.contextInfo;
+    const mentionedId = context?.mentionedJid?.[0];
+    const repliedId = context?.quotedMessage ? context.participant : null;
+    const targetId = mentionedId || repliedId;
+    const action = args[0]?.toLowerCase();
 
-        const context = msg.message?.extendedTextMessage?.contextInfo
-
-        const mentionedId = context?.mentionedJid?.[0]
-
-        let repliedId
-        if (context?.quotedMessage) {
-            repliedId = context.participant || context.quotedMessage?.key?.participant
-        }
-
-        const targetId = mentionedId || repliedId
-        if (!targetId) {
-            return sock.sendMessage(jid, {
-                text: `❌ Use: ${prefix}protect @usuário ou respondendo à mensagem de um usuário.`,
-            }, { quoted: msg })
-        }
-
-        const isProtected = getProtectedBy(jid, targetId)
-
-        if (isProtected) {
-            unprotectUser(jid, targetId)
-            await sock.sendMessage(jid, {
-                text: `✅ O usuário @${targetId.split("@")[0]} não está mais protegido contra ameaças.`,
-                mentions: [targetId]
-            }, { quoted: msg })
-        } else {
-            protectUser(jid, targetId, sender)
-            await sock.sendMessage(jid, {
-                text: `Usuario @${targetId.split("@")[0]} agora está protegido contra ameça`,
-                mentions: [targetId]
-            }, { quoted: msg })
-        }
+    if (!targetId) {
+      return sock.sendMessage(jid, {
+        text: `Use: ${prefix}protect @usuario ou ${prefix}protect rm @usuario.`
+      }, { quoted: msg });
     }
-}
+
+    const isProtected = getProtectedBy(jid, targetId);
+
+    if (["rm", "remove", "del"].includes(action)) {
+      if (!isProtected) {
+        return sock.sendMessage(jid, {
+          text: `@${targetId.split("@")[0]} nao esta protegido.`,
+          mentions: [targetId]
+        }, { quoted: msg });
+      }
+
+      unprotectUser(jid, targetId);
+      return sock.sendMessage(jid, {
+        text: `Protecao removida de @${targetId.split("@")[0]}.`,
+        mentions: [targetId]
+      }, { quoted: msg });
+    }
+
+    if (isProtected) {
+      return sock.sendMessage(jid, {
+        text: `@${targetId.split("@")[0]} ja esta protegido. Use ${prefix}protect rm @usuario para remover.`,
+        mentions: [targetId]
+      }, { quoted: msg });
+    }
+
+    protectUser(jid, targetId, sender);
+    return sock.sendMessage(jid, {
+      text: `Usuario @${targetId.split("@")[0]} agora esta protegido.`,
+      mentions: [targetId]
+    }, { quoted: msg });
+  }
+};

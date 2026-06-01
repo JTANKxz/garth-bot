@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { parseMentionAndAmount } from "../../utils/commandArgs.js";
 
 const dbPath = path.resolve("src/database/lucky.json");
 
@@ -53,12 +54,7 @@ export default {
             if (!db[from][sender]) db[from][sender] = { money: 0, debts: {} };
             if (!db[from][sender].debts) db[from][sender].debts = {};
 
-            let target = null;
-            if (msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.length) {
-                target = msg.message.extendedTextMessage.contextInfo.mentionedJid[0];
-            } else if (msg.message?.extendedTextMessage?.contextInfo?.participant) {
-                target = msg.message.extendedTextMessage.contextInfo.participant;
-            }
+            const { target, amount } = parseMentionAndAmount(msg, args);
 
             if (!target) {
                 await sock.sendMessage(
@@ -74,7 +70,7 @@ export default {
                 return;
             }
 
-            const valor = Number(args[args.length - 1]);
+            const valor = amount;
             if (!valor || valor <= 0) {
                 await sock.sendMessage(from, { text: "💰 Informe um valor válido para doar." }, { quoted: msg });
                 return;

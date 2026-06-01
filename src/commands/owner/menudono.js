@@ -1,6 +1,7 @@
 import { commands } from "../../handler/commandsHandler.js"
 import { getGroupConfig, isBotOwner } from "../../utils/groups.js"
 import { getBotConfig } from "../../config/botConfig.js"
+import { isCommandDisabled } from "../../utils/disabledCommands.js"
 
 export default {
   name: "menudono",
@@ -25,6 +26,7 @@ export default {
 
     const ownerCmds = []
     for (const [, cmd] of commands) {
+      if (isCommandDisabled(cmd.name)) continue
       if (cmd.category === "owner" && cmd.showInMenu !== false) {
           ownerCmds.push(`> *${prefix}${cmd.name}*`)
       }

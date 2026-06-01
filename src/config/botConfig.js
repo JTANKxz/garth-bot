@@ -13,7 +13,9 @@ const defaultConfig = {
     botCreator: "244246317662300@lid",
     botName: "GARTH-BOT V5",
     prefix: "!",
-    allowedGroups: []
+    allowedGroups: [],
+    changelog: "",
+    disabledCommands: {}
 };
 
 // Carrega cache

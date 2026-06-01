@@ -1,32 +1,29 @@
 import { createLoanRequest } from "../../utils/loanRequests.js";
+import { parseMentionAndAmount } from "../../utils/commandArgs.js";
 
 export default {
   name: "emprestimo",
-  aliases: [],
-  description: "Pede empréstimo para outro jogador (ele aceita 1/2)",
-  usage: "emprestimo 5000 @user",
+  aliases: ["emprestar"],
+  description: "Pede emprestimo para outro jogador",
+  usage: "emprestimo 5000 @user ou emprestimo @user 5000",
   category: "fun",
 
   async run({ sock, msg, args }) {
     const from = msg.key.remoteJid;
+    const borrowerId = msg.key.participant || msg.key.remoteJid;
+    const borrowerName = msg.pushName || "Usuario";
+    const { target: lenderId, amount } = parseMentionAndAmount(msg, args);
 
-    const borrowerId = msg.key.participant || msg.key.remoteJid; // quem pediu
-    const borrowerName = msg.pushName || "Usuário";
-
-    const valor = Number(args[0]);
-    if (!valor || valor <= 0) {
-      return sock.sendMessage(from, { text: "💰 Use: emprestimo 5000 @user" }, { quoted: msg });
+    if (!amount || amount <= 0) {
+      return sock.sendMessage(from, { text: "Use: emprestimo 5000 @user ou emprestimo @user 5000" }, { quoted: msg });
     }
 
-    const mentioned = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid;
-    if (!mentioned || mentioned.length === 0) {
-      return sock.sendMessage(from, { text: "👤 Marque um usuário (credor) para pedir empréstimo." }, { quoted: msg });
+    if (!lenderId) {
+      return sock.sendMessage(from, { text: "Marque um usuario para pedir emprestimo." }, { quoted: msg });
     }
-
-    const lenderId = mentioned[0]; // quem vai emprestar
 
     if (lenderId === borrowerId) {
-      return sock.sendMessage(from, { text: "🚫 Você não pode pedir empréstimo para si mesmo." }, { quoted: msg });
+      return sock.sendMessage(from, { text: "Voce nao pode pedir emprestimo para si mesmo." }, { quoted: msg });
     }
 
     await createLoanRequest({
@@ -36,8 +33,8 @@ export default {
       borrowerId,
       borrowerName,
       lenderId,
-      amount: valor,
-      ttlSeconds: 60,
+      amount,
+      ttlSeconds: 60
     });
-  },
+  }
 };

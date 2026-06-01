@@ -19,7 +19,7 @@ import { maybeDropChest } from "../utils/maybeDropChest.js";
 import { buscarAppListener } from "../listeners/playstore.js";
 import { checkAchievements } from "../features/achievements/achievementsHandler.js";
 import { handleLoanDecision } from "../utils/loanRequests.js"; // ajuste o caminho
-import { handleAiTrigger } from "../utils/ollama.js";
+// import { handleAiTrigger } from "../utils/ollama.js";
 
 
 const groupMetadataCache = new Map()
@@ -189,7 +189,8 @@ export default async function messageHandler(messages, sock) {
     }
     // ============ IA (menção ao bot) ============
     // ============ IA (gatilho Bot/Garth) ============
-    if (await handleAiTrigger({ sock, msg, groupJid, groupConfig, sender, pushName })) return;
+    // Desativado: IA nao sera mais chamada por "bot" ou "garth".
+    // if (await handleAiTrigger({ sock, msg, groupJid, groupConfig, sender, pushName })) return;
 
     await maybeDropChest({ sock, msg });
 

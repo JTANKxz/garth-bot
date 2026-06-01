@@ -2,6 +2,7 @@ import { simulateTyping } from "../../helpers/typing.js"
 import { commands } from "../../handler/commandsHandler.js"
 import { getGroupConfig, isGroupVip } from "../../utils/groups.js"
 import { getBotConfig } from "../../config/botConfig.js"
+import { isCommandDisabled } from "../../utils/disabledCommands.js"
 import moment from "moment-timezone"
 import fs from "fs"
 import path from "path"
@@ -45,6 +46,7 @@ export default {
 
     for (const [, cmd] of commands) {
       if (!cmd?.name || cmd.showInMenu === false) continue
+      if (isCommandDisabled(cmd.name)) continue
       if (categoryOrder.includes(cmd.category)) {
         cats[cmd.category].push(`> *${prefix}${cmd.name}*`)
       }

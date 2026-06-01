@@ -1,58 +1,105 @@
 import { readJSON } from "../../utils/readJSON.js";
 import { commands } from "../../handler/commandsHandler.js";
-import moment from "moment-timezone";
+import { JOBS } from "../../features/jobs/catalog.js";
+
+function normalizeText(value = "") {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function findJob(query) {
+  const normalizedQuery = normalizeText(query);
+  if (!normalizedQuery) return null;
+
+  return JOBS.find(job => {
+    const names = [job.key, job.name, String(job.id)];
+    return names.some(name => normalizeText(name) === normalizedQuery);
+  });
+}
+
+function getRequirement(job) {
+  if (!job.requirement) return "Sem requisitos.";
+  return job.desc;
+}
+
+function getJobInfoText(job, prefix) {
+  return (
+    `*${job.name}*\n\n` +
+    `O que faz: ${job.info}\n` +
+    `Requisitos: ${getRequirement(job)}\n` +
+    (job.salaryRange ? `Pagamento: ${job.salaryRange[0]} a ${job.salaryRange[1]} fyne coins por trabalho.\n` : "") +
+    `XP por trabalho: ${job.xpGain}\n\n` +
+    `Para escolher: *${prefix}emprego ${job.id}*`
+  );
+}
+
+function getBotInfoText() {
+  const messageCounts = readJSON("database/messageCounts.json") || {};
+  const allGroups = Object.keys(messageCounts);
+  let totalUsers = 0;
+
+  allGroups.forEach(groupId => {
+    totalUsers += Object.keys(messageCounts[groupId]).length;
+  });
+
+  const uptimeSeconds = process.uptime();
+  const hours = Math.floor(uptimeSeconds / 3600);
+  const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+
+  const usage = readJSON("database/commandUsage.json") || {};
+  const topCmds = Object.entries(usage)
+    .filter(([name]) => {
+      const cmd = commands.get(name);
+      return cmd && cmd.category !== "owner" && cmd.category !== "creator";
+    })
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5)
+    .map(([name, count]) => `> *${name}*: ${count}x`)
+    .join("\n");
+
+  return (
+    `*Estatisticas do bot*\n` +
+    `Usuarios registrados: ${totalUsers}\n` +
+    `Grupos registrados: ${allGroups.length}\n` +
+    `Online ha: ${hours}h ${minutes}min\n` +
+    (topCmds ? `\n*Comandos mais usados:*\n${topCmds}\n` : "") +
+    `\n> *GARTH-BOT V5*`
+  );
+}
 
 export default {
-    name: "info",
-    aliases: ["botinfo", "stats"],
-    description: "Mostra informações e estatísticas do bot",
-    category: "utils",
+  name: "info",
+  aliases: ["botinfo", "stats"],
+  description: "Mostra informacoes do bot ou de uma profissao",
+  category: "utils",
 
-    async run({ sock, msg }) {
-        const from = msg.key.remoteJid;
+  async run({ sock, msg, args }) {
+    const from = msg.key.remoteJid;
+    const prefix = msg.groupConfig?.prefix || "!";
+    const query = args.join(" ");
 
-        try {
-            // 1. Carregar Dados de Mensagens (para usuários e grupos)
-            const messageCounts = readJSON("database/messageCounts.json");
-            const allGroups = Object.keys(messageCounts);
-            let totalUsers = 0;
-            
-            allGroups.forEach(g => {
-                totalUsers += Object.keys(messageCounts[g]).length;
-            });
+    try {
+      if (query) {
+        const job = findJob(query);
 
-            // 2. Uptime
-            const uptimeSeconds = process.uptime();
-            const hours = Math.floor(uptimeSeconds / 3600);
-            const minutes = Math.floor((uptimeSeconds % 3600) / 60);
-
-            // 3. Comandos (Filtra para não mostrar Dono/Criador)
-            const usage = readJSON("database/commandUsage.json") || {};
-            const topCmds = Object.entries(usage)
-                .filter(([name]) => {
-                    const cmd = commands.get(name);
-                    return cmd && cmd.category !== "owner" && cmd.category !== "creator";
-                })
-                .sort(([, a], [, b]) => b - a)
-                .slice(0, 5)
-                .map(([name, count]) => `> *${name}*: ${count}x`)
-                .join("\n");
-
-            const text = `📊 *ESTATÍSTICAS DO BOT*\n` +
-                `══════════════════\n` +
-                `👥 *Total de Usuários:* ${totalUsers}\n` +
-                `🏘️ *Total de Grupos:* ${allGroups.length}\n` +
-                `⏳ *Bot Online há:* ${hours}h ${minutes}min\n` +
-                `══════════════════\n` +
-                (topCmds ? `🔥 *Comandos Mais Usados:*\n${topCmds}\n` : "") +
-                `══════════════════\n` +
-                `> 🤖 *GARTH-BOT V5*`;
-
-            await sock.sendMessage(from, { text }, { quoted: msg });
-
-        } catch (err) {
-            console.error("Erro no comando info:", err);
-            await sock.sendMessage(from, { text: "❌ Erro ao carregar as informações." }, { quoted: msg });
+        if (!job) {
+          const jobs = JOBS.map(j => j.name).join(", ");
+          return sock.sendMessage(from, {
+            text: `Nao encontrei essa profissao.\nDisponiveis: ${jobs}`
+          }, { quoted: msg });
         }
+
+        return sock.sendMessage(from, { text: getJobInfoText(job, prefix) }, { quoted: msg });
+      }
+
+      await sock.sendMessage(from, { text: getBotInfoText() }, { quoted: msg });
+    } catch (err) {
+      console.error("Erro no comando info:", err);
+      await sock.sendMessage(from, { text: "Erro ao carregar as informacoes." }, { quoted: msg });
     }
+  }
 };

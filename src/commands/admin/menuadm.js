@@ -1,6 +1,7 @@
 import { commands } from "../../handler/commandsHandler.js"
 import { getGroupConfig } from "../../utils/groups.js"
 import { getBotConfig } from "../../config/botConfig.js"
+import { isCommandDisabled } from "../../utils/disabledCommands.js"
 
 export default {
   name: "menuadm",
@@ -27,6 +28,7 @@ export default {
 
     const adminCmds = []
     for (const [, cmd] of commands) {
+      if (isCommandDisabled(cmd.name)) continue
       if (cmd.category === "admin" && cmd.showInMenu !== false) {
           adminCmds.push(`> *${prefix}${cmd.name}*`)
       }
