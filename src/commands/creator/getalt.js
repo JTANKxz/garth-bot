@@ -32,10 +32,10 @@ export default {
       
       const number = extractNumber(quotedSenderAlt || quotedSender);
       
-      let response = "🔍 **Dados do Usuário:**\n\n";
-      response += `📱 **Número (participantAlt):** \`${quotedSenderAlt || "não disponível"}\`\n`;
-      response += `📌 **LID (participant):** \`${quotedSender || "não disponível"}\`\n`;
-      response += `🔢 **Número Extraído:** \`${number || "não encontrado"}\`\n`;
+      let response = "Dados:\n\n";
+      response += `*Número:* \`${quotedSenderAlt || "não disponível"}\`\n`;
+      response += `*LID:* \`${quotedSender || "não disponível"}\`\n`;
+      response += `Número Extraído: \`${number || "não encontrado"}\`\n`;
       
       return sock.sendMessage(jid, { text: response }, { quoted: msg });
     }
