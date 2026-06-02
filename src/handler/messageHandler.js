@@ -21,6 +21,7 @@ import { checkAchievements } from "../features/achievements/achievementsHandler.
 import { handleLoanDecision } from "../utils/loanRequests.js";
 import { checkSpam, clearUserSpamTracker } from "../utils/antispam.js";
 import { logMessage } from "../utils/messageLogger.js";
+import { applyWarning } from "../features/warning.js";
 // import { handleAiTrigger } from "../utils/ollama.js";
 
 
@@ -91,12 +92,19 @@ export default async function messageHandler(messages, sock) {
                     const isSenderAdmin = metadata.participants.find(p => p.id === sender && p.admin);
                     
                     if (!isSenderAdmin) {
-                        // Aqui você pode implementar a lógica de advertência
-                        // Por enquanto, apenas bloqueia
-                        console.log(`[SPAM] ${sender} foi bloqueado em ${groupJid}`);
+                        // Aplica advertência por spam
+                        const spamConfig = groupConfig.antispam || {};
+                        await applyWarning(
+                            sock,
+                            groupJid,
+                            sender,
+                            botConfig.botCreator, // Bot aplica a advertência
+                            `Spam detectado - ${spamConfig.maxMessages || 6} mensagens em menos de ${spamConfig.timeWindow || 900}ms`,
+                            3 // limite padrão
+                        );
                     }
                 } catch (err) {
-                    console.error("Erro ao verificar admin:", err);
+                    console.error("Erro ao aplicar advertência por spam:", err);
                 }
             }
             return;
