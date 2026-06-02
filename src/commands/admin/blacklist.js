@@ -1,40 +1,10 @@
 import { getGroupConfig, updateGroupConfig } from "../../utils/groups.js"
 import { getBotConfig } from "../../config/botConfig.js"
 
-/**
- * Converte um número para formato LID completo
- * Ex: "92071968931959" -> "92071968931959:1@lid"
- */
-function formatAsLid(numberOrJid) {
-  if (!numberOrJid) return null;
-  
-  // Se já é um JID completo, retorna
-  if (numberOrJid.includes("@")) return numberOrJid;
-  
-  // Se é apenas um número, formata como LID
-  if (/^\d+$/.test(numberOrJid)) {
-    return `${numberOrJid}:1@lid`;
-  }
-  
-  return numberOrJid;
-}
-
-/**
- * Extrai o número de um JID/LID
- */
-function extractNumber(jid) {
-  if (!jid) return null;
-  return jid
-    .replace(/@s\.whatsapp\.net/g, "")
-    .replace(/:.*@lid$/g, "")
-    .replace(/@lid/g, "")
-    .replace(/@g\.us/g, "");
-}
-
 export default {
     name: "bl",
     description: "Gerencia a blacklist.",
-    usage: "(add/remove/list) - pode usar @mention, responder mensagem ou LID",
+    usage: "(add/remove/list)",
     aliases: ["black", "blacklist"],
     category: "admin",
 
@@ -46,146 +16,215 @@ export default {
         const blacklist = groupConfig.blacklisteds || []
         const command = args[0]?.toLowerCase()
 
+        const normalizeJid = (jid) => {
+            if (!jid) return jid
+
+            // remove :1, :2, etc dos LIDs
+            return jid.replace(/:\d+@lid$/i, "@lid")
+        }
+
         const getTarget = () => {
             const ctx = msg.message?.extendedTextMessage?.contextInfo
-            if (!ctx) return null
-            if (ctx.mentionedJid?.length) return ctx.mentionedJid[0]
-            if (ctx.participant) return ctx.participant
+
+            // menção
+            if (ctx?.mentionedJid?.length) {
+                return normalizeJid(ctx.mentionedJid[0])
+            }
+
+            // reply
+            if (ctx?.participant) {
+                return normalizeJid(ctx.participant)
+            }
+
+            // jid informado manualmente
+            const manual = args[1]?.trim()
+            if (!manual) return null
+
+            // aceita qualquer @lid
+            if (/@lid$/i.test(manual)) {
+                return normalizeJid(manual)
+            }
+
+            // aceita @s.whatsapp.net
+            if (/@s\.whatsapp\.net$/i.test(manual)) {
+                return manual
+            }
+
+            // apenas números
+            if (/^\d+$/.test(manual)) {
+                return `${manual}@s.whatsapp.net`
+            }
+
             return null
         }
 
+        const formatUser = (user) =>
+            user
+                .replace(/:\d+@lid$/i, "@lid")
+                .replace("@s.whatsapp.net", "")
+                .replace("@lid", "")
+
         if (command === "list" || !command) {
-            if (blacklist.length === 0) return sock.sendMessage(jid, { text: "✅ A blacklist está vazia." }, { quoted: msg })
-
-            let text = '╔═══✦ *🚫 BLACKLIST* ✦═══\n'
-            let mentions = []
-            let i = 1
-
-            for (const user of blacklist) {
-                const number = extractNumber(user);
-                text += `║ ${i}. ❌ @${number || user}\n`
-                mentions.push(user)
-                i++
+            if (blacklist.length === 0) {
+                return sock.sendMessage(
+                    jid,
+                    { text: "✅ A blacklist está vazia." },
+                    { quoted: msg }
+                )
             }
 
-            text += '╚═════════════════════'
-            return sock.sendMessage(jid, { text, mentions })
+            let text = "╔═══✦ *🚫 BLACKLIST* ✦═══\n"
+            const mentions = []
+
+            blacklist.forEach((user, index) => {
+                text += `║ ${index + 1}. ❌ @${formatUser(user)}\n`
+
+                if (user.endsWith("@s.whatsapp.net")) {
+                    mentions.push(user)
+                }
+            })
+
+            text += "╚═════════════════════"
+
+            return sock.sendMessage(jid, {
+                text,
+                mentions
+            })
         }
 
         if (command === "add") {
-            // Tenta extrair target de: argumento, menção ou resposta
-            let target = null;
-
-            // Se passou um argumento que parece ser um número/LID
-            if (args[1]) {
-                const arg = args[1].replace(/[@]/g, ""); // Remove @ se tiver
-                if (/^\d+(?::\d+)?(?:@.*)?$/.test(arg)) {
-                  target = formatAsLid(arg);
-                }
-            }
-
-            // Caso contrário, procura por menção ou resposta
-            if (!target) {
-              target = getTarget();
-            }
+            const target = getTarget()
 
             if (!target) {
-                return sock.sendMessage(jid, {
-                    text: "❌ Você precisa:\n• Marcar um usuário: bl add @user\n• Responder a mensagem dele\n• Passar o LID: bl add 92071968931959"
-                }, { quoted: msg })
+                return sock.sendMessage(
+                    jid,
+                    {
+                        text: "❌ Você precisa marcar um usuário, responder uma mensagem ou informar um JID."
+                    },
+                    { quoted: msg }
+                )
             }
 
-            const isCreator = target === botConfig.botCreator
-            const isMaster = target === botConfig.botMaster
-            const isOwner = groupConfig.botOwners?.includes(target)
+            const isCreator = normalizeJid(botConfig.botCreator) === target
+            const isMaster = normalizeJid(botConfig.botMaster) === target
+            const isOwner = groupConfig.botOwners?.some(
+                owner => normalizeJid(owner) === target
+            )
+
             if (isCreator || isMaster || isOwner) {
-                return sock.sendMessage(jid, {
-                    text: `❌ Você não pode adicionar o ${isCreator ? "criador" : isMaster ? "master" : "dono do bot"} na blacklist!`
-                }, { quoted: msg })
+                return sock.sendMessage(
+                    jid,
+                    {
+                        text: `❌ Você não pode adicionar o ${
+                            isCreator
+                                ? "criador"
+                                : isMaster
+                                ? "master"
+                                : "dono do bot"
+                        } na blacklist!`
+                    },
+                    { quoted: msg }
+                )
             }
 
             if (blacklist.includes(target)) {
-                const number = extractNumber(target);
-                return sock.sendMessage(jid, {
-                    text: `⚠️ O usuário @${number} já está na blacklist.`,
-                    mentions: [target]
-                }, { quoted: msg })
+                return sock.sendMessage(
+                    jid,
+                    {
+                        text: `⚠️ O usuário @${formatUser(target)} já está na blacklist.`,
+                        mentions: target.endsWith("@s.whatsapp.net")
+                            ? [target]
+                            : []
+                    },
+                    { quoted: msg }
+                )
             }
 
             blacklist.push(target)
+
             groupConfig.blacklisteds = blacklist
             updateGroupConfig(jid, groupConfig)
 
-            const number = extractNumber(target);
             return sock.sendMessage(jid, {
-                text: `✅ Usuário @${number} foi adicionado à blacklist.`,
-                mentions: [target]
+                text: `✅ Usuário @${formatUser(target)} foi adicionado à blacklist.`,
+                mentions: target.endsWith("@s.whatsapp.net")
+                    ? [target]
+                    : []
             })
         }
 
         if (command === "remove") {
-
-            let target = null;
-
-            // Se passou um número, trata como LID ou posição
-            if (args[1]) {
-              const arg = args[1];
-              
-              // Se é um número, pode ser posição da lista ou um LID
-              if (!isNaN(arg)) {
-                // Tenta primeiro como posição
-                if (parseInt(arg) > 0 && parseInt(arg) <= blacklist.length) {
-                  target = blacklist[parseInt(arg) - 1];
-                } else if (/^\d+/.test(arg)) {
-                  // Se não for posição válida, trata como número/LID
-                  target = formatAsLid(arg);
-                }
-              } else if (/^\d+/.test(arg)) {
-                // Se começa com número mas tem caracteres, pode ser LID
-                target = formatAsLid(arg.replace(/[@]/g, ""));
-              }
-            }
-
-            // Caso contrário, procura por menção ou resposta
-            if (!target) {
-              target = getTarget();
-            }
+            const target =
+                args[1] && !isNaN(args[1])
+                    ? blacklist[parseInt(args[1]) - 1]
+                    : getTarget()
 
             if (!target) {
-                return sock.sendMessage(jid, {
-                    text: "❌ Informe um usuário com @, responda a mensagem dele, use o LID ou use o número da lista (.bl remove 2)."
-                }, { quoted: msg })
+                return sock.sendMessage(
+                    jid,
+                    {
+                        text: "❌ Informe um usuário com @, responda uma mensagem, informe um JID ou use o número da lista."
+                    },
+                    { quoted: msg }
+                )
             }
 
-            const isCreator = target === botConfig.botCreator
-            const isOwner = groupConfig.botOwners?.includes(target)
+            const isCreator = normalizeJid(botConfig.botCreator) === target
+            const isOwner = groupConfig.botOwners?.some(
+                owner => normalizeJid(owner) === target
+            )
+
             if (isCreator || isOwner) {
-                return sock.sendMessage(jid, {
-                    text: `❌ Você não pode remover o ${isCreator ? "criador" : "dono do bot"} da blacklist!`
-                }, { quoted: msg })
+                return sock.sendMessage(
+                    jid,
+                    {
+                        text: `❌ Você não pode remover o ${
+                            isCreator ? "criador" : "dono do bot"
+                        } da blacklist!`
+                    },
+                    { quoted: msg }
+                )
             }
 
             if (!blacklist.includes(target)) {
-                const number = extractNumber(target);
-                return sock.sendMessage(jid, {
-                    text: `⚠️ O usuário @${number} não está na blacklist.`,
-                    mentions: [target]
-                }, { quoted: msg })
+                return sock.sendMessage(
+                    jid,
+                    {
+                        text: `⚠️ O usuário @${formatUser(target)} não está na blacklist.`,
+                        mentions: target.endsWith("@s.whatsapp.net")
+                            ? [target]
+                            : []
+                    },
+                    { quoted: msg }
+                )
             }
 
             blacklist.splice(blacklist.indexOf(target), 1)
+
             groupConfig.blacklisteds = blacklist
             updateGroupConfig(jid, groupConfig)
 
-            const number = extractNumber(target);
             return sock.sendMessage(jid, {
-                text: `🟢 Usuário @${number} foi removido da blacklist.`,
-                mentions: [target]
+                text: `🟢 Usuário @${formatUser(target)} foi removido da blacklist.`,
+                mentions: target.endsWith("@s.whatsapp.net")
+                    ? [target]
+                    : []
             })
         }
 
-        return sock.sendMessage(jid, {
-            text: "❌ Comando inválido.\nUse:\n\n• *bl add @user* - Marcar usuário\n• *bl add 92071968931959* - Adicionar por LID\n• *bl remove @user / LID*\n• *bl list* - Listar blacklist"
-        }, { quoted: msg })
+        return sock.sendMessage(
+            jid,
+            {
+                text:
+                    "❌ Comando inválido.\n\n" +
+                    "Use:\n" +
+                    "• *bl add @user*\n" +
+                    "• *bl add 92071968931959@lid*\n" +
+                    "• *bl remove @user*\n" +
+                    "• *bl remove 2*\n" +
+                    "• *bl list*"
+            },
+            { quoted: msg }
+        )
     }
 }
