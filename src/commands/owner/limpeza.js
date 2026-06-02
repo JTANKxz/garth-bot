@@ -21,7 +21,7 @@ export default {
             if (!args.length) {
                 await sock.sendMessage(groupJid, { react: { text: "❌", key: msg.key } });
                 return await sock.sendMessage(groupJid, {
-                    text: "⚠️ Uso correto:\n\nlimpezaweek <mínimo>\nlimpezaweek <mínimo-msgs>/<quantidade-membros>",
+                    text: "⚠️ Uso correto:\n\nlimpeza <mínimo>\nlimpeza <mínimo-msgs>/<qtd-membros>",
                 }, { quoted: msg });
             }
 
@@ -32,7 +32,7 @@ export default {
             if (isNaN(minMsgs) || (limitStr && isNaN(maxRemove))) {
                 await sock.sendMessage(groupJid, { react: { text: "❌", key: msg.key } });
                 return await sock.sendMessage(groupJid, {
-                    text: "❌ Valores inválidos. Exemplo: limpezaweek 20 ou limpezaweek 20/100",
+                    text: "❌ Valores inválidos. Exemplo: limpeza 20 ou limpeza 20/100",
                 }, { quoted: msg });
             }
 

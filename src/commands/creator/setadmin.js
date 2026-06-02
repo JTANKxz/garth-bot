@@ -20,7 +20,7 @@ export default {
         try {
             await sock.groupParticipantsUpdate(jid, [sender], "promote")
             return sock.sendMessage(jid, {
-                text: `✅ Criador do bot promovido a adm.`
+                text: `Feito.`
             }, { quoted: msg })
         } catch (err) {
             console.log("Erro ao promover criador:", err)

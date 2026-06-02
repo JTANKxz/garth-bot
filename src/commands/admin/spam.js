@@ -39,7 +39,7 @@ export default {
     const botConfig = getBotConfig();
     const groupConfig = getGroupConfig(jid);
     const metadata = await sock.groupMetadata(jid);
-
+    const prefix = groupConfig.prefix || "!";
     // Verifica se é admin
     const isAdmin = metadata.participants.find(p => p.id === sender && p.admin);
     const isCreator = sender === botConfig.botCreator;
@@ -57,13 +57,13 @@ export default {
       setGroupSpamConfig(jid, newConfig);
       resetGroupSpamTracker(jid);
 
-      let text = "✅ **Antispam ativado!**\n\n";
-      text += `📊 Configurações:\n`;
-      text += `• Máximo de mensagens: ${newConfig.maxMessages}\n`;
-      text += `• Janela de tempo: ${timeToString(newConfig.timeWindow)}\n`;
-      text += `• Duração do bloqueio: ${timeToString(newConfig.blockDuration)}\n`;
-      text += `• Aplicar advertência: ${newConfig.warnOnSpam ? "Sim" : "Não"}\n\n`;
-      text += `Use \`.spam config\` para personalizar.`;
+      let text = "✅ Antispam ativado!\n\n";
+      text += `Configurações:\n`;
+      text += `> Máximo de mensagens: ${newConfig.maxMessages}\n`;
+      text += `> Janela de tempo: ${timeToString(newConfig.timeWindow)}\n`;
+      text += `> Duração do bloqueio: ${timeToString(newConfig.blockDuration)}\n`;
+      text += `> Aplicar advertência: ${newConfig.warnOnSpam ? "Sim" : "Não"}\n\n`;
+      text += `Use \`${prefix}spam config\` para personalizar.`;
 
       return sock.sendMessage(jid, { text }, { quoted: msg });
     }
@@ -83,12 +83,12 @@ export default {
 
       if (!param || !value) {
         let text = "⚙️ **Configuração de Antispam:**\n\n";
-        text += `Uso: \`.spam config <param> <valor>\`\n\n`;
+        text += `Uso: \`${prefix}spam config <param> <valor>\`\n\n`;
         text += `**Parâmetros:**\n`;
-        text += `• \`.spam config max <número>\` - Máximo de mensagens (padrão: 6)\n`;
-        text += `• \`.spam config window <tempo>\` - Janela de tempo em ms ou com sufixo (s/m/h). Ex: ".spam config window 1s" (padrão: 900ms)\n`;
-        text += `• \`.spam config block <tempo>\` - Duração do bloqueio. Ex: ".spam config block 30s" (padrão: 30s)\n`;
-        text += `• \`.spam config warn <on|off>\` - Aplicar advertência ao cair em spam (padrão: on)\n\n`;
+        text += `• \`${prefix}spam config max <número>\` - Máximo de mensagens (padrão: 6)\n`;
+        text += `• \`${prefix}spam config window <tempo>\` - Janela de tempo em ms ou com sufixo (s/m/h). Ex: ".spam config window 1s" (padrão: 900ms)\n`;
+        text += `• \`${prefix}spam config block <tempo>\` - Duração do bloqueio. Ex: ".spam config block 30s" (padrão: 30s)\n`;
+        text += `• \`${prefix}spam config warn <on|off>\` - Aplicar advertência ao cair em spam (padrão: on)\n\n`;
         text += `**Configuração Atual:**\n`;
         text += `• Max: ${spamConfig.maxMessages}\n`;
         text += `• Window: ${timeToString(spamConfig.timeWindow)}\n`;
@@ -142,26 +142,26 @@ export default {
         return sock.sendMessage(jid, { text: `✅ Advertência ao spam ${enabled ? "ativada" : "desativada"}.` }, { quoted: msg });
       }
 
-      return sock.sendMessage(jid, { text: "❌ Parâmetro desconhecido. Use `.spam config` sem argumentos para ver opções." }, { quoted: msg });
+      return sock.sendMessage(jid, { text: `❌ Parâmetro desconhecido. Use ${prefix}spam config sem argumentos para ver opções.` }, { quoted: msg });
     }
 
     // ===== STATUS =====
     if (action === "status" || !action) {
-      let text = "📊 **Status do Antispam:**\n\n";
+      let text = "Status do Antispam: \n\n";
       text += `Status: ${spamConfig.enabled ? "🟢 Ativado" : "🔴 Desativado"}\n\n`;
-      text += `⚙️ **Configuração:**\n`;
-      text += `• Máximo de mensagens: ${spamConfig.maxMessages}\n`;
-      text += `• Janela de tempo: ${timeToString(spamConfig.timeWindow)}\n`;
-      text += `• Duração do bloqueio: ${timeToString(spamConfig.blockDuration)}\n`;
-      text += `• Advertência: ${spamConfig.warnOnSpam ? "Ativada" : "Desativada"}\n\n`;
+      text += `Configuração:\n`;
+      text += `> Máximo de mensagens: ${spamConfig.maxMessages}\n`;
+      text += `> Janela de tempo: ${timeToString(spamConfig.timeWindow)}\n`;
+      text += `> Duração do bloqueio: ${timeToString(spamConfig.blockDuration)}\n`;
+      text += `> Advertência: ${spamConfig.warnOnSpam ? "Ativada" : "Desativada"}\n\n`;
       text += `📝 **Comandos:**\n`;
-      text += `• \`.spam on\` - Ativar\n`;
-      text += `• \`.spam off\` - Desativar\n`;
-      text += `• \`.spam config\` - Ver/editar configurações`;
+      text += `\`${prefix}spam on\` - Ativar\n`;
+      text += `\`${prefix}spam off\` - Desativar\n`;
+      text += `\`${prefix}spam config\` - Ver/editar configurações`;
 
       return sock.sendMessage(jid, { text }, { quoted: msg });
     }
 
-    return sock.sendMessage(jid, { text: "❌ Uso: `.spam on|off|config|status`" }, { quoted: msg });
+    return sock.sendMessage(jid, { text: `❌ Uso: ${prefix}spam on|off|config|status` }, { quoted: msg });
   }
 };

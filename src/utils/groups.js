@@ -40,7 +40,10 @@ const defaultConfig = {
     timeWindow: 900,
     blockDuration: 30000,
     warnOnSpam: true
-  }
+  },
+
+  // ✅ Permite criador executar comandos sem prefixo
+  noprefix: false
 };
 
 // Carrega o cache

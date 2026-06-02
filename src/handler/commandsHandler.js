@@ -88,10 +88,21 @@ export async function handleCommand({ sock, msg }) {
             ""
 
         const prefix = groupCfg.prefix || PREFIX
-        if (!body.startsWith(prefix)) return
+        const noprefix = groupCfg.noprefix && isCreator
 
-        const args = body.slice(prefix.length).trim().split(/ +/)
-        const cmdName = args.shift().toLowerCase()
+        // Se não tem prefixo e noprefix não está ativado, ignora
+        if (!body.startsWith(prefix) && !noprefix) return
+
+        // Extrai args com ou sem prefixo
+        let args, cmdName
+        if (body.startsWith(prefix)) {
+          args = body.slice(prefix.length).trim().split(/ +/)
+          cmdName = args.shift().toLowerCase()
+        } else {
+          // Modo noprefix - primeiro word é o comando
+          args = body.trim().split(/ +/)
+          cmdName = args.shift().toLowerCase()
+        }
 
         const command =
             commands.get(cmdName) ||
