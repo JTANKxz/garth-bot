@@ -82,19 +82,19 @@ export default {
       const value = args[2];
 
       if (!param || !value) {
-        let text = "⚙️ **Configuração de Antispam:**\n\n";
+        let text = "Configuração de Antispam: \n\n";
         text += `Uso: \`${prefix}spam config <param> <valor>\`\n\n`;
-        text += `**Parâmetros:**\n`;
-        text += `• \`${prefix}spam config max <número>\` - Máximo de mensagens (padrão: 6)\n`;
-        text += `• \`${prefix}spam config window <tempo>\` - Janela de tempo em ms ou com sufixo (s/m/h). Ex: ".spam config window 1s" (padrão: 900ms)\n`;
-        text += `• \`${prefix}spam config block <tempo>\` - Duração do bloqueio. Ex: ".spam config block 30s" (padrão: 30s)\n`;
-        text += `• \`${prefix}spam config warn <on|off>\` - Aplicar advertência ao cair em spam (padrão: on)\n\n`;
+        text += `Parâmetros: \n`;
+        text += `> \`${prefix}spam config max <número>\` - Máximo de mensagens (padrão: 6)\n`;
+        text += `> \`${prefix}spam config window <tempo>\` - Janela de tempo em ms ou com sufixo (s/m/h). Ex: (padrão: 900ms)\n`;
+        text += `> \`${prefix}spam config block <tempo>\` - Duração do bloqueio. (padrão: 30s)\n`;
+        text += `> \`${prefix}spam config warn <on|off>\` - Aplicar advertência ao cair em spam (padrão: on)\n\n`;
         text += `**Configuração Atual:**\n`;
-        text += `• Max: ${spamConfig.maxMessages}\n`;
-        text += `• Window: ${timeToString(spamConfig.timeWindow)}\n`;
-        text += `• Block: ${timeToString(spamConfig.blockDuration)}\n`;
-        text += `• Warn: ${spamConfig.warnOnSpam ? "Ativado" : "Desativado"}\n`;
-        text += `• Status: ${spamConfig.enabled ? "🟢 Ativado" : "🔴 Desativado"}`;
+        text += `> Max: ${spamConfig.maxMessages}\n`;
+        text += `> Window: ${timeToString(spamConfig.timeWindow)}\n`;
+        text += `> Block: ${timeToString(spamConfig.blockDuration)}\n`;
+        text += `> Warn: ${spamConfig.warnOnSpam ? "Ativado" : "Desativado"}\n`;
+        text += `> Status: ${spamConfig.enabled ? "🟢 Ativado" : "🔴 Desativado"}`;
 
         return sock.sendMessage(jid, { text }, { quoted: msg });
       }
