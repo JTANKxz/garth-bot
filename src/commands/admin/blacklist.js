@@ -18,49 +18,104 @@ export default {
 
         const getTarget = () => {
             const ctx = msg.message?.extendedTextMessage?.contextInfo
-            if (!ctx) return null
-            if (ctx.mentionedJid?.length) return ctx.mentionedJid[0]
-            if (ctx.participant) return ctx.participant
+
+            // Menção
+            if (ctx?.mentionedJid?.length) {
+                return ctx.mentionedJid[0]
+            }
+
+            // Reply
+            if (ctx?.participant) {
+                return ctx.participant
+            }
+
+            // LID digitado manualmente
+            const manualId = args[1]
+
+            if (manualId) {
+                // Já veio completo
+                if (manualId.includes("@")) {
+                    return manualId
+                }
+
+                // Apenas números
+                if (/^\d+$/.test(manualId)) {
+                    return `${manualId}@lid`
+                }
+            }
+
             return null
         }
 
         if (command === "list" || !command) {
-            if (blacklist.length === 0) return sock.sendMessage(jid, { text: "✅ A blacklist está vazia." }, { quoted: msg })
+            if (blacklist.length === 0) {
+                return sock.sendMessage(
+                    jid,
+                    { text: "✅ A blacklist está vazia." },
+                    { quoted: msg }
+                )
+            }
 
-            let text = '╔═══✦ *🚫 BLACKLIST* ✦═══\n'
+            let text = "╔═══✦ *🚫 BLACKLIST* ✦═══\n"
             let mentions = []
             let i = 1
 
             for (const user of blacklist) {
-                text += `║ ${i}. ❌ @${user.split('@')[0]}\n`
+                text += `║ ${i}. ❌ @${user.split("@")[0]}\n`
                 mentions.push(user)
                 i++
             }
 
-            text += '╚═════════════════════'
-            return sock.sendMessage(jid, { text, mentions })
+            text += "╚═════════════════════"
+
+            return sock.sendMessage(jid, {
+                text,
+                mentions
+            })
         }
 
         if (command === "add") {
             const target = getTarget()
-            if (!target) return sock.sendMessage(jid, {
-                text: "❌ Você precisa marcar um usuário ou responder a mensagem dele."
-            }, { quoted: msg })
+
+            if (!target) {
+                return sock.sendMessage(
+                    jid,
+                    {
+                        text: "❌ Você precisa marcar um usuário, responder a mensagem dele ou informar um LID."
+                    },
+                    { quoted: msg }
+                )
+            }
 
             const isCreator = target === botConfig.botCreator
             const isMaster = target === botConfig.botMaster
             const isOwner = groupConfig.botOwners?.includes(target)
+
             if (isCreator || isMaster || isOwner) {
-                return sock.sendMessage(jid, {
-                    text: `❌ Você não pode adicionar o ${isCreator ? "criador" : isMaster ? "master" : "dono do bot"} na blacklist!`
-                }, { quoted: msg })
+                return sock.sendMessage(
+                    jid,
+                    {
+                        text: `❌ Você não pode adicionar o ${
+                            isCreator
+                                ? "criador"
+                                : isMaster
+                                    ? "master"
+                                    : "dono do bot"
+                        } na blacklist!`
+                    },
+                    { quoted: msg }
+                )
             }
 
             if (blacklist.includes(target)) {
-                return sock.sendMessage(jid, {
-                    text: `⚠️ O usuário @${target.split("@")[0]} já está na blacklist.`,
-                    mentions: [target]
-                }, { quoted: msg })
+                return sock.sendMessage(
+                    jid,
+                    {
+                        text: `⚠️ O usuário @${target.split("@")[0]} já está na blacklist.`,
+                        mentions: [target]
+                    },
+                    { quoted: msg }
+                )
             }
 
             blacklist.push(target)
@@ -74,25 +129,58 @@ export default {
         }
 
         if (command === "remove") {
+            let target
 
-            const target = args[1] && !isNaN(args[1]) ? blacklist[parseInt(args[1]) - 1] : getTarget()
-            if (!target) return sock.sendMessage(jid, {
-                text: "❌ Informe um usuário com @, responda a mensagem dele ou use o número da lista (/bl remove 2)."
-            }, { quoted: msg })
+            // Remove pelo número da lista
+            const possibleIndex = parseInt(args[1])
+
+            if (
+                !isNaN(possibleIndex) &&
+                blacklist[possibleIndex - 1] &&
+                !args[1]?.includes("@")
+            ) {
+                target = blacklist[possibleIndex - 1]
+            }
+
+            // Remove por menção, reply ou LID
+            if (!target) {
+                target = getTarget()
+            }
+
+            if (!target) {
+                return sock.sendMessage(
+                    jid,
+                    {
+                        text: "❌ Informe um usuário com @, responda a mensagem dele, informe um LID ou use o número da lista (/bl remove 2)."
+                    },
+                    { quoted: msg }
+                )
+            }
 
             const isCreator = target === botConfig.botCreator
             const isOwner = groupConfig.botOwners?.includes(target)
+
             if (isCreator || isOwner) {
-                return sock.sendMessage(jid, {
-                    text: `❌ Você não pode remover o ${isCreator ? "criador" : "dono do bot"} da blacklist!`
-                }, { quoted: msg })
+                return sock.sendMessage(
+                    jid,
+                    {
+                        text: `❌ Você não pode remover o ${
+                            isCreator ? "criador" : "dono do bot"
+                        } da blacklist!`
+                    },
+                    { quoted: msg }
+                )
             }
 
             if (!blacklist.includes(target)) {
-                return sock.sendMessage(jid, {
-                    text: `⚠️ O usuário @${target.split("@")[0]} não está na blacklist.`,
-                    mentions: [target]
-                }, { quoted: msg })
+                return sock.sendMessage(
+                    jid,
+                    {
+                        text: `⚠️ O usuário @${target.split("@")[0]} não está na blacklist.`,
+                        mentions: [target]
+                    },
+                    { quoted: msg }
+                )
             }
 
             blacklist.splice(blacklist.indexOf(target), 1)
@@ -105,8 +193,18 @@ export default {
             })
         }
 
-        return sock.sendMessage(jid, {
-            text: "❌ Comando inválido.\nUse:\n\n• *bl add @user*\n• *bl remove @user / reply / número*\n• *bl list*"
-        }, { quoted: msg })
+        return sock.sendMessage(
+            jid,
+            {
+                text:
+                    "❌ Comando inválido.\nUse:\n\n" +
+                    "• *bl add @user*\n" +
+                    "• *bl add 1234xxxx@lid*\n" +
+                    "• *bl remove @user*\n" +
+                    "• *bl remove 2*\n" +
+                    "• *bl list*"
+            },
+            { quoted: msg }
+        )
     }
 }
