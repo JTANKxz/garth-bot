@@ -18,7 +18,9 @@ import { getGroupConfig } from "../utils/groups.js"
 import { maybeDropChest } from "../utils/maybeDropChest.js";
 import { buscarAppListener } from "../listeners/playstore.js";
 import { checkAchievements } from "../features/achievements/achievementsHandler.js";
-import { handleLoanDecision } from "../utils/loanRequests.js"; // ajuste o caminho
+import { handleLoanDecision } from "../utils/loanRequests.js";
+import { checkSpam, clearUserSpamTracker } from "../utils/antispam.js";
+import { logMessage } from "../utils/messageLogger.js";
 // import { handleAiTrigger } from "../utils/ollama.js";
 
 
@@ -42,46 +44,6 @@ export async function getCachedGroupMetadata(sock, jid) {
     return metadata
 }
 
-// SISTEMA ANTI-SPAM
-const spamDB = {};
-
-function antiSpam(sender) {
-    const now = Date.now();
-
-    if (!spamDB[sender]) {
-        spamDB[sender] = { msgs: 0, last: now, blocked: false };
-        return false;
-    }
-
-    const user = spamDB[sender];
-
-    if (user.blocked) {
-        if (now - user.last > 30000) {// após 30 segundos
-            user.blocked = false;
-            user.msgs = 0;
-        } else {
-            return true;
-        }
-    }
-
-    if (now - user.last < 900) {
-        user.msgs++;
-
-        if (user.msgs >= 6) {
-            user.blocked = true;
-            user.last = now;
-            console.log("Anti-spam bloqueou:", sender);
-            return true;
-        }
-
-    } else {
-        user.msgs = 1;
-    }
-
-    user.last = now;
-    return false;
-}
-
 export default async function messageHandler(messages, sock) {
     const msg = messages[0];
     if (!msg || msg.key.fromMe || !msg.message) return;
@@ -90,6 +52,9 @@ export default async function messageHandler(messages, sock) {
 
     // ❌ BOT NÃO FUNCIONA EM PV
     if (!groupJid.endsWith("@g.us")) return;
+
+    // ===== LOG DE MENSAGENS =====
+    logMessage(msg);
 
     const msgType = Object.keys(msg.message)[0]
 
@@ -116,7 +81,26 @@ export default async function messageHandler(messages, sock) {
     const muted = await muteMiddleware(msg, sock, getCachedGroupMetadata);
 
     if (!muted) {
-        if (antiSpam(sender)) return;
+        // ===== NOVO ANTISPAM =====
+        const spamCheck = checkSpam(groupJid, sender);
+        if (spamCheck.isSpam) {
+            // Se deve aplicar advertência
+            if (spamCheck.warned) {
+                try {
+                    const metadata = await getCachedGroupMetadata(sock, groupJid);
+                    const isSenderAdmin = metadata.participants.find(p => p.id === sender && p.admin);
+                    
+                    if (!isSenderAdmin) {
+                        // Aqui você pode implementar a lógica de advertência
+                        // Por enquanto, apenas bloqueia
+                        console.log(`[SPAM] ${sender} foi bloqueado em ${groupJid}`);
+                    }
+                } catch (err) {
+                    console.error("Erro ao verificar admin:", err);
+                }
+            }
+            return;
+        }
 
         // ============ MIDDLEWARE - AUSENTE ============
         await ausenteMiddleware(msg, sock);

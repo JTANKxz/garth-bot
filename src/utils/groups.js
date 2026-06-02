@@ -32,6 +32,15 @@ const defaultConfig = {
     enabled: false,
     expiresAt: null, // number (ms) | null
   },
+
+  // ✅ Antispam do grupo
+  antispam: {
+    enabled: false,
+    maxMessages: 6,
+    timeWindow: 900,
+    blockDuration: 30000,
+    warnOnSpam: true
+  }
 };
 
 // Carrega o cache
@@ -69,6 +78,30 @@ function normalizeVip(config) {
   if (!expOk) config.vip.expiresAt = vipDefault.expiresAt;
 }
 
+// ✅ normaliza Antispam
+function normalizeAntispam(config) {
+  const spamDefault = defaultConfig.antispam;
+
+  if (!config.antispam || typeof config.antispam !== "object") {
+    config.antispam = { ...spamDefault };
+    return;
+  }
+
+  if (typeof config.antispam.enabled !== "boolean") config.antispam.enabled = spamDefault.enabled;
+  if (typeof config.antispam.maxMessages !== "number" || config.antispam.maxMessages < 1) {
+    config.antispam.maxMessages = spamDefault.maxMessages;
+  }
+  if (typeof config.antispam.timeWindow !== "number" || config.antispam.timeWindow < 100) {
+    config.antispam.timeWindow = spamDefault.timeWindow;
+  }
+  if (typeof config.antispam.blockDuration !== "number" || config.antispam.blockDuration < 100) {
+    config.antispam.blockDuration = spamDefault.blockDuration;
+  }
+  if (typeof config.antispam.warnOnSpam !== "boolean") {
+    config.antispam.warnOnSpam = spamDefault.warnOnSpam;
+  }
+}
+
 // ✅ se expirou, desativa e limpa expiresAt
 function autoExpireVipIfNeeded(config) {
   if (!config?.vip?.enabled) return;
@@ -98,6 +131,9 @@ export function getGroupConfig(groupId) {
     // VIP é objeto, então normaliza
     normalizeVip(groupCache[groupId]);
 
+    // Antispam também é objeto, normaliza
+    normalizeAntispam(groupCache[groupId]);
+
     // auto-expira se necessário
     autoExpireVipIfNeeded(groupCache[groupId]);
 
@@ -118,6 +154,10 @@ export function updateGroupConfig(groupId, newData) {
 
   // se newData.vip veio parcial, garante estrutura
   normalizeVip(groupCache[groupId]);
+
+  // se newData.antispam veio parcial, garante estrutura
+  normalizeAntispam(groupCache[groupId]);
+
   autoExpireVipIfNeeded(groupCache[groupId]);
 
   saveCache();
@@ -136,6 +176,7 @@ export async function updateGroupName(groupId, sock) {
     groupCache[groupId].groupName = meta.subject;
 
     normalizeVip(groupCache[groupId]);
+    normalizeAntispam(groupCache[groupId]);
     autoExpireVipIfNeeded(groupCache[groupId]);
 
     saveCache();
