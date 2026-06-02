@@ -8,7 +8,7 @@ export default {
     const from = msg.key.remoteJid;
 
     await sock.sendMessage(from, {
-      text: "Reiniciando o bot. Se o servidor estiver usando PM2, Docker ou outro gerenciador, ele deve subir novamente em alguns segundos."
+      text: "Reiniciando o bot. O servidor vai subir em alguns segundos."
     }, { quoted: msg });
 
     setTimeout(() => {
