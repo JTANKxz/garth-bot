@@ -2,18 +2,25 @@ import { getGroupConfig, updateGroupConfig } from "../../utils/groups.js"
 import { getBotConfig } from "../../config/botConfig.js"
 
 /**
- * Converte um número para formato LID completo
- * Ex: "92071968931959" -> "92071968931959:1@lid"
+ * Converte um número para formato WhatsApp padrão
+ * Ex: "92071968931959" -> "92071968931959@s.whatsapp.net"
+ * Assim salva igual quando o bot adiciona normalmente
  */
-function formatAsLid(numberOrJid) {
+function formatAsWhatsapp(numberOrJid) {
   if (!numberOrJid) return null;
   
-  // Se já é um JID completo, retorna
-  if (numberOrJid.includes("@")) return numberOrJid;
+  // Se já é um JID com @s.whatsapp.net, retorna
+  if (numberOrJid.includes("@s.whatsapp.net")) return numberOrJid;
   
-  // Se é apenas um número, formata como LID
+  // Se é apenas um número, formata com @s.whatsapp.net
   if (/^\d+$/.test(numberOrJid)) {
-    return `${numberOrJid}:1@lid`;
+    return `${numberOrJid}@s.whatsapp.net`;
+  }
+  
+  // Se vem com @lid, extrai o número e formata com @s.whatsapp.net
+  if (numberOrJid.includes("@lid")) {
+    const number = numberOrJid.replace(/:.*@lid$/, "").replace("@lid", "");
+    return `${number}@s.whatsapp.net`;
   }
   
   return numberOrJid;
@@ -63,7 +70,7 @@ export default {
 
             for (const user of blacklist) {
                 const number = extractNumber(user);
-                text += `║ ${i}. ❌ ${number || user}\n`
+                text += `║ ${i}. ❌ @${number || user}\n`
                 mentions.push(user)
                 i++
             }
@@ -80,7 +87,7 @@ export default {
             if (args[1]) {
                 const arg = args[1].replace(/[@]/g, ""); // Remove @ se tiver
                 if (/^\d+(?::\d+)?(?:@.*)?$/.test(arg)) {
-                  target = formatAsLid(arg);
+                  target = formatAsWhatsapp(arg);
                 }
             }
 
@@ -107,7 +114,7 @@ export default {
             if (blacklist.includes(target)) {
                 const number = extractNumber(target);
                 return sock.sendMessage(jid, {
-                    text: `⚠️ O usuário ${number || target} já está na blacklist.`,
+                    text: `⚠️ O usuário @${number} já está na blacklist.`,
                     mentions: [target]
                 }, { quoted: msg })
             }
@@ -118,7 +125,7 @@ export default {
 
             const number = extractNumber(target);
             return sock.sendMessage(jid, {
-                text: `✅ Usuário ${number || target} foi adicionado à blacklist.`,
+                text: `✅ Usuário @${number} foi adicionado à blacklist.`,
                 mentions: [target]
             })
         }
@@ -138,11 +145,11 @@ export default {
                   target = blacklist[parseInt(arg) - 1];
                 } else if (/^\d+/.test(arg)) {
                   // Se não for posição válida, trata como número/LID
-                  target = formatAsLid(arg);
+                  target = formatAsWhatsapp(arg);
                 }
               } else if (/^\d+/.test(arg)) {
                 // Se começa com número mas tem caracteres, pode ser LID
-                target = formatAsLid(arg.replace(/[@]/g, ""));
+                target = formatAsWhatsapp(arg.replace(/[@]/g, ""));
               }
             }
 
@@ -168,7 +175,7 @@ export default {
             if (!blacklist.includes(target)) {
                 const number = extractNumber(target);
                 return sock.sendMessage(jid, {
-                    text: `⚠️ O usuário ${number || target} não está na blacklist.`,
+                    text: `⚠️ O usuário @${number} não está na blacklist.`,
                     mentions: [target]
                 }, { quoted: msg })
             }
@@ -179,7 +186,7 @@ export default {
 
             const number = extractNumber(target);
             return sock.sendMessage(jid, {
-                text: `🟢 Usuário ${number || target} foi removido da blacklist.`,
+                text: `🟢 Usuário @${number} foi removido da blacklist.`,
                 mentions: [target]
             })
         }
