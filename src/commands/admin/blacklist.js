@@ -2,25 +2,18 @@ import { getGroupConfig, updateGroupConfig } from "../../utils/groups.js"
 import { getBotConfig } from "../../config/botConfig.js"
 
 /**
- * Converte um número para formato WhatsApp padrão
- * Ex: "92071968931959" -> "92071968931959@s.whatsapp.net"
- * Assim salva igual quando o bot adiciona normalmente
+ * Converte um número para formato LID completo
+ * Ex: "92071968931959" -> "92071968931959:1@lid"
  */
-function formatAsWhatsapp(numberOrJid) {
+function formatAsLid(numberOrJid) {
   if (!numberOrJid) return null;
   
-  // Se já é um JID com @s.whatsapp.net, retorna
-  if (numberOrJid.includes("@s.whatsapp.net")) return numberOrJid;
+  // Se já é um JID completo, retorna
+  if (numberOrJid.includes("@")) return numberOrJid;
   
-  // Se é apenas um número, formata com @s.whatsapp.net
+  // Se é apenas um número, formata como LID
   if (/^\d+$/.test(numberOrJid)) {
-    return `${numberOrJid}@s.whatsapp.net`;
-  }
-  
-  // Se vem com @lid, extrai o número e formata com @s.whatsapp.net
-  if (numberOrJid.includes("@lid")) {
-    const number = numberOrJid.replace(/:.*@lid$/, "").replace("@lid", "");
-    return `${number}@s.whatsapp.net`;
+    return `${numberOrJid}:1@lid`;
   }
   
   return numberOrJid;
@@ -87,7 +80,7 @@ export default {
             if (args[1]) {
                 const arg = args[1].replace(/[@]/g, ""); // Remove @ se tiver
                 if (/^\d+(?::\d+)?(?:@.*)?$/.test(arg)) {
-                  target = formatAsWhatsapp(arg);
+                  target = formatAsLid(arg);
                 }
             }
 
@@ -145,11 +138,11 @@ export default {
                   target = blacklist[parseInt(arg) - 1];
                 } else if (/^\d+/.test(arg)) {
                   // Se não for posição válida, trata como número/LID
-                  target = formatAsWhatsapp(arg);
+                  target = formatAsLid(arg);
                 }
               } else if (/^\d+/.test(arg)) {
                 // Se começa com número mas tem caracteres, pode ser LID
-                target = formatAsWhatsapp(arg.replace(/[@]/g, ""));
+                target = formatAsLid(arg.replace(/[@]/g, ""));
               }
             }
 
@@ -192,7 +185,7 @@ export default {
         }
 
         return sock.sendMessage(jid, {
-            text: "❌ Comando inválido.\nUse:\n\n• *bl add @user* - Marcar usuário\n• *bl add 92071968931959* - Adicionar por LID\n• *bl remove @user / número / LID*\n• *bl list* - Listar blacklist"
+            text: "❌ Comando inválido.\nUse:\n\n• *bl add @user* - Marcar usuário\n• *bl add 92071968931959* - Adicionar por LID\n• *bl remove @user / LID*\n• *bl list* - Listar blacklist"
         }, { quoted: msg })
     }
 }
