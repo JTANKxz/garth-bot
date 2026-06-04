@@ -2,7 +2,7 @@
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "https://ollama.joetank.online";
 const DEFAULT_MODEL =
-  process.env.OLLAMA_MODEL || "gemini-3-flash-preview"; // ajuste p/ :latest se necessário
+  process.env.OLLAMA_MODEL || "minimax-m3:cloud"; // ajuste p/ :latest se necessário
 
 const DEFAULT_SYSTEM_PROMPT = `
 Você está em um grupo de WhatsApp com adolescentes.
