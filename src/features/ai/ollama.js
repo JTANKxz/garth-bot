@@ -1,6 +1,6 @@
 // src/features/ai/ollama.js
 
-const OLLAMA_URL = process.env.OLLAMA_URL || "https://ollama.joetank.online:11434";
+const OLLAMA_URL = process.env.OLLAMA_URL || "https://ollama.joetank.online";
 const DEFAULT_MODEL =
   process.env.OLLAMA_MODEL || "gemini-3-flash-preview"; // ajuste p/ :latest se necessário
 
