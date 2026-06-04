@@ -35,7 +35,8 @@ async function loadCommandsFrom(dir, permission) {
 
     for (const file of files) {
         const cmdPath = path.join(dir, file)
-        const cmd = (await import(pathToFileURL(cmdPath).href)).default
+        const fileUrl = pathToFileURL(cmdPath).href + `?update=${Date.now()}`
+        const cmd = (await import(fileUrl)).default
 
         if (!cmd?.name) continue
 
@@ -45,7 +46,7 @@ async function loadCommandsFrom(dir, permission) {
 }
 
 // === Carregar comandos por tipo ===
-async function loadCommandSystem() {
+export async function loadCommandSystem() {
     const base = path.join(__dirname, '../commands')
     await loadCommandsFrom(path.join(base, 'public'), "public")
     await loadCommandsFrom(path.join(base, 'admin'), "admin")
@@ -54,6 +55,12 @@ async function loadCommandSystem() {
     console.log(`\n✅ Total de comandos carregados: ${commands.size}\n`)
 }
 (async () => { await loadCommandSystem() })()
+
+export async function reloadCommandSystem() {
+    commands.clear()
+    aliases.clear()
+    await loadCommandSystem()
+}
 
 export { commands, aliases }
 

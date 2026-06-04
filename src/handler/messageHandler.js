@@ -22,7 +22,7 @@ import { handleLoanDecision } from "../utils/loanRequests.js";
 import { checkSpam, clearUserSpamTracker } from "../utils/antispam.js";
 import { logMessage } from "../utils/messageLogger.js";
 import { applyWarning } from "../features/warning.js";
-// import { handleAiTrigger } from "../utils/ollama.js";
+import { handleAiTrigger } from "../utils/ollama.js";
 
 
 const groupMetadataCache = new Map()
@@ -50,22 +50,22 @@ export default async function messageHandler(messages, sock) {
     if (!msg || msg.key.fromMe || !msg.message) return;
 
     const groupJid = msg.key.remoteJid;
+    const sender = msg.key.participant || msg.key.remoteJid;
 
-    // ❌ BOT NÃO FUNCIONA EM PV
-    if (!groupJid.endsWith("@g.us")) return;
+    const botConfig = getBotConfig()
+    const isCreator = sender === botConfig.botCreator
+
+    // ❌ BOT NÃO FUNCIONA EM PV (a não ser que seja o criador)
+    if (!groupJid.endsWith("@g.us") && !isCreator) return;
 
     // ===== LOG DE MENSAGENS =====
     logMessage(msg);
 
     const msgType = Object.keys(msg.message)[0]
-
-    const sender = msg.key.participant || msg.key.remoteJid;
     const pushName = msg.pushName || "";
 
-    const botConfig = getBotConfig()
-    const isCreator = sender === botConfig.botCreator
     const isBotMaster = sender === botConfig.botMaster
-    const groupConfig = getGroupConfig(groupJid) || {}
+    const groupConfig = groupJid.endsWith("@g.us") ? (getGroupConfig(groupJid) || {}) : {}
 
     const text = msg.message.conversation || msg.message.extendedTextMessage?.text || ''
 
@@ -182,7 +182,7 @@ export default async function messageHandler(messages, sock) {
     // ============ IA (menção ao bot) ============
     // ============ IA (gatilho Bot/Garth) ============
     // Desativado: IA nao sera mais chamada por "bot" ou "garth".
-    // if (await handleAiTrigger({ sock, msg, groupJid, groupConfig, sender, pushName })) return;
+    if (await handleAiTrigger({ sock, msg, groupJid, groupConfig, sender, pushName })) return;
 
     await maybeDropChest({ sock, msg });
 

@@ -1,8 +1,8 @@
 {
-  "win_rate_base": 35,
-  "win_rate_vip": 50,
-  "daily_base": 150,
-  "daily_vip_bonus": 100,
+  "win_rate_base": 25,
+  "win_rate_vip": 30,
+  "daily_base": 350,
+  "daily_vip_bonus": 450,
   "rob_chance_base": 25,
   "rob_chance_thief": 35,
   "lottery_ticket_price": 500,

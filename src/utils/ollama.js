@@ -33,6 +33,17 @@ function extractPromptByPrefix(text) {
   return (match[2] || "").trim();
 }
 
+function extractDevPromptByPrefix(text) {
+  const t = String(text || "").trim();
+  if (!t) return "";
+
+  const re = /^(gdev|garth\s+dev|garth\s+criador)\b[\s:,\-–—]*([\s\S]+)$/i;
+  const match = t.match(re);
+  if (!match) return "";
+
+  return (match[2] || "").trim();
+}
+
 /**
  * Normaliza JID removendo sufixo (@lid, @s.whatsapp.net etc)
  */
@@ -58,10 +69,50 @@ export async function handleAiTrigger({ sock, msg, groupJid, groupConfig, sender
   const creatorJid = botConfig?.botCreator || "";
   const isCreator = creatorJid && jidBase(sender) === jidBase(creatorJid);
 
-  // ✅ IA desligada no grupo? só o criador pode usar
+  const rawText = getTextFromMsg(msg);
+  const devPrompt = extractDevPromptByPrefix(rawText);
+
+  // 🛡️ ROTA DA I.A. DO CRIADOR
+  if (devPrompt && isCreator) {
+    try {
+      await sock.sendPresenceUpdate("composing", groupJid);
+      
+      const { runCreatorAgent } = await import("../features/ai/creatorAi.js");
+      const { getCreatorHistory, addCreatorMessage } = await import("./creatorAiMemory.js");
+
+      const history = getCreatorHistory();
+      const isGroup = groupJid.endsWith("@g.us");
+
+      const answer = await runCreatorAgent({
+        prompt: devPrompt,
+        history,
+        isGroup,
+        groupJid,
+        sock
+      });
+
+      if (answer) {
+        addCreatorMessage("user", devPrompt);
+        addCreatorMessage("assistant", answer);
+
+        await sock.sendMessage(groupJid, { text: answer }, { quoted: msg });
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error("[IA Criador] ❌ Erro:", err?.message || err);
+      await sock.sendMessage(
+        groupJid,
+        { text: `⚠️ Erro na I.A. dev: ${err.message}` },
+        { quoted: msg }
+      );
+      return true;
+    }
+  }
+
+  // ✅ IA desligada no grupo? só o criador pode usar (I.A. padrão)
   if (groupConfig?.ai !== true && !isCreator) return false;
 
-  const rawText = getTextFromMsg(msg);
   const prompt = extractPromptByPrefix(rawText);
 
   // Precisa ter argumento após o gatilho
