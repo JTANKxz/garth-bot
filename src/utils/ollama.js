@@ -37,7 +37,7 @@ function extractDevPromptByPrefix(text) {
   const t = String(text || "").trim();
   if (!t) return "";
 
-  const re = /^(gdev|garth\s+dev|garth\s+criador)\b[\s:,\-–—]*([\s\S]+)$/i;
+  const re = /^(gar|garth\s+dev|garth\s+criador)\b[\s:,\-–—]*([\s\S]+)$/i;
   const match = t.match(re);
   if (!match) return "";
 
