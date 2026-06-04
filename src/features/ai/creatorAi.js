@@ -5,7 +5,7 @@ import { exec } from "child_process";
 import { askOllama } from "./ollama.js";
 
 const CREATOR_SYSTEM_PROMPT = `
-Você é a I.A. de Desenvolvimento do Garth-Bot V5, atuando como o console de desenvolvimento inteligente e assistente direto do Criador do bot (João Tank).
+Você é o Garth. AJudante do seu criador, atuando como o console de desenvolvimento inteligente e assistente direto do Criador do bot (João Tank).
 Seu papel é ajudar o Criador a gerenciar, depurar, monitorar e auto-reprogramar o bot.
 
 Você é capaz de executar ferramentas emitindo um bloco JSON no formato abaixo.
@@ -52,8 +52,20 @@ REGRAS DE RESPOSTA E VISIBILIDADE EM GRUPO:
 - Se 'isGroup' for true, você está conversando em um grupo público. Nesse caso, você DEVE OCULTAR detalhes internos (caminhos de arquivos completos, códigos brutos, listagem de logs) na sua resposta final de conversa com o Criador, para evitar que outros membros do grupo vejam o código ou configurações do bot. Diga apenas o resultado de forma resumida (ex: "Grupo fechado!", "Comando !teste reprogramado com sucesso!").
 - Só exiba códigos ou caminhos de arquivos em grupo se o Criador pedir de forma explícita na mensagem dele (ex: "me mostre o código alterado", "qual o caminho do arquivo?").
 - Se 'isGroup' for false (conversa privada no PV), você está livre para responder com o nível máximo de detalhes, códigos completos e caminhos de arquivo.
-- Seja profissional, focado em desenvolvimento, prestativo e direto.
+- Seja profissional, focado em desenvolvimento, prestativo e direto Sem muitas explicações e rodeios, só explqie se o criador pedir e seja brincalhão, mas sem exagero.
 `.trim();
+
+function logDebug(title, data) {
+  try {
+    const logDir = path.join(process.cwd(), "logs");
+    if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
+    const logFile = path.join(logDir, "creator_agent.log");
+    const logEntry = `\n[${new Date().toISOString()}] === ${title} ===\n${typeof data === "object" ? JSON.stringify(data, null, 2) : data}\n`;
+    fs.appendFileSync(logFile, logEntry, "utf-8");
+  } catch (err) {
+    console.error("Erro ao escrever log de debug:", err.message);
+  }
+}
 
 function extractToolCall(text) {
   const mdRegex = /```json\s*([\s\S]+?)\s*```/;
@@ -63,7 +75,7 @@ function extractToolCall(text) {
       const parsed = JSON.parse(mdMatch[1].trim());
       if (parsed && parsed.tool) return parsed;
     } catch (e) {
-      // Ignorar erro e prosseguir
+      logDebug("TOOL PARSING ERROR (markdown)", mdMatch[1]);
     }
   }
 
@@ -74,7 +86,7 @@ function extractToolCall(text) {
       const parsed = JSON.parse(jsonMatch[1].trim());
       if (parsed && parsed.tool) return parsed;
     } catch (e) {
-      // Ignorar erro
+      logDebug("TOOL PARSING ERROR (raw json)", jsonMatch[1]);
     }
   }
 
@@ -231,6 +243,7 @@ async function executeTool(toolName, args = {}, { groupJid, sock }) {
 }
 
 export async function runCreatorAgent({ prompt, history, isGroup, groupJid, sock }) {
+  logDebug("AGENT START", { prompt, isGroup, groupJid });
   const currentHistory = [...history];
   const systemPrompt = CREATOR_SYSTEM_PROMPT.replace("{{isGroup}}", isGroup ? "true" : "false");
 
@@ -242,23 +255,30 @@ export async function runCreatorAgent({ prompt, history, isGroup, groupJid, sock
     loops++;
     const currentPrompt = isFirstLoop ? prompt : "Continue executando e forneça a resposta final ou chame a próxima ferramenta.";
     
+    logDebug(`LOOP ${loops} - ASKING OLLAMA`, { currentPrompt, historyLength: currentHistory.length });
+    
     const answer = await askOllama({
       prompt: currentPrompt,
       system: systemPrompt,
       history: currentHistory,
-      temperature: 0.1 // Baixa temperatura para chamadas JSON estáveis
+      temperature: 0.1
     });
 
     isFirstLoop = false;
 
     if (!answer) {
+      logDebug(`LOOP ${loops} - NO ANSWER RECEIVED`);
       return "⚠️ Nenhuma resposta gerada pelo modelo da I.A. dev.";
     }
+
+    logDebug(`LOOP ${loops} - OLLAMA ANSWER`, answer);
 
     const toolCall = extractToolCall(answer);
 
     if (toolCall) {
       console.log(`[CreatorAI] Ferramenta detectada: ${toolCall.tool}`);
+      logDebug(`LOOP ${loops} - TOOL DETECTED`, toolCall);
+      
       let toolResult;
       try {
         toolResult = await executeTool(toolCall.tool, toolCall.args, { groupJid, sock });
@@ -266,15 +286,19 @@ export async function runCreatorAgent({ prompt, history, isGroup, groupJid, sock
         toolResult = `Erro na ferramenta: ${err.message}`;
       }
 
+      logDebug(`LOOP ${loops} - TOOL RESULT`, toolResult);
+
       // Adiciona o histórico do loop de ReAct
       currentHistory.push({ role: "user", content: currentPrompt });
       currentHistory.push({ role: "assistant", content: answer });
       currentHistory.push({ role: "user", content: `[System Tool Output]:\n${toolResult}` });
     } else {
       // Resposta textual final
+      logDebug("AGENT END / FINAL RESPONSE", answer);
       return answer;
     }
   }
 
+  logDebug("AGENT END / MAX LOOPS REACHED");
   return "⚠️ Limite máximo de chamadas de ferramentas atingido (7 loops ReAct).";
 }
