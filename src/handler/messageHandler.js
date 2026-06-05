@@ -85,6 +85,13 @@ export default async function messageHandler(messages, sock) {
         // ===== NOVO ANTISPAM =====
         const spamCheck = checkSpam(groupJid, sender);
         if (spamCheck.isSpam) {
+            // Deletar a mensagem do usuário que caiu no spam
+            try {
+                await sock.sendMessage(groupJid, { delete: msg.key });
+            } catch (err) {
+                console.error("Erro ao deletar mensagem de spam:", err);
+            }
+
             // Se deve aplicar advertência
             if (spamCheck.warned) {
                 try {
@@ -94,11 +101,12 @@ export default async function messageHandler(messages, sock) {
                     if (!isSenderAdmin) {
                         // Aplica advertência por spam
                         const spamConfig = groupConfig.antispam || {};
+                        const botJid = sock.user.id.split(":")[0] + "@s.whatsapp.net";
                         await applyWarning(
                             sock,
                             groupJid,
                             sender,
-                            botConfig.botCreator, // Bot aplica a advertência
+                            botJid, // Bot aplica a advertência
                             `Spam detectado - ${spamConfig.maxMessages || 6} mensagens em menos de ${spamConfig.timeWindow || 900}ms`,
                             3 // limite padrão
                         );

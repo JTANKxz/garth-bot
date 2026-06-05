@@ -44,6 +44,15 @@ export default {
             }, { quoted: msg })
         }
 
+        const { getProtectedBy } = await import("../../utils/protect.js")
+        const protectedBy = getProtectedBy(jid, target)
+        if (protectedBy) {
+            return sock.sendMessage(jid, {
+                text: `❌ Você não pode advertir o usuário protegido por: @${protectedBy.split('@')[0]}`,
+                mentions: [protectedBy]
+            }, { quoted: msg })
+        }
+
         try {
             await applyWarning(sock, jid, target, sender, reason)
         } catch (err) {

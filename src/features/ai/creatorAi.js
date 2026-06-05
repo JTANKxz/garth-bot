@@ -223,6 +223,11 @@ async function executeTool(toolName, args = {}, { groupJid, sock }) {
         if (!groupJid.endsWith("@g.us")) return "Erro: Esta ação só pode ser executada em um grupo.";
         if (!targetJid) return "Erro: O argumento 'targetJid' é obrigatório para remoção.";
         const cleanJid = targetJid.includes("@") ? targetJid.trim() : `${targetJid.trim()}@s.whatsapp.net`;
+        const { getProtectedBy } = await import("../../utils/protect.js");
+        const protectedBy = getProtectedBy(groupJid, cleanJid);
+        if (protectedBy) {
+          return `Erro: O usuário @${cleanJid.split("@")[0]} está protegido por @${protectedBy.split("@")[0]} e não pode ser removido.`;
+        }
         try {
           await sock.groupParticipantsUpdate(groupJid, [cleanJid], "remove");
           return `Sucesso: O usuário @${cleanJid.split("@")[0]} foi kickado/removido do grupo.`;

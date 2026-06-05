@@ -22,6 +22,17 @@ export async function applyWarning(
   const groupConfig = getGroupConfig(groupId)
   const botConfig = getBotConfig()
 
+  // Verifica se o usuário está protegido contra avisos/moderação
+  const { getProtectedBy } = await import('../utils/protect.js')
+  const protectedBy = getProtectedBy(groupId, userJid)
+  if (protectedBy) {
+    await sock.sendMessage(groupId, {
+      text: `🛡️ O usuário @${userJid.split('@')[0]} está protegido por @${protectedBy.split('@')[0]} e não pode ser advertido!`,
+      mentions: [userJid, protectedBy]
+    })
+    return groupConfig.warnings?.[userJid] || 0
+  }
+
   // Garante que existam as estruturas
   if (!groupConfig.warnings) groupConfig.warnings = {}
   if (!groupConfig.warnings[userJid]) groupConfig.warnings[userJid] = 0
