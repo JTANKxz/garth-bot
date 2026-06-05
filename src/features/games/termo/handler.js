@@ -50,15 +50,42 @@ export async function termoListener(sock, msg, text) {
 
   // Vitória
   if (result.won) {
-    const reward = 350;
+    // Recompensa dinâmica:
+    // 1ª tentativa = 1000 fyne coins.
+    // Última tentativa (6ª) = 150 fyne coins.
+    // Decréscimo linear: 170 moedas por tentativa extra.
+    const attemptsUsed = result.attemptsUsed || 1;
+    const reward = Math.max(150, 1000 - (attemptsUsed - 1) * 170);
+
     addMoney(jid, sender, reward);
+
+    // Incrementar a estatística de vitórias no Termo para as conquistas
+    try {
+      const { incrementStat } = await import("../../progress/progressStore.js");
+      incrementStat(jid, sender, "termo_wins", 1);
+
+      // Verificar conquistas do Termo
+      const { checkAchievements } = await import("../../achievements/achievementsHandler.js");
+      const pushName = msg.pushName || "";
+      await checkAchievements({
+        sock,
+        groupId: jid,
+        user: sender,
+        type: "termo_win",
+        quoted: msg,
+        pushName
+      });
+    } catch (err) {
+      console.error("Erro ao processar conquistas do Termo:", err);
+    }
+
     const historyLines = formatTermoBoard(result.session);
     await sock.sendMessage(jid, {
       text:
         `🎉 *Parabéns! Você acertou!*\n\n` +
         `${historyLines}\n\n` +
         `✅ Palavra: *${result.word}*\n` +
-        `🎯 Tentativas usadas: *${result.attemptsUsed}/${result.session.maxAttempts}*\n` +
+        `🎯 Tentativas usadas: *${attemptsUsed}/${result.session.maxAttempts}*\n` +
         `💰 Recompensa: +${formatMoney(reward)}!`
     }, { quoted: msg });
     return true;

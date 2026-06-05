@@ -66,5 +66,36 @@ export const ACHIEVEMENTS = {
             reward: 200,
             text: "🏆 Envie *5.000 mensagens*."
         }
+    ],
+
+    termo_win: [
+        {
+            id: "termo_1",
+            name: "Primeira de Muitas",
+            count: 1,
+            reward: 50,
+            text: "Adivinhe sua *1ª palavra* no Termo."
+        },
+        {
+            id: "termo_5",
+            name: "Gênio das Palavras",
+            count: 5,
+            reward: 150,
+            text: "🏆 Adivinhe *5 palavras* no Termo."
+        },
+        {
+            id: "termo_10",
+            name: "Dicionário Ambulante",
+            count: 10,
+            reward: 300,
+            text: "🔥 Adivinhe *10 palavras* no Termo."
+        },
+        {
+            id: "termo_25",
+            name: "Vocabulário Lendário",
+            count: 25,
+            reward: 600,
+            text: "👑 Adivinhe *25 palavras* no Termo."
+        }
     ]
 };

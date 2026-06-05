@@ -6,7 +6,6 @@ import { GLOBALS } from '../utils/globals.js'
 import { getGroupConfig, updateGroupName } from "../utils/groups.js"
 import { getBotConfig } from "../config/botConfig.js"
 import { getDisabledCommand } from "../utils/disabledCommands.js"
-import { getCustomCommand, executeCustomCommand } from "../utils/customCommands.js"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -116,58 +115,10 @@ export async function handleCommand({ sock, msg }) {
             commands.get(cmdName) ||
             commands.get(aliases.get(cmdName))
 
-        // Se não encontrou comando builtin, verifica customCommands
-        let customCmd = null;
-        if (!command) {
-          customCmd = getCustomCommand(cmdName);
-          if (!customCmd) return; // Comando não existe
-        }
+        if (!command) return;
 
         const isBotOwner = (groupCfg.botOwners || []).includes(sender)
         const isPrivileged = isSuperUser || isBotOwner
-
-        // Validar permissões de comando customizado
-        if (customCmd) {
-          const cmdCategory = customCmd.category;
-          
-          // Validar categoria
-          if (cmdCategory === "creator" && !isCreator) {
-            return sock.sendMessage(jid, { 
-              react: { text: "🚫", key: msg.key } 
-            });
-          }
-          
-          if (cmdCategory === "owner" && !jid.endsWith("@g.us")) {
-            return; // Owner commands não funcionam em PV
-          }
-
-          if (cmdCategory === "owner" && jid.endsWith("@g.us")) {
-            const group = await getCachedGroupMetadata(sock, jid);
-            const isOwner = group.participants.some(p => 
-              p.id === sender && (p.admin === "admin" || p.admin === "superadmin")
-            );
-            if (!isOwner && !isBotOwner && !isSuperUser) {
-              return sock.sendMessage(jid, { 
-                react: { text: "❌", key: msg.key } 
-              });
-            }
-          }
-
-          if (cmdCategory === "admin" && jid.endsWith("@g.us")) {
-            const group = await getCachedGroupMetadata(sock, jid);
-            const isAdmin = group.participants.some(p =>
-              p.id === sender && (p.admin === "admin" || p.admin === "superadmin")
-            );
-            if (!isAdmin && !isBotOwner && !isSuperUser) {
-              return sock.sendMessage(jid, { 
-                react: { text: "❌", key: msg.key } 
-              });
-            }
-          }
-
-          // Executar comando customizado
-          return await executeCustomCommand(sock, jid, customCmd, msg);
-        }
 
         // Validações para comandos builtin
         const disabled = getDisabledCommand(command.name)

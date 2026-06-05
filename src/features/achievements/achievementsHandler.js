@@ -32,6 +32,10 @@ export async function checkAchievements({
         value = getStat(groupId, user, "stickers");
     }
 
+    if (type === "termo_win") {
+        value = getStat(groupId, user, "termo_wins");
+    }
+
     if (!value) return;
 
     for (const ach of list) {
