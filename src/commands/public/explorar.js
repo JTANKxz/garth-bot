@@ -1,6 +1,6 @@
 import { readJSON, writeJSON } from "../../utils/readJSON.js";
 import { formatMoney } from "../../utils/saldo.js";
-import { ensureUser } from "../../features/pet/service.js";
+import { ensureUser, gainPetXP } from "../../features/pet/service.js";
 
 const DB_PETS = "database/pets.json";
 const DB_LUCKY = "database/lucky.json";
@@ -77,9 +77,16 @@ export default {
         pet.stats.thirst = Math.max(0, pet.stats.thirst - 20);
         userPetData.lastExploreAt = now;
 
+        const leveledUp = gainPetXP(pet, 30);
+
         writeJSON(DB_PETS, petsDB);
         writeJSON(DB_LUCKY, luckyDB);
 
-        await sock.sendMessage(from, { text: `🏹 *MISSÃO DE EXPLORAÇÃO*\n\n${resultMsg}` }, { quoted: msg });
+        let finalMsg = `🏹 *MISSÃO DE EXPLORAÇÃO*\n\n${resultMsg}\n\n⭐ +30 XP!`;
+        if (leveledUp) {
+            finalMsg += `\n🎉 *LEVEL UP!* Nível *${pet.level}*!`;
+        }
+
+        await sock.sendMessage(from, { text: finalMsg }, { quoted: msg });
     }
 };

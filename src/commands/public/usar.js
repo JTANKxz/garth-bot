@@ -1,5 +1,5 @@
 import { readJSON, writeJSON } from "../../utils/readJSON.js";
-import { getPet } from "../../features/pet/service.js";
+import { getPet, gainPetXP } from "../../features/pet/service.js";
 
 const DB_LUCKY = "database/lucky.json";
 const DB_PETS = "database/pets.json";
@@ -59,12 +59,16 @@ export default {
             if (!pet) return sock.sendMessage(from, { text: "🐾 Você precisa de um pet para usar este item!" }, { quoted: msg });
             pet.stats.hunger = Math.min(100, pet.stats.hunger + 80);
             pet.stats.life = Math.min(100, pet.stats.life + 10);
-            successMsg = `🍖 *${pet.name}* adorou a ração premium! Fome recuperada.`;
+            const leveledUp = gainPetXP(pet, 25);
+            successMsg = `🍖 *${pet.name}* comeu a ração premium!\n⭐ +25 XP!`;
+            if (leveledUp) successMsg += `\n🎉 *LEVEL UP!* Nível *${pet.level}*!`;
         } 
         else if (itemKey === "pet_toy") {
             if (!pet) return sock.sendMessage(from, { text: "🐾 Você precisa de um pet para usar este item!" }, { quoted: msg });
             pet.stats.affection = Math.min(100, pet.stats.affection + 50);
-            successMsg = `🎾 Você brincou com *${pet.name}* e ele está muito feliz!`;
+            const leveledUp = gainPetXP(pet, 20);
+            successMsg = `🎾 Você brincou com *${pet.name}*!\n⭐ +20 XP!`;
+            if (leveledUp) successMsg += `\n🎉 *LEVEL UP!* Nível *${pet.level}*!`;
         }
         else if (itemKey === "luck_charm") {
             if (!user.items) user.items = {};

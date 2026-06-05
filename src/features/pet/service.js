@@ -18,6 +18,13 @@ export function sync(db, jid, sender) {
   if (pet?.type === "penguin") pet.type = "3";
   if (pet?.type === "pinguim") pet.type = "3";
 
+  if (pet.level === undefined) pet.level = 1;
+  if (pet.xp === undefined) pet.xp = 0;
+  if (!pet.stats) pet.stats = {};
+  if (pet.stats.strength === undefined) pet.stats.strength = 1;
+  if (pet.stats.agility === undefined) pet.stats.agility = 1;
+  if (pet.stats.protection === undefined) pet.stats.protection = 1;
+
   const hasDeparted = applyDecay(pet, Date.now());
 
   if (hasDeparted) {
@@ -54,7 +61,17 @@ export function createPet(db, jid, sender, name) {
         type,
         skin,
         ownedSkins: [skin], // começa com a skin default
-        stats: { life: 100, affection: 50, hunger: 80, thirst: 80 },
+        level: 1,
+        xp: 0,
+        stats: { 
+            life: 100, 
+            affection: 50, 
+            hunger: 80, 
+            thirst: 80,
+            strength: 1,
+            agility: 1,
+            protection: 1
+        },
         timestamps: {
             createdAt: Date.now(),
             updatedAt: Date.now(),
@@ -152,4 +169,56 @@ export function grantSkinOwnership(pet, skin) {
     if (!pet.ownedSkins.includes(skinStr)) {
         pet.ownedSkins.push(skinStr);
     }
+}
+
+export function getTrainCost(currentValue) {
+    return Math.round(10 * Math.pow(1.1146, currentValue));
+}
+
+export function trainPet(pet, attribute) {
+    applyDecay(pet);
+
+    const attrMap = {
+        forca: "strength",
+        força: "strength",
+        f: "strength",
+        agilidade: "agility",
+        agi: "agility",
+        a: "agility",
+        protecao: "protection",
+        proteção: "protection",
+        pro: "protection",
+        p: "protection"
+    };
+
+    const targetAttr = attrMap[attribute.toLowerCase()];
+    if (!targetAttr) return { ok: false, reason: "INVALID_ATTRIBUTE" };
+
+    if (!pet.stats) pet.stats = {};
+    if (pet.stats[targetAttr] === undefined) pet.stats[targetAttr] = 1;
+
+    const currentVal = pet.stats[targetAttr];
+    if (currentVal >= 100) return { ok: false, reason: "MAX_LEVEL" };
+
+    const cost = getTrainCost(currentVal);
+
+    return { ok: true, attribute: targetAttr, currentVal, cost };
+}
+
+export function gainPetXP(pet, amount) {
+    if (pet.level === undefined) pet.level = 1;
+    if (pet.xp === undefined) pet.xp = 0;
+
+    pet.xp += amount;
+    let xpNeeded = pet.level * 100;
+    let leveledUp = false;
+
+    while (pet.xp >= xpNeeded) {
+        pet.xp -= xpNeeded;
+        pet.level++;
+        leveledUp = true;
+        xpNeeded = pet.level * 100;
+    }
+
+    return leveledUp;
 }

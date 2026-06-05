@@ -82,26 +82,20 @@ export default {
             }
 
             const helpText =
-                `🐾 *Sistema de Pet*\n\n` +
-                `Criar:\n` +
-                `> *${prefix}pet criar <nome>*\n\n` +
-                `Ver status:\n` +
-                `> *${prefix}pet*\n` +
-                `> *${prefix}pet status*\n\n` +
-                `Interações:\n` +
-                `> *${prefix}pet carinho*\n` +
-                `> *${prefix}pet comida*\n` +
-                `> *${prefix}pet agua*\n\n` +
-                `Trocar nome:\n` +
-                `> *${prefix}pet nome <novo nome>*\n\n` +
-                `Trocar tipo de pet:\n` +
-                `> *${prefix}pet pets*\n` +
-                `> *${prefix}pet escolher <tipo>*\n\n` +
-                `Skins:\n` +
-                `> *${prefix}pet skins*\n` +
-                `> *${prefix}pet skin <skin>*\n\n` +
-                `Apagar:\n` +
-                `> *${prefix}pet reset*`;
+                `🐾 *Menu de Pets*\n\n` +
+                `👉 *${prefix}pet criar <nome>* — Adote um pet (${getCreatePrice()} coins)\n` +
+                `👉 *${prefix}pet status* — Veja os status e atributos\n` +
+                `👉 *${prefix}pet carinho* — Dê carinho no seu pet\n` +
+                `👉 *${prefix}pet comida* — Alimente seu pet\n` +
+                `👉 *${prefix}pet agua* — Dê água para seu pet\n` +
+                `👉 *${prefix}pet nome <nome>* — Renomeie o pet\n` +
+                `👉 *${prefix}pet pets* — Veja as espécies disponíveis\n` +
+                `👉 *${prefix}pet escolher <espécie>* — Troque de espécie\n` +
+                `👉 *${prefix}pet skins* — Lista de skins do pet\n` +
+                `👉 *${prefix}pet skin <skin>* — Equipe/Compre uma skin\n` +
+                `👉 *${prefix}pet treinar <atributo>* — Treine atributos (força/agilidade/proteção)\n` +
+                `👉 *${prefix}pet lutar @jogador* — Batalhe contra o pet de outro jogador\n` +
+                `👉 *${prefix}pet reset* — Abandone seu pet atual`;
 
             // sem args => status/help
             if (!args?.[0]) {
@@ -222,13 +216,14 @@ export default {
                 return;
             }
             // carinho/comida/agua
-            if (option === "carinho" || option === "comida" || option === "agua") {
-                const res = PetService.interact(pet, option);
+            if (option === "carinho" || option === "comida" || option === "agua" || option === "água") {
+                const action = option === "água" ? "agua" : option;
+                const res = PetService.interact(pet, action);
 
                 if (!res.ok && res.reason === "COOLDOWN") {
                     await sock.sendMessage(
                         jid,
-                        { text: `⏳ Calma! Tente de novo em *${formatWait(res.waitMs)}*.` },
+                        { text: `⏳ Espere *${formatWait(res.waitMs)}* para interagir.` },
                         { quoted: msg }
                     );
                     await sock.sendMessage(jid, { react: { text: "✅", key: msg.key } });
@@ -236,25 +231,25 @@ export default {
                 }
 
                 if (!res.ok) {
-                    await sock.sendMessage(jid, { text: "❌ Não deu pra interagir agora." }, { quoted: msg });
+                    await sock.sendMessage(jid, { text: "❌ Falha ao interagir." }, { quoted: msg });
                     await sock.sendMessage(jid, { react: { text: "❌", key: msg.key } });
                     return;
                 }
 
+                const leveledUp = PetService.gainPetXP(pet, 5);
                 saveDB(db);
 
-                // responde com status já atualizado (texto)
-                await sock.sendMessage(
-                    jid,
-                    {
-                        text:
-                            (option === "carinho" ? `🤗 Você deu carinho em *${pet.name}*!\n\n` : "") +
-                            (option === "comida" ? `🍖 Você alimentou *${pet.name}*!\n\n` : "") +
-                            (option === "agua" || option === "água"  ? `💧 Você deu água para *${pet.name}*!\n\n` : "")
-                    },
-                    { quoted: msg }
-                );
+                let successMsg = 
+                    (action === "carinho" ? `🤗 Carinho dado em *${pet.name}*!\n` : "") +
+                    (action === "comida" ? `🍖 Alimentado *${pet.name}*!\n` : "") +
+                    (action === "agua" ? `💧 Dado água para *${pet.name}*!\n` : "") +
+                    `⭐ +5 XP!`;
 
+                if (leveledUp) {
+                    successMsg += `\n🎉 *LEVEL UP!* Nível *${pet.level}*!`;
+                }
+
+                await sock.sendMessage(jid, { text: successMsg }, { quoted: msg });
                 await sock.sendMessage(jid, { react: { text: "✅", key: msg.key } });
                 return;
             }
@@ -487,6 +482,187 @@ export default {
                     { quoted: msg }
                 );
                 await sock.sendMessage(jid, { react: { text: "✅", key: msg.key } });
+                return;
+            }
+
+            // treinar
+            if (option === "treinar" || option === "treino" || option === "up") {
+                const attrInput = args[1] ? String(args[1]).toLowerCase().trim() : "";
+                
+                if (!attrInput) {
+                    const str = pet.stats.strength || 1;
+                    const agi = pet.stats.agility || 1;
+                    const pro = pet.stats.protection || 1;
+
+                    const costStr = str < 100 ? `${PetService.getTrainCost(str)} coins` : "MAX";
+                    const costAgi = agi < 100 ? `${PetService.getTrainCost(agi)} coins` : "MAX";
+                    const costPro = pro < 100 ? `${PetService.getTrainCost(pro)} coins` : "MAX";
+
+                    const msgText = 
+                        `🏋️ *Treinamento de Atributos*\n\n` +
+                        `⚔️ Força: *${str}/100* (Custo: ${costStr})\n` +
+                        `⚡ Agilidade: *${agi}/100* (Custo: ${costAgi})\n` +
+                        `🛡️ Proteção: *${pro}/100* (Custo: ${costPro})\n\n` +
+                        `👉 Digite:\n*${prefix}pet treinar força*\n*${prefix}pet treinar agilidade*\n*${prefix}pet treinar proteção*`;
+
+                    await sock.sendMessage(jid, { text: msgText }, { quoted: msg });
+                    await sock.sendMessage(jid, { react: { text: "✅", key: msg.key } });
+                    return;
+                }
+
+                const trainRes = PetService.trainPet(pet, attrInput);
+                if (!trainRes.ok) {
+                    if (trainRes.reason === "INVALID_ATTRIBUTE") {
+                        await sock.sendMessage(jid, { text: "❌ Escolha: força, agilidade ou proteção." }, { quoted: msg });
+                    } else if (trainRes.reason === "MAX_LEVEL") {
+                        await sock.sendMessage(jid, { text: "⭐ Atributo já está no nível máximo (100)!" }, { quoted: msg });
+                    }
+                    await sock.sendMessage(jid, { react: { text: "❌", key: msg.key } });
+                    return;
+                }
+
+                const { cost, attribute: targetAttr } = trainRes;
+                const saldo = getUserBalance(jid, sender);
+
+                if (saldo < cost) {
+                    await sock.sendMessage(
+                        jid,
+                        { text: `💰 Sem saldo! Custo: ${cost} coins. Saldo: ${saldo} coins.` },
+                        { quoted: msg }
+                    );
+                    await sock.sendMessage(jid, { react: { text: "❌", key: msg.key } });
+                    return;
+                }
+
+                removeUserBalance(jid, sender, cost);
+                pet.stats[targetAttr]++;
+                
+                const leveledUp = PetService.gainPetXP(pet, 15);
+                saveDB(db);
+
+                const attrLabels = {
+                    strength: "Força ⚔️",
+                    agility: "Agilidade ⚡",
+                    protection: "Proteção 🛡️"
+                };
+
+                let successMsg = `🏋️ *Atributo Melhorado!*\n\n` +
+                    `👉 ${attrLabels[targetAttr]}: *${pet.stats[targetAttr]}/100*\n` +
+                    `💰 Custo: *${cost} coins*\n` +
+                    `⭐ +15 XP!`;
+
+                if (leveledUp) {
+                    successMsg += `\n🎉 *LEVEL UP!* Nível *${pet.level}*!`;
+                }
+
+                await sock.sendMessage(jid, { text: successMsg }, { quoted: msg });
+                await sock.sendMessage(jid, { react: { text: "✅", key: msg.key } });
+                return;
+            }
+
+            // lutar
+            if (option === "lutar" || option === "batalhar" || option === "fight") {
+                const mentions = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
+                if (mentions.length === 0) {
+                    await sock.sendMessage(jid, { text: `❌ Marque o oponente! Ex: *${prefix}pet lutar @jogador*` }, { quoted: msg });
+                    await sock.sendMessage(jid, { react: { text: "❌", key: msg.key } });
+                    return;
+                }
+
+                const targetUser = mentions[0];
+                if (targetUser === sender) {
+                    await sock.sendMessage(jid, { text: "❌ Você não pode lutar contra si mesmo!" }, { quoted: msg });
+                    await sock.sendMessage(jid, { react: { text: "❌", key: msg.key } });
+                    return;
+                }
+
+                const targetUserData = db[jid]?.[targetUser];
+                if (!targetUserData || !targetUserData.pet) {
+                    await sock.sendMessage(jid, { text: "🐾 Oponente não tem pet!" }, { quoted: msg });
+                    await sock.sendMessage(jid, { react: { text: "❌", key: msg.key } });
+                    return;
+                }
+
+                PetService.sync(db, jid, targetUser);
+                const opponentPet = targetUserData.pet;
+                if (!opponentPet) {
+                    await sock.sendMessage(jid, { text: "🐾 O pet do oponente fugiu ou morreu!" }, { quoted: msg });
+                    await sock.sendMessage(jid, { react: { text: "❌", key: msg.key } });
+                    return;
+                }
+
+                if (pet.stats.life <= 20) {
+                    await sock.sendMessage(jid, { text: `❌ Seu pet (*${pet.name}*) está fraco (Vida <= 20%).` }, { quoted: msg });
+                    await sock.sendMessage(jid, { react: { text: "❌", key: msg.key } });
+                    return;
+                }
+                if (opponentPet.stats.life <= 20) {
+                    await sock.sendMessage(jid, { text: `❌ O pet do oponente está muito fraco!` }, { quoted: msg });
+                    await sock.sendMessage(jid, { react: { text: "❌", key: msg.key } });
+                    return;
+                }
+
+                const lastBattle = u.lastBattleAt || 0;
+                const now = Date.now();
+                const battleCooldown = 60 * 1000; // 1 min
+                if (now - lastBattle < battleCooldown) {
+                    const timeLeft = Math.ceil((battleCooldown - (now - lastBattle)) / 1000);
+                    await sock.sendMessage(jid, { text: `⏳ Recarregando... Tente em *${timeLeft}s*.` }, { quoted: msg });
+                    await sock.sendMessage(jid, { react: { text: "❌", key: msg.key } });
+                    return;
+                }
+
+                u.lastBattleAt = now;
+
+                const { simulatePetBattle } = await import("../../features/pet/battle.js");
+                const targetPushName = targetUserData.pushName || "Oponente";
+                const battleRes = simulatePetBattle(pet, opponentPet, pushName, targetPushName);
+
+                pet.stats.life = Math.max(10, pet.stats.life - 15);
+                opponentPet.stats.life = Math.max(10, opponentPet.stats.life - 15);
+
+                let rewardCoins = 0;
+                let xpGain = 0;
+                let resultText = "";
+
+                if (battleRes.winner === "A") {
+                    rewardCoins = 100;
+                    xpGain = 40;
+                    addMoney(jid, sender, rewardCoins);
+                    const lvlUp = PetService.gainPetXP(pet, xpGain);
+                    PetService.gainPetXP(opponentPet, 10);
+                    
+                    resultText = `🎉 *VITÓRIA!*\n🐾 *${pet.name}* venceu!\n💰 +${rewardCoins} coins\n⭐ +${xpGain} XP`;
+                    if (lvlUp) resultText += `\n🎉 *LEVEL UP!* Nível *${pet.level}*!`;
+                } else {
+                    rewardCoins = 30;
+                    xpGain = 10;
+                    addMoney(jid, sender, rewardCoins);
+                    const lvlUp = PetService.gainPetXP(pet, xpGain);
+                    
+                    const oppReward = 100;
+                    const oppXp = 40;
+                    addMoney(jid, targetUser, oppReward);
+                    PetService.gainPetXP(opponentPet, oppXp);
+
+                    resultText = `💀 *DERROTA!*\n🐾 *${pet.name}* perdeu...\n💰 +${rewardCoins} coins\n⭐ +${xpGain} XP`;
+                    if (lvlUp) resultText += `\n🎉 *LEVEL UP!* Nível *${pet.level}*!`;
+                }
+
+                saveDB(db);
+
+                const battleLogs = battleRes.rounds.join("\n");
+                
+                await sock.sendMessage(jid, {
+                    text: 
+                        `⚔️ *BATALHA DE PETS* ⚔️\n\n` +
+                        `${battleLogs}\n\n` +
+                        `---------------------\n` +
+                        `${resultText}\n\n` +
+                        `⚠️ *Ambos perderam 15% de vida.*`
+                }, { quoted: msg });
+
+                await sock.sendMessage(jid, { react: { text: "⚔️", key: msg.key } });
                 return;
             }
 
