@@ -1,8 +1,8 @@
 import fetch from 'node-fetch';
 import { getGroupConfig } from '../../utils/groups.js';
+import { pendingChoices } from '../../utils/movieState.js';
 
 const TMDB_API_KEY = 'edcd52275afd8b8c152c82f1ce3933a2';
-export const pendingChoices = {}; 
 
 export default {
     name: 'filme',

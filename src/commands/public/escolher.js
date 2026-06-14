@@ -1,5 +1,4 @@
-import { pendingChoices as pendingMovieChoices } from './filme.js';
-import { pendingSerieChoices } from './serie.js';
+import { pendingChoices as pendingMovieChoices, pendingSerieChoices } from '../../utils/movieState.js';
 import { getGroupConfig } from '../../utils/groups.js';
 import fetch from 'node-fetch';
 
