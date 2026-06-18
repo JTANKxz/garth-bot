@@ -3,5 +3,9 @@
   "botCreator": "244246317662300@lid",
   "botName": "GARTH-BOT V5",
   "prefix": "!",
-  "allowedGroups": []
+  "allowedGroups": [
+    "120363424226000735@g.us"
+  ],
+  "changelog": "",
+  "disabledCommands": {}
 }

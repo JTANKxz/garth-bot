@@ -132,7 +132,7 @@ export default {
         " | "
       );
 
-      const header = groupVip ? "🏢 *Consulta CNPJ (VIP💎)*" : "🏢 *Consulta CNPJ*";
+      const header = "🏢 *Consulta CNPJ*";
 
       const text =
         `${header}\n\n` +

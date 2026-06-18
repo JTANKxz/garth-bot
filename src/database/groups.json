@@ -1,29 +1,6 @@
 {
-  "120363403228411172@g.us": {
-    "groupName": "Adeemis topis 🕶",
-    "prefix": "/",
-    "welcomeMessage": "Seja bem-vindo(a)!",
-    "onlyAdmins": false,
-    "leaveGroupMessage": false,
-    "welcomeGroup": false,
-    "antilink": false,
-    "antifig": false,
-    "auto": false,
-    "autoLearn": false,
-    "ai": false,
-    "blacklisteds": [],
-    "warnings": {},
-    "muteds": {},
-    "botOwners": [],
-    "allowedUsers": [],
-    "blockedUsers": [],
-    "vip": {
-      "enabled": false,
-      "expiresAt": null
-    }
-  },
-  "120363417325136499@g.us": {
-    "groupName": "Preview Bot",
+  "120363426789177898@g.us": {
+    "groupName": "120363426789177898@g.us",
     "prefix": "!",
     "welcomeMessage": "Seja bem-vindo(a)!",
     "onlyAdmins": false,
@@ -40,13 +17,18 @@
     "botOwners": [],
     "allowedUsers": [],
     "blockedUsers": [],
-    "vip": {
+    "authExpiresAt": null,
+    "antispam": {
       "enabled": false,
-      "expiresAt": null
-    }
+      "maxMessages": 6,
+      "timeWindow": 900,
+      "blockDuration": 30000,
+      "warnOnSpam": true
+    },
+    "noprefix": false
   },
-  "120363403529943041@g.us": {
-    "groupName": "ksk",
+  "120363424226000735@g.us": {
+    "groupName": "SURUBAO",
     "prefix": "!",
     "welcomeMessage": "Seja bem-vindo(a)!",
     "onlyAdmins": false,
@@ -63,13 +45,18 @@
     "botOwners": [],
     "allowedUsers": [],
     "blockedUsers": [],
-    "vip": {
+    "authExpiresAt": 1784402774738,
+    "antispam": {
       "enabled": false,
-      "expiresAt": null
-    }
+      "maxMessages": 6,
+      "timeWindow": 900,
+      "blockDuration": 30000,
+      "warnOnSpam": true
+    },
+    "noprefix": false
   },
-  "120363406273325393@g.us": {
-    "groupName": "spam",
+  "120363407008130934@g.us": {
+    "groupName": "120363407008130934@g.us",
     "prefix": "!",
     "welcomeMessage": "Seja bem-vindo(a)!",
     "onlyAdmins": false,
@@ -86,9 +73,14 @@
     "botOwners": [],
     "allowedUsers": [],
     "blockedUsers": [],
-    "vip": {
+    "authExpiresAt": null,
+    "antispam": {
       "enabled": false,
-      "expiresAt": null
-    }
+      "maxMessages": 6,
+      "timeWindow": 900,
+      "blockDuration": 30000,
+      "warnOnSpam": true
+    },
+    "noprefix": false
   }
 }

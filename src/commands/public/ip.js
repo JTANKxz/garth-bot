@@ -67,9 +67,7 @@ export default {
 
       const yn = (v) => (v === true ? "Sim" : v === false ? "Não" : "—");
 
-      const header = groupVip
-        ? "🌐 *Consulta IP (VIP)*"
-        : "🌐 *Consulta IP*";
+      const header = "🌐 *Consulta IP*";
 
       const texto =
         `${header}\n\n` +

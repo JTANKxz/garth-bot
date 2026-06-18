@@ -76,9 +76,7 @@ export default {
       const firstFifty = sortedCities.slice(0, 50);
       const remaining = Math.max(0, sortedCities.length - firstFifty.length);
 
-      const header = groupVip
-        ? "📞 *Consulta de DDD (VIP💎)*"
-        : "📞 *Consulta de DDD*";
+      const header = "📞 *Consulta de DDD*";
 
       // ✅ lista vertical com ">" em cada linha
       const cityList = firstFifty.map((city) => `> • ${city}`).join("\n");

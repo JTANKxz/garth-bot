@@ -73,9 +73,7 @@ export default {
         return `> ${pos}. *${name}* — ${pts}pts _(V${v} E${e} D${d})_ | SG ${sg}`;
       };
 
-      const header = groupVip
-        ? `🏆 *${tournamentName} (VIP💎)*`
-        : `🏆 *${tournamentName}*`;
+      const header = `🏆 *${tournamentName}*`;
 
       let text =
         `${header}\n` +
