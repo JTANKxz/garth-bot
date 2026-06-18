@@ -89,6 +89,18 @@ export async function handleCommand({ sock, msg }) {
             !isCreator
         ) return
 
+        // ⚠️ ALUGUEL EXPIRADO: Apenas o CRIADOR pula essa trava
+        const isExpired = jid.endsWith("@g.us") && groupCfg.authExpiresAt && Date.now() >= groupCfg.authExpiresAt;
+        if (isExpired && !isCreator) {
+            const creatorJid = botConfig.botCreator;
+            const creatorFormatted = `@${creatorJid.split("@")[0]}`;
+            await sock.sendMessage(jid, {
+                text: `⚠️ *Tempo de Aluguel Expirado!*\n\nO tempo de uso autorizado para este bot neste grupo acabou.\nPara renovar, entre em contato com o Criador do Bot: ${creatorFormatted}`,
+                mentions: [creatorJid]
+            }, { quoted: msg });
+            return;
+        }
+
         const body =
             msg.message?.conversation ||
             msg.message?.extendedTextMessage?.text ||

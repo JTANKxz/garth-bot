@@ -1,6 +1,6 @@
 import { simulateTyping } from "../../helpers/typing.js"
 import { commands } from "../../handler/commandsHandler.js"
-import { getGroupConfig, isGroupVip } from "../../utils/groups.js"
+import { getGroupConfig } from "../../utils/groups.js"
 import { getBotConfig } from "../../config/botConfig.js"
 import { isCommandDisabled } from "../../utils/disabledCommands.js"
 import moment from "moment-timezone"
@@ -52,10 +52,18 @@ export default {
       }
     }
 
+    let expireText = ""
+    if (jid.endsWith("@g.us") && groupConfig.authExpiresAt) {
+      const remainingMs = Math.max(0, groupConfig.authExpiresAt - Date.now())
+      const remainingDays = Math.ceil(remainingMs / (1000 * 60 * 60 * 24))
+      expireText = `> ⏳ *Aluguel Restante:* ${remainingDays} dia(s)\n`
+    }
+
     let text = `👋 Olá, *${userName}*!\n` +
       `══════════════════\n` +
       `> 🤖 *${botConfig.botName}*\n` +
       `> 🔧 *Prefixo:* ${prefix}\n` +
+      expireText +
       `> 🕒 *${now}*\n` +
       `══════════════════\n`
 

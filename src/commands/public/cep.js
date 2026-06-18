@@ -1,4 +1,4 @@
-import { getGroupConfig, isGroupVip } from "../../utils/groups.js";
+import { getGroupConfig } from "../../utils/groups.js";
 import { getBotConfig } from "../../config/botConfig.js";
 
 export default {
@@ -7,7 +7,6 @@ export default {
   usage: "cep 01001000",
   aliases: ["viacep"],
   category: "utils",
-  vipOnly: true,
 
   async run({ sock, msg, args }) {
     const jid = msg.key.remoteJid;
@@ -15,16 +14,7 @@ export default {
     const groupConfig = getGroupConfig(jid);
     const botConfig = getBotConfig();
     const prefix = groupConfig.prefix || "!";
-
-    const groupVip = isGroupVip(jid);
     const isCreator = sender === botConfig.botCreator;
-
-    // 🔒 Se não for VIP e não for o criador → bloqueia
-    if (!groupVip && !isCreator) {
-      return sock.sendMessage(jid, {
-        text: `❌ Este comando é exclusivo para grupos VIP.`
-      }, { quoted: msg });
-    }
 
     // Validação do CEP
     if (!args[0]) {

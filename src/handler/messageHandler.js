@@ -78,6 +78,17 @@ export default async function messageHandler(messages, sock) {
         return;
     }
 
+    // ===== VERIFICAÇÃO DE ALUGUEL EXPIRADO =====
+    const isExpired = groupJid.endsWith("@g.us") && groupConfig.authExpiresAt && Date.now() >= groupConfig.authExpiresAt;
+    if (isExpired && !isCreator) {
+        const prefix = groupConfig.prefix || "!";
+        if (text.startsWith(prefix)) {
+            // Se for comando, envia para handleCommand tratar o aviso de expirado
+            await handleCommand({ sock, msg, sender, isCreator });
+        }
+        return; // não processa mais nada
+    }
+
     // ============ MIDDLEWARE - MUTE ============
     const muted = await muteMiddleware(msg, sock, getCachedGroupMetadata);
 

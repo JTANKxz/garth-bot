@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { getGroupConfig, isGroupVip } from "../../utils/groups.js";
+import { getGroupConfig } from "../../utils/groups.js";
 import { getBotConfig } from "../../config/botConfig.js";
 
 const dbJobsPath = path.resolve("src/database/jobs.json");
@@ -62,7 +62,6 @@ export default {
   aliases: ["demissao", "demissão", "sairdoemprego"],
   description: "Peça demissão do seu emprego (só pode pegar outro após 4h)",
   category: "fun",
-  vipOnly: true,
 
   async run({ sock, msg }) {
     const from = msg.key.remoteJid;
@@ -71,16 +70,7 @@ export default {
     const botConfig = getBotConfig();
     const groupConfig = getGroupConfig(from);
     const prefix = groupConfig.prefix || "!";
-
-    const groupVip = isGroupVip(from);
     const isCreator = sender === botConfig.botCreator;
-
-    // 🔒 Se não for VIP e não for o criador → bloqueia
-    if (!groupVip && !isCreator) {
-      return sock.sendMessage(from, {
-        text: `❌ Este comando é exclusivo para grupos VIP.`
-      }, { quoted: msg });
-    }
 
     try {
       const now = Date.now();

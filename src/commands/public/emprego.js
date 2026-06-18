@@ -1,4 +1,3 @@
-import { isGroupVip } from "../../utils/groups.js";
 import { getBotConfig } from "../../config/botConfig.js";
 import { JOBS, getJobById } from "../../features/jobs/catalog.js";
 import { hire } from "../../features/jobs/service.js";
@@ -77,13 +76,7 @@ export default {
     const sender = msg.key.participant || msg.key.remoteJid;
     const pushName = msg.pushName || "Usuario";
     const botConfig = getBotConfig();
-
-    const groupVip = isGroupVip(from);
     const isCreator = sender === botConfig.botCreator;
-
-    if (!groupVip && !isCreator) {
-      return sock.sendMessage(from, { text: "Este comando e exclusivo para grupos VIP." }, { quoted: msg });
-    }
 
     try {
       const chosenNumber = Number(args[0]);

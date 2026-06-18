@@ -1,4 +1,4 @@
-import { getGroupConfig, isGroupVip } from "../../utils/groups.js";
+import { getGroupConfig } from "../../utils/groups.js";
 import { getBotConfig } from "../../config/botConfig.js";
 
 export default {
@@ -7,7 +7,6 @@ export default {
   usage: "brasileirao",
   aliases: ["br", "seriea", "tabela"],
   category: "utils",
-  vipOnly: true,
 
   async run({ sock, msg }) {
     const jid = msg.key.remoteJid;
@@ -17,16 +16,7 @@ export default {
     const botConfig = getBotConfig();
 
     const isGroup = jid.endsWith("@g.us");
-    const groupVip = isGroup ? isGroupVip(jid) : false;
     const isCreator = sender === botConfig.botCreator;
-
-    if (isGroup && !groupVip && !isCreator) {
-      return sock.sendMessage(
-        jid,
-        { text: `❌ Este comando é exclusivo para grupos VIP.` },
-        { quoted: msg }
-      );
-    }
 
     try {
       const url =

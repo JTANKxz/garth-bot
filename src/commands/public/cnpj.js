@@ -1,4 +1,4 @@
-import { getGroupConfig, isGroupVip } from "../../utils/groups.js";
+import { getGroupConfig } from "../../utils/groups.js";
 import { getBotConfig } from "../../config/botConfig.js";
 
 export default {
@@ -7,7 +7,6 @@ export default {
   usage: "cnpj 37335118000180",
   aliases: ["cnpjinfo", "empresa"],
   category: "utils",
-  vipOnly: true,
 
   async run({ sock, msg, args }) {
     const jid = msg.key.remoteJid;
@@ -18,16 +17,7 @@ export default {
     const prefix = groupConfig.prefix || "!";
 
     const isGroup = jid.endsWith("@g.us");
-    const groupVip = isGroup ? isGroupVip(jid) : false;
     const isCreator = sender === botConfig.botCreator;
-
-    if (!groupVip && !isCreator) {
-      return sock.sendMessage(
-        jid,
-        { text: `❌ Este comando é exclusivo para grupos VIP.` },
-        { quoted: msg }
-      );
-    }
 
     if (!args.length) {
       return sock.sendMessage(

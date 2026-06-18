@@ -1,4 +1,4 @@
-import { getGroupConfig, isGroupVip } from "../../utils/groups.js";
+import { getGroupConfig } from "../../utils/groups.js";
 import { getBotConfig } from "../../config/botConfig.js";
 
 export default {
@@ -7,7 +7,6 @@ export default {
   usage: "ip 8.8.8.8 | ip google.com",
   aliases: ["geoip", "ipinfo"],
   category: "utils",
-  vipOnly: true,
 
   async run({ sock, msg, args }) {
     const jid = msg.key.remoteJid;
@@ -18,18 +17,7 @@ export default {
     const groupConfig = getGroupConfig(jid);
     const botConfig = getBotConfig();
     const prefix = groupConfig.prefix || "!";
-
-    const groupVip = jid.endsWith("@g.us") ? isGroupVip(jid) : false;
     const isCreator = sender === botConfig.botCreator;
-
-    // 🔒 Se não for VIP e não for criador → bloqueia
-    if (!groupVip && !isCreator) {
-      return sock.sendMessage(
-        jid,
-        { text: `❌ Este comando é exclusivo para grupos VIP.` },
-        { quoted: msg }
-      );
-    }
 
     // 🔎 Query obrigatória
     const query = args.join(" ").trim();

@@ -1,4 +1,4 @@
-import { getGroupConfig, isGroupVip, setGroupAi } from "../../utils/groups.js";
+import { getGroupConfig, setGroupAi } from "../../utils/groups.js";
 import { getBotConfig } from "../../config/botConfig.js";
 
 export default {
@@ -23,16 +23,6 @@ export default {
 
     const prefix = gpConfig.prefix || "!";
     const isGroup = jid.endsWith("@g.us");
-    const groupVip = isGroupVip(jid);
-
-    // 🔒 Regra VIP: só VIP ou criador pode usar
-    if (isGroup && !groupVip && !isCreator) {
-      return sock.sendMessage(
-        jid,
-        { text: `❌ Este comando é exclusivo para grupos VIP` },
-        { quoted: msg }
-      );
-    }
 
     if (!args[0]) {
       return sock.sendMessage(

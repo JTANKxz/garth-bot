@@ -27,11 +27,7 @@ const defaultConfig = {
   allowedUsers: [],
   blockedUsers: [],
 
-  // ✅ VIP do grupo
-  vip: {
-    enabled: false,
-    expiresAt: null, // number (ms) | null
-  },
+  authExpiresAt: null,
 
   // ✅ Antispam do grupo
   antispam: {
@@ -65,21 +61,6 @@ function saveCache() {
   fs.writeFileSync(groupsFilePath, JSON.stringify(groupCache, null, 2), "utf-8");
 }
 
-// ✅ normaliza VIP (caso arquivo antigo não tenha vip, ou esteja quebrado)
-function normalizeVip(config) {
-  const vipDefault = defaultConfig.vip;
-
-  if (!config.vip || typeof config.vip !== "object") {
-    config.vip = { ...vipDefault };
-    return;
-  }
-
-  if (typeof config.vip.enabled !== "boolean") config.vip.enabled = vipDefault.enabled;
-
-  const exp = config.vip.expiresAt;
-  const expOk = exp === null || (typeof exp === "number" && Number.isFinite(exp) && exp > 0);
-  if (!expOk) config.vip.expiresAt = vipDefault.expiresAt;
-}
 
 // ✅ normaliza Antispam
 function normalizeAntispam(config) {
@@ -105,16 +86,6 @@ function normalizeAntispam(config) {
   }
 }
 
-// ✅ se expirou, desativa e limpa expiresAt
-function autoExpireVipIfNeeded(config) {
-  if (!config?.vip?.enabled) return;
-
-  const exp = config.vip.expiresAt;
-  if (typeof exp === "number" && Date.now() >= exp) {
-    config.vip.enabled = false;
-    config.vip.expiresAt = null;
-  }
-}
 
 // Pega a config (cria se não existir)
 export function getGroupConfig(groupId) {
@@ -131,14 +102,8 @@ export function getGroupConfig(groupId) {
       }
     }
 
-    // VIP é objeto, então normaliza
-    normalizeVip(groupCache[groupId]);
-
     // Antispam também é objeto, normaliza
     normalizeAntispam(groupCache[groupId]);
-
-    // auto-expira se necessário
-    autoExpireVipIfNeeded(groupCache[groupId]);
 
     saveCache();
   }
@@ -155,13 +120,8 @@ export function updateGroupConfig(groupId, newData) {
   // merge normal
   groupCache[groupId] = { ...groupCache[groupId], ...newData };
 
-  // se newData.vip veio parcial, garante estrutura
-  normalizeVip(groupCache[groupId]);
-
   // se newData.antispam veio parcial, garante estrutura
   normalizeAntispam(groupCache[groupId]);
-
-  autoExpireVipIfNeeded(groupCache[groupId]);
 
   saveCache();
 }
@@ -178,9 +138,7 @@ export async function updateGroupName(groupId, sock) {
 
     groupCache[groupId].groupName = meta.subject;
 
-    normalizeVip(groupCache[groupId]);
     normalizeAntispam(groupCache[groupId]);
-    autoExpireVipIfNeeded(groupCache[groupId]);
 
     saveCache();
     return meta.subject;
@@ -229,55 +187,6 @@ export function isAllowedUser(groupId, userId) {
   return config.allowedUsers.includes(userId);
 }
 
-/* =========================
-   ✅ VIP helpers
-   ========================= */
-
-// Ativa VIP por X dias/horas/minutos (ou até uma data)
-export function setGroupVip(groupId, { enabled = true, expiresAt = null } = {}) {
-  const config = getGroupConfig(groupId);
-
-  const vip = {
-    enabled: Boolean(enabled),
-    expiresAt: expiresAt === null ? null : Number(expiresAt),
-  };
-
-  // se vier inválido, zera
-  if (vip.expiresAt !== null && (!Number.isFinite(vip.expiresAt) || vip.expiresAt <= 0)) {
-    vip.expiresAt = null;
-  }
-
-  updateGroupConfig(groupId, { vip });
-}
-
-// Conveniência: VIP por duração (ms)
-export function setGroupVipForMs(groupId, ms) {
-  const duration = Number(ms);
-  const expiresAt =
-    Number.isFinite(duration) && duration > 0 ? Date.now() + duration : null;
-
-  setGroupVip(groupId, { enabled: true, expiresAt });
-}
-
-// Desativa VIP e limpa expiração
-export function disableGroupVip(groupId) {
-  setGroupVip(groupId, { enabled: false, expiresAt: null });
-}
-
-// Retorna true somente se enabled e não expirado
-export function isGroupVip(groupId) {
-  const config = getGroupConfig(groupId);
-  // getGroupConfig já auto-expira, então basta ler:
-  return Boolean(config.vip?.enabled);
-}
-
-// Se quiser saber quanto falta (ms). Retorna null se não tiver expiração/sem VIP
-export function getVipRemainingMs(groupId) {
-  const config = getGroupConfig(groupId);
-  if (!config.vip?.enabled) return null;
-  if (typeof config.vip.expiresAt !== "number") return null;
-  return Math.max(0, config.vip.expiresAt - Date.now());
-}
 
 export function setGroupAi(groupId, enabled) {
   updateGroupConfig(groupId, { ai: Boolean(enabled) });
