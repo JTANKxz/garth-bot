@@ -1,5 +1,7 @@
 import { getGroupConfig } from '../../utils/groups.js'
-import { batataGames } from './batata.js'
+
+global.batataGames = global.batataGames || {}
+const batataGames = global.batataGames
 
 export default {
   name: 'passar',

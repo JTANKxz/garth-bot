@@ -39,8 +39,8 @@ async function searchMyInstants(query) {
 }
 
 export default {
-    name: "meme3",
-    aliases: ["som", "audio", "instant"],
+    name: "meme",
+    aliases: ["instant"],
     description: "Busca um meme sonoro e envia como áudio",
     usage: "[termo]",
     category: "fun",

@@ -4,8 +4,16 @@
   "botName": "GARTH-BOT V5",
   "prefix": "!",
   "allowedGroups": [
-    "120363424226000735@g.us"
+    "120363405969652582@g.us",
+    "120363406273325393@g.us",
+    "120363401217343005@g.us",
+    "120363426162031294@g.us"
   ],
   "changelog": "",
-  "disabledCommands": {}
+  "disabledCommands": {
+    "brasileirao": {
+      "reason": "manutenção",
+      "disabledAt": 1781811206723
+    }
+  }
 }

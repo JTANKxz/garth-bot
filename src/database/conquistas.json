@@ -1,1 +1,69 @@
-{}
+{
+  "120363426789177898@g.us": {
+    "244246317662300@lid": {
+      "stats": {
+        "stickers": 3
+      },
+      "achievements": []
+    }
+  },
+  "120363424226000735@g.us": {
+    "270828105162989@lid": {
+      "stats": {},
+      "achievements": [
+        "msg_50"
+      ]
+    },
+    "42864495091789@lid": {
+      "stats": {},
+      "achievements": [
+        "msg_50"
+      ]
+    },
+    "244246317662300@lid": {
+      "stats": {
+        "stickers": 1
+      },
+      "achievements": [
+        "msg_50",
+        "msg_100",
+        "msg_300",
+        "msg_500"
+      ]
+    }
+  },
+  "120363405969652582@g.us": {
+    "277717668901078@lid": {
+      "stats": {
+        "stickers": 17
+      },
+      "achievements": [
+        "stk_10"
+      ]
+    }
+  },
+  "120363406273325393@g.us": {
+    "92720039256185@lid": {
+      "stats": {
+        "stickers": 8
+      },
+      "achievements": []
+    }
+  },
+  "120363426162031294@g.us": {
+    "244246317662300@lid": {
+      "stats": {
+        "termo_wins": 1
+      },
+      "achievements": [
+        "termo_1"
+      ]
+    },
+    "113890251809020@lid": {
+      "stats": {},
+      "achievements": [
+        "msg_50"
+      ]
+    }
+  }
+}

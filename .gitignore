@@ -3,3 +3,7 @@ node_modules/
 *.log
 auth/
 src/database/
+
+# Arquivos Bunny
+bunny.js
+bunny_mp4.js

@@ -5,7 +5,7 @@ import { getGroupConfig } from "../../utils/groups.js";
 import { renderPetImage } from "../../features/pet/render.js"
 import * as PetService from "../../features/pet/service.js";
 import { formatStatus } from "../../features/pet/text.js";
-import { getUserBalance, removeUserBalance } from "../../utils/saldo.js";
+import { getUserBalance, removeUserBalance, addMoney } from "../../utils/saldo.js";
 import {
     getDefaultType,
     getManifest,
