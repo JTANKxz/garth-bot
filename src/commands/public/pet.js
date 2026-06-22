@@ -651,16 +651,31 @@ export default {
 
                 saveDB(db);
 
-                const battleLogs = battleRes.rounds.join("\n");
-                
-                await sock.sendMessage(jid, {
-                    text: 
-                        `⚔️ *BATALHA DE PETS* ⚔️\n\n` +
-                        `${battleLogs}\n\n` +
-                        `---------------------\n` +
-                        `${resultText}\n\n` +
-                        `⚠️ *Ambos perderam 15% de vida.*`
-                }, { quoted: msg });
+                const rounds = battleRes.rounds;
+                const chunkSize = 5;
+                const chunks = [];
+                for (let i = 0; i < rounds.length; i += chunkSize) {
+                    chunks.push(rounds.slice(i, i + chunkSize));
+                }
+
+                for (let i = 0; i < chunks.length; i++) {
+                    const chunk = chunks[i];
+                    const isFirst = i === 0;
+                    const isLast = i === chunks.length - 1;
+                    
+                    let text = isFirst ? `⚔️ *BATALHA DE PETS* ⚔️\n\n` : `⚔️ *BATALHA DE PETS (Cont.)* ⚔️\n\n`;
+                    text += chunk.join("\n");
+                    
+                    if (isLast) {
+                        text += `\n\n---------------------\n${resultText}\n\n⚠️ *Ambos perderam 15% de vida.*`;
+                    }
+                    
+                    await sock.sendMessage(jid, { text }, { quoted: msg });
+                    
+                    if (!isLast) {
+                        await new Promise(r => setTimeout(r, 1500));
+                    }
+                }
 
                 await sock.sendMessage(jid, { react: { text: "⚔️", key: msg.key } });
                 return;
