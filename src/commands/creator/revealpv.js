@@ -23,9 +23,9 @@ export default {
             const innerMsg = quoted.viewOnceMessage?.message || quoted
             const type = getContentType(innerMsg)
 
-            if (!["imageMessage", "videoMessage"].includes(type)) {
+            if (!["imageMessage", "videoMessage", "audioMessage"].includes(type)) {
                 return await sock.sendMessage(senderJid, {
-                    text: "❌ Isso não é uma imagem ou vídeo de visualização única!",
+                    text: "❌ Isso não é uma imagem, vídeo ou áudio de visualização única!",
                 }, { quoted: msg })
             }
 
@@ -45,6 +45,12 @@ export default {
                 await sock.sendMessage(senderJid, {
                     video: buffer,
                     caption: "✅ Visualização única convertida em vídeo!"
+                })
+            } else if (type === "audioMessage") {
+                await sock.sendMessage(senderJid, {
+                    audio: buffer,
+                    mimetype: 'audio/ogg; codecs=opus',
+                    ptt: true
                 })
             }
 
