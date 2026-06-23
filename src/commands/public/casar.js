@@ -10,12 +10,14 @@ export default {
         if (!from.endsWith('@g.us')) return
 
         let mentioned = []
-        if (msg.message.extendedTextMessage?.contextInfo?.mentionedJid) {
-            mentioned = msg.message.extendedTextMessage.contextInfo.mentionedJid
-        } else if (msg.message.imageMessage?.contextInfo?.mentionedJid) {
-            mentioned = msg.message.imageMessage.contextInfo.mentionedJid
-        } else if (msg.message.videoMessage?.contextInfo?.mentionedJid) {
-            mentioned = msg.message.videoMessage.contextInfo.mentionedJid
+        const contextInfo = msg.message.extendedTextMessage?.contextInfo ||
+                            msg.message.imageMessage?.contextInfo ||
+                            msg.message.videoMessage?.contextInfo;
+
+        if (contextInfo?.mentionedJid?.length) {
+            mentioned = contextInfo.mentionedJid;
+        } else if (contextInfo?.participant) {
+            mentioned = [contextInfo.participant];
         }
 
         if (!mentioned.length) {

@@ -23,7 +23,14 @@ export default {
 
         try {
             const metadata = await sock.groupMetadata(from)
-            const mentionedJid = msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0]
+            const contextInfo = msg.message.extendedTextMessage?.contextInfo ||
+                                msg.message.imageMessage?.contextInfo ||
+                                msg.message.videoMessage?.contextInfo;
+
+            let mentionedJid = contextInfo?.mentionedJid?.[0];
+            if (!mentionedJid && contextInfo?.participant) {
+                mentionedJid = contextInfo.participant;
+            }
 
             let target
             if (mentionedJid) {

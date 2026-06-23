@@ -104,10 +104,18 @@ export async function handleCommand({ sock, msg }) {
         const body =
             msg.message?.conversation ||
             msg.message?.extendedTextMessage?.text ||
+            msg.message?.imageMessage?.caption ||
+            msg.message?.videoMessage?.caption ||
             ""
 
         const prefix = groupCfg.prefix || PREFIX
         const noprefix = groupCfg.noprefix && isCreator
+
+        if (body.trim().toLowerCase() === "prefixo") {
+            return sock.sendMessage(jid, {
+                text: `📌 O meu prefixo atual neste grupo é: *${prefix}*\n\nExemplo de uso: *${prefix}menu*`
+            }, { quoted: msg });
+        }
 
         // Se não tem prefixo e noprefix não está ativado, ignora
         if (!body.startsWith(prefix) && !noprefix) return
