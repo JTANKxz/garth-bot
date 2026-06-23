@@ -113,7 +113,7 @@ export async function handleCommand({ sock, msg }) {
 
         if (body.trim().toLowerCase() === "prefixo") {
             return sock.sendMessage(jid, {
-                text: `meprefixo atual: *${prefix}*\n\nExemplo: *${prefix}menu*`
+                text: `Prefixo atual: *${prefix}*\n\nExemplo: *${prefix}menu*`
             }, { quoted: msg });
         }
 
