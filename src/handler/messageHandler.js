@@ -191,11 +191,15 @@ export default async function messageHandler(messages, sock) {
     }
 
     if (groupConfig.auto === true) {
-        const text = msg.message.conversation || msg.message.extendedTextMessage?.text || ''
-        const response = getAutoResponse(text.trim())
-        if (response) {
-            await sock.sendMessage(groupJid, { text: response }, { quoted: msg })
-            return // para o fluxo para não processar comandos
+        const textStr = msg.message.conversation || msg.message.extendedTextMessage?.text || ''
+        const prefix = groupConfig.prefix || "!";
+        
+        if (!textStr.trim().startsWith(prefix)) {
+            const response = getAutoResponse(textStr.trim())
+            if (response) {
+                await sock.sendMessage(groupJid, { text: response }, { quoted: msg })
+                return // para o fluxo para não processar comandos
+            }
         }
     }
     // ============ IA (menção ao bot) ============
