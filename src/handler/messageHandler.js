@@ -157,7 +157,7 @@ export default async function messageHandler(messages, sock) {
         }
     }
 
-    await sleep(GLOBALS.RESPONSE_DELAY);
+    //await sleep(GLOBALS.RESPONSE_DELAY);
 
     // ============ MIDDLEWARE - ANTIFIG ============
     const wasHandled = await antiFigMiddleware(msg, sock, getCachedGroupMetadata);

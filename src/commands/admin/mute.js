@@ -1,6 +1,13 @@
 import { getGroupConfig, updateGroupConfig } from "../../utils/groups.js"
 import { getBotConfig } from "../../config/botConfig.js"
 
+const cleanJid = (jidStr) => {
+    if (!jidStr) return "";
+    const [user, host] = jidStr.split("@");
+    const cleanUser = user.split(":")[0];
+    return `${cleanUser}@${host || "s.whatsapp.net"}`;
+};
+
 export default {
     name: "mute",
     description: "Silencia um usuário no grupo.",
@@ -46,66 +53,77 @@ export default {
         }
 
         const { getProtectedBy } = await import("../../utils/protect.js")
-        const protectedBy = getProtectedBy(jid, target)
+        const cleanTarget = cleanJid(target)
+        const protectedBy = getProtectedBy(jid, cleanTarget)
         if (protectedBy) {
+            const cleanProtector = cleanJid(protectedBy)
             return sock.sendMessage(jid, {
-                text: `Voce não pode mutar o usuario protegido por: @${protectedBy.split('@')[0]}`,
-                mentions: [protectedBy]
+                text: `Voce não pode mutar o usuario protegido por: @${cleanProtector.split('@')[0]}`,
+                mentions: [cleanProtector]
             }, { quoted: msg })
         }
 
-        const isCreator = target === botConfig.botCreator
-        const isMaster = target === botConfig.botMaster
-        const isOwner = gConfig.botOwners?.includes(target)
+        const isCreator = cleanTarget === cleanJid(botConfig.botCreator)
+        const isMaster = cleanTarget === cleanJid(botConfig.botMaster)
+        const isOwner = gConfig.botOwners?.includes(cleanTarget)
+
+        const jidBase = (x = "") => String(x).split("@")[0].split(":")[0];
+        const isSenderCreator = jidBase(sender) === jidBase(botConfig.botCreator);
+
         if (isCreator || isOwner || isMaster) {
-            return sock.sendMessage(jid, {
-                text: `❌ Você não pode mutar o ${isCreator ? "criador" : isMaster ? "master" : "dono do bot"}!`
-            }, { quoted: msg })
+            if (!isSenderCreator || !isOwner) {
+                return sock.sendMessage(jid, {
+                    text: `❌ Você não pode mutar o ${isCreator ? "criador" : isMaster ? "master" : "dono do bot"}!`
+                }, { quoted: msg })
+            }
         }
 
         const previous = gConfig.muteds[target] || { deletes: 0 }
 
         const expiresAt = duration > 0 ? Date.now() + duration * 60 * 1000 : null
 
-        gConfig.muteds[target] = {
+        const cleanT = cleanJid(target)
+        const cleanS = cleanJid(sender)
+
+        gConfig.muteds[cleanT] = {
             muted: true,
             expiresAt,
             deletes: previous.deletes,
-            by: sender
+            by: cleanS
         }
 
         updateGroupConfig(jid, { muteds: gConfig.muteds })
 
         const muteMsg =
 `╔═══✦ *🤐 MUTADO(A)* ✦═══
-║ 👤 *Usuário:* @${target.split('@')[0]}
-║ 🛡️ *Por:* @${sender.split('@')[0]}
+║ 👤 *Usuário:* @${cleanT.split('@')[0]}
+║ 🛡️ *Por:* @${cleanS.split('@')[0]}
 ║ 📝 *Motivo:* ${reason}
 ║ ⏱️ *Duração:* ${duration > 0 ? duration + " min" : "Indefinido"}
 ╚═════════════════════`
 
         await sock.sendMessage(jid, {
             text: muteMsg,
-            mentions: [target, sender]
+            mentions: [cleanT, cleanS]
         }, { quoted: msg })
 
         if (duration > 0) {
             setTimeout(async () => {
                 const updated = getGroupConfig(jid)
-                if (!updated.muteds[target]) return
+                if (!updated.muteds[cleanT]) return
 
-                delete updated.muteds[target]
+                delete updated.muteds[cleanT]
                 updateGroupConfig(jid, { muteds: updated.muteds })
 
                 const txt =
 `╔═══✦ *🔊 DESMUTADO(A)* ✦═══
-║ 👤 @${target.split('@')[0]}
+║ 👤 @${cleanT.split('@')[0]}
 ║ ⏱️ Tempo concluído: ${duration} min
 ╚═════════════════════`
 
                 await sock.sendMessage(jid, {
                     text: txt,
-                    mentions: [target]
+                    mentions: [cleanT]
                 })
             }, duration * 60 * 1000)
         }

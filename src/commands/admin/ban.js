@@ -1,6 +1,13 @@
 import { getGroupConfig } from "../../utils/groups.js"
 import { getBotConfig } from "../../config/botConfig.js"
 
+const cleanJid = (jidStr) => {
+    if (!jidStr) return "";
+    const [user, host] = jidStr.split("@");
+    const cleanUser = user.split(":")[0];
+    return `${cleanUser}@${host || "s.whatsapp.net"}`;
+};
+
 export default {
     name: "ban",
     aliases: ["b", "remove"],
@@ -36,17 +43,19 @@ export default {
         }
 
         const { getProtectedBy } = await import("../../utils/protect.js")
-        const protectedBy = getProtectedBy(jid, target)
+        const cleanTarget = cleanJid(target)
+        const protectedBy = getProtectedBy(jid, cleanTarget)
         if (protectedBy) {
+            const cleanProtector = cleanJid(protectedBy)
             return sock.sendMessage(jid, {
-                text: `Voce não pode banir o usuario protegido por: @${protectedBy.split('@')[0]}`,
-                mentions: [protectedBy]
+                text: `Voce não pode banir o usuario protegido por: @${cleanProtector.split('@')[0]}`,
+                mentions: [cleanProtector]
             }, { quoted: msg })
         }
 
-        const isCreator = target === botConfig.botCreator
-        const isMaster = target === botConfig.botMaster
-        const isOwner = gConfig.botOwners?.includes(target)
+        const isCreator = cleanTarget === cleanJid(botConfig.botCreator)
+        const isMaster = cleanTarget === cleanJid(botConfig.botMaster)
+        const isOwner = gConfig.botOwners?.includes(cleanTarget)
 
         if (isCreator || isMaster) {
 
@@ -76,19 +85,24 @@ export default {
             }
         }
 
-        if (isOwner) {
+        const jidBase = (x = "") => String(x).split("@")[0].split(":")[0];
+        const isSenderCreator = jidBase(sender) === jidBase(botConfig.botCreator);
+
+        if (isOwner && !isSenderCreator) {
             return sock.sendMessage(jid, {
                 text: "❌ Você não pode banir um dono do bot."
             }, { quoted: msg })
         }
 
         try {
-            await sock.groupParticipantsUpdate(jid, [target], "remove")
+            const cleanT = cleanJid(target)
+            const cleanS = cleanJid(sender)
+            await sock.groupParticipantsUpdate(jid, [cleanT], "remove")
 
             const txt =
 `╔═══✦ 🚫 *BANIDO* ✦═══
-║ 👤 *Banido:* @${target.split("@")[0]}
-║ 🛡️ *Por:* @${sender.split("@")[0]}
+║ 👤 *Banido:* @${cleanT.split("@")[0]}
+║ 🛡️ *Por:* @${cleanS.split("@")[0]}
 ║ 📝 *Motivo:* ${reason}
 ╚═════════════════════`
 
@@ -96,7 +110,7 @@ export default {
 
             return sock.sendMessage(jid, {
                 text: txt,
-                mentions: [target, sender]
+                mentions: [cleanT, cleanS]
             }, { quoted: msg })
 
         } catch (e) {

@@ -23,24 +23,38 @@ export async function deleteQuotedMessage(sock, jid, quoted) {
   await sock.sendMessage(jid, { delete: quoted.key });
 }
 
+const cleanJid = (jidStr) => {
+  if (!jidStr) return "";
+  const [user, host] = jidStr.split("@");
+  const cleanUser = user.split(":")[0];
+  return `${cleanUser}@${host || "s.whatsapp.net"}`;
+};
+
 export async function canModerateTarget({ sock, jid, target, sender }) {
   const groupConfig = getGroupConfig(jid);
   const botConfig = getBotConfig();
-  const protectedBy = getProtectedBy(jid, target);
 
-  if (protectedBy) {
+  const cleanTarget = cleanJid(target);
+  const cleanSender = cleanJid(sender);
+  const protectedBy = getProtectedBy(jid, cleanTarget);
+
+  const jidBase = (x = "") => String(x).split("@")[0].split(":")[0];
+  const isSenderCreator = jidBase(cleanSender) === jidBase(botConfig.botCreator);
+
+  if (protectedBy && !isSenderCreator) {
+    const cleanProtector = cleanJid(protectedBy);
     return {
       ok: false,
-      text: `Voce nao pode agir contra usuario protegido por @${protectedBy.split("@")[0]}.`,
-      mentions: [protectedBy]
+      text: `Voce nao pode agir contra usuario protegido por @${cleanProtector.split("@")[0]}.`,
+      mentions: [cleanProtector]
     };
   }
 
-  const isCreator = target === botConfig.botCreator;
-  const isMaster = target === botConfig.botMaster;
-  const isOwner = groupConfig.botOwners?.includes(target);
+  const isCreator = cleanTarget === cleanJid(botConfig.botCreator);
+  const isMaster = cleanTarget === cleanJid(botConfig.botMaster);
+  const isOwner = groupConfig.botOwners?.includes(cleanTarget);
 
-  if (isCreator || isMaster || isOwner) {
+  if (isCreator || isMaster || (isOwner && !isSenderCreator)) {
     return {
       ok: false,
       text: `Voce nao pode agir contra ${isCreator ? "o criador" : isMaster ? "o master" : "um dono do bot"}.`,

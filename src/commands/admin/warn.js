@@ -2,6 +2,13 @@ import { getGroupConfig } from "../../utils/groups.js"
 import { getBotConfig } from "../../config/botConfig.js"
 import { applyWarning } from "../../features/warning.js" 
 
+const cleanJid = (jidStr) => {
+    if (!jidStr) return "";
+    const [user, host] = jidStr.split("@");
+    const cleanUser = user.split(":")[0];
+    return `${cleanUser}@${host || "s.whatsapp.net"}`;
+}; 
+
 export default {
     name: "warn",
     aliases: ["adv"],
@@ -35,26 +42,34 @@ export default {
             target = mentions[0]
         }
 
-        const isCreator = target === botConfig.botCreator
-        const isMaster = target === botConfig.botMaster
-        const isOwner = groupConfig.botOwners?.includes(target)
-        if (isCreator || isMaster || isOwner) {
+        const cleanTarget = cleanJid(target)
+        const cleanSender = cleanJid(sender)
+
+        const isCreator = cleanTarget === cleanJid(botConfig.botCreator)
+        const isMaster = cleanTarget === cleanJid(botConfig.botMaster)
+        const isOwner = groupConfig.botOwners?.includes(cleanTarget)
+
+        const jidBase = (x = "") => String(x).split("@")[0].split(":")[0];
+        const isSenderCreator = jidBase(cleanSender) === jidBase(botConfig.botCreator);
+
+        if (isCreator || isMaster || (isOwner && !isSenderCreator)) {
             return sock.sendMessage(jid, {
                 text: `❌ Você não pode advertir o ${isCreator ? "criador" : isMaster ? "master" : "dono do bot"}!`
             }, { quoted: msg })
         }
 
         const { getProtectedBy } = await import("../../utils/protect.js")
-        const protectedBy = getProtectedBy(jid, target)
+        const protectedBy = getProtectedBy(jid, cleanTarget)
         if (protectedBy) {
+            const cleanProtector = cleanJid(protectedBy)
             return sock.sendMessage(jid, {
-                text: `❌ Você não pode advertir o usuário protegido por: @${protectedBy.split('@')[0]}`,
-                mentions: [protectedBy]
+                text: `❌ Você não pode advertir o usuário protegido por: @${cleanProtector.split('@')[0]}`,
+                mentions: [cleanProtector]
             }, { quoted: msg })
         }
 
         try {
-            await applyWarning(sock, jid, target, sender, reason)
+            await applyWarning(sock, jid, cleanTarget, cleanSender, reason)
         } catch (err) {
             console.error("Erro ao aplicar warn:", err)
             await sock.sendMessage(jid, { text: "❌ Erro ao aplicar a advertência." }, { quoted: msg })
