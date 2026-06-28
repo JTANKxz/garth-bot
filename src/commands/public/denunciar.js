@@ -11,7 +11,7 @@ const dbJobsPath = path.resolve("src/database/jobs.json");
  */
 const REPORT_WINDOW_MS = 20 * 60 * 1000;   // 30 min
 const WANTED_DURATION_MS = 20 * 60 * 1000; // 30 min
-const REPORT_COOLDOWN_MS = 3 * 60 * 1000;  // 3 min
+const REPORT_COOLDOWN_MS = 5 * 60 * 1000;  // 5 min
 
 /**
  * =========================
@@ -198,23 +198,8 @@ export default {
       }
 
       // evita denunciar alguém já procurado (mesmo caso)
-      if (suspect.wantedUntil && suspect.wantedUntil > now && suspect.wantedCaseId === suspect.lastRobberyCaseId) {
-        reporter.lastReportAt = now;
-        saveJSON(dbLuckyPath, luckyDB);
-
-        const left = suspect.wantedUntil - now;
-        await sock.sendMessage(
-          from,
-          {
-            text:
-              `📌 Esse suspeito já está com boletim ativo.\n` +
-              `⏳ Validade restante: *${formatTimeLeft(left)}*`,
-            mentions: [target]
-          },
-          { quoted: msg }
-        );
-        return;
-      }
+      // O usuário pediu para permitir que outras pessoas também possam denunciar o mesmo caso.
+      // Então não vamos bloquear, apenas registrar a denúncia para a pessoa farmar pontos.
 
       // registra procurado
       suspect.wantedUntil = now + WANTED_DURATION_MS;

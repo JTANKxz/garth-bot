@@ -54,7 +54,14 @@ export default {
         metadata.participants.map((p) => p.id)
       );
 
-      const databases = ["lucky.json", "casamentos.json", "conquistas.json", "jobs.json"];
+      const databases = [
+        "lucky.json", 
+        "casamentos.json", 
+        "conquistas.json", 
+        "jobs.json", 
+        "messageCounts.json", 
+        "simpleMessageCounts.json"
+      ];
       let totalRemoved = 0;
       let statusText = "📊 *DETALHES DA SINCRONIZAÇÃO*\n\n";
 
@@ -101,12 +108,12 @@ export default {
               delete db[groupId];
             }
             saveJSON(dbFile, db);
-            statusText += `> 📂 *${dbFile}*: -${removedInThisFile}\n`;
+            statusText += `> 📂 *${dbFile.replace(".json", "")}*: -${removedInThisFile}\n`;
           }
 
         } catch (fileErr) {
           console.error(`Erro ao processar ${dbFile}:`, fileErr);
-          statusText += `> ⚠️ *${dbFile}*: Erro (${fileErr.message})\n`;
+          statusText += `> ⚠️ *${dbFile.replace(".json", "")}*: Erro (${fileErr.message})\n`;
         }
       }
 

@@ -97,5 +97,140 @@ export const ACHIEVEMENTS = {
             reward: 600,
             text: "👑 Adivinhe *25 palavras* no Termo."
         }
+    ],
+
+    // =======================
+    // 💼 EMPREGOS
+    // =======================
+
+    work_count: [
+        {
+            id: "work_10",
+            name: "Primeiro Salário",
+            count: 10,
+            reward: 100,
+            text: "Trabalhe *10 vezes* usando !trabalhar."
+        },
+        {
+            id: "work_50",
+            name: "Trabalhador Dedicado",
+            count: 50,
+            reward: 300,
+            text: "💼 Trabalhe *50 vezes* usando !trabalhar."
+        },
+        {
+            id: "work_200",
+            name: "Funcionário do Mês",
+            count: 200,
+            reward: 800,
+            text: "🏆 Trabalhe *200 vezes* usando !trabalhar."
+        },
+        {
+            id: "work_500",
+            name: "Veterano do Batente",
+            count: 500,
+            reward: 2000,
+            text: "👑 Trabalhe *500 vezes* usando !trabalhar."
+        }
+    ],
+
+    robbery_success: [
+        {
+            id: "rob_5",
+            name: "Mão Leve",
+            count: 5,
+            reward: 150,
+            text: "Roube com sucesso *5 vezes* usando !roubar."
+        },
+        {
+            id: "rob_25",
+            name: "Ladrão Experiente",
+            count: 25,
+            reward: 500,
+            text: "🥷 Complete *25 roubos* bem-sucedidos."
+        },
+        {
+            id: "rob_100",
+            name: "O Intocável",
+            count: 100,
+            reward: 2000,
+            text: "👑 Complete *100 roubos* bem-sucedidos."
+        }
+    ],
+
+    job_action: [
+        {
+            id: "ja_hack_1",
+            name: "Primeiro Acesso",
+            count: 1,
+            reward: 200,
+            text: "💻 Faça seu *primeiro hackear* bem-sucedido."
+        },
+        {
+            id: "ja_hack_10",
+            name: "Ghost in the Shell",
+            count: 10,
+            reward: 600,
+            text: "💻 Realize *10 invasões* bem-sucedidas com !hackear."
+        },
+        {
+            id: "ja_lavar_5",
+            name: "Dinheiro Limpo",
+            count: 5,
+            reward: 400,
+            text: "🕴️ Lave dinheiro *5 vezes* sem ser preso com !lavar."
+        },
+        {
+            id: "ja_defender_3",
+            name: "Defensor da Justiça",
+            count: 3,
+            reward: 300,
+            text: "⚖️ Defenda *3 clientes* presos usando !defender."
+        },
+        {
+            id: "ja_curar_5",
+            name: "Anjo da Guarda",
+            count: 5,
+            reward: 350,
+            text: "🚑 Cure *5 acidentados* usando !curar."
+        },
+        {
+            id: "ja_fuga_3",
+            name: "Fantasma",
+            count: 3,
+            reward: 250,
+            text: "🏃 Use !fuga *3 vezes* para apagar seu boletim."
+        },
+        {
+            id: "ja_pressa_10",
+            name: "Motoboy Raiz",
+            count: 10,
+            reward: 300,
+            text: "🛵 Faça *10 entregas com pressa* sem acidentes."
+        }
+    ],
+
+    arrests_made: [
+        {
+            id: "arr_5",
+            name: "Novato da Patrulha",
+            count: 5,
+            reward: 200,
+            text: "👮 Prenda *5 criminosos* com !prender."
+        },
+        {
+            id: "arr_20",
+            name: "Policial Modelo",
+            count: 20,
+            reward: 700,
+            text: "🚔 Prenda *20 criminosos* com !prender."
+        },
+        {
+            id: "arr_50",
+            name: "Xerife do Grupo",
+            count: 50,
+            reward: 2000,
+            text: "⭐ Prenda *50 criminosos* com !prender."
+        }
     ]
 };

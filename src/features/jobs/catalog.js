@@ -22,6 +22,7 @@ export const JOBS = [
     name: "Ladrão",
     desc: "2 roubos bem-sucedidos",
     info: "Tem vantagem ao usar !roubar e consegue levar uma parte maior do alvo. Se for pego, tambem corre mais risco.",
+    salaryRange: [50, 250],
     hint: "Use !roubar e consiga 2 roubos bem-sucedidos.",
     xpGain: 10,
     requirement: { type: "robberySuccess", min: 2 }
@@ -33,6 +34,7 @@ export const JOBS = [
     desc: "25 roubos bem-sucedidos",
     info: "Fica no topo do crime do grupo e recebe uma taxa sobre roubos bem-sucedidos feitos por outros membros.",
     hint: "Use !roubar e consiga 25 roubos bem-sucedidos.",
+    salaryRange: [70, 350],
     xpGain: 15,
     requirement: { type: "robberySuccess", min: 25 }
   },
@@ -41,10 +43,10 @@ export const JOBS = [
     key: "policia",
     name: "Polícia",
     desc: "2 denúncias feitas",
-    info: "Pode prender suspeitos com !prender e recebe recompensa quando a prisao da certo.",
+    info: "Pode prender suspeitos com comando prender e recebe recompensa quando a prisao da certo.",
     hint: "Use !denunciar 2 vezes.",
-    salaryRange: [15, 60],
-    xpGain: 6,
+    salaryRange: [15, 135],
+    xpGain: 10,
     requirement: { type: "reportsMade", min: 2 }
   },
   {
@@ -54,7 +56,7 @@ export const JOBS = [
     desc: "Nível 10",
     info: "Ganha bem ao trabalhar, mas pode sofrer bloqueio de rede e ficar algumas horas sem trabalhar.",
     hint: "Suba para o nivel 10 mandando mensagens e usando comandos no grupo.",
-    salaryRange: [80, 250],
+    salaryRange: [80, 550],
     xpGain: 20,
     requirement: { type: "level", min: 10 }
   },
@@ -65,7 +67,7 @@ export const JOBS = [
     desc: "Nível 5",
     info: "Recebe um salario alto e mais estavel. Tambem pode ajudar membros com ficha criminal.",
     hint: "Suba para o nivel 5 mandando mensagens e usando comandos no grupo.",
-    salaryRange: [150, 400],
+    salaryRange: [100, 400],
     xpGain: 12,
     requirement: { type: "level", min: 5 }
   },
@@ -76,7 +78,7 @@ export const JOBS = [
     desc: "50.000 fyne coins",
     info: "Defende membros do grupo, ganha comissao em fiancas e tem um dos melhores pagamentos.",
     hint: "Junte 50.000 fyne coins usando comandos como !trabalhar, !roubar e !explorar.",
-    salaryRange: [100, 300],
+    salaryRange: [100, 600],
     xpGain: 15,
     requirement: { type: "money", min: 50000 }
   }
@@ -97,7 +99,28 @@ export const ECONOMY_CONFIG = {
   THIEF_SUCCESS_BONUS: 10,
   THIEF_ROB_PERCENT: 0.10,
   NORMAL_ROB_PERCENT: 0.08,
-  POLICE_REWARD_RANGE: [10, 60]
+  
+  // ✅ PRISÃO EM FLAGRANTE (ROUBO)
+  ARREST_JAIL_TIMES: [
+    60 * 60 * 1000,        // 1h
+    3 * 60 * 60 * 1000,    // 3h
+    8 * 60 * 60 * 1000,    // 8h
+    12 * 60 * 60 * 1000    // 12h
+  ],
+  STRIKE_RESET_MS: 24 * 60 * 60 * 1000, // 1 dia
+
+  // ✅ FIANÇA
+  BAIL_COSTS: [900, 1800, 3500, 6500, 12000, 20000],
+
+  // ✅ POLÍCIA E !PRENDER
+  ARREST_COOLDOWN_MS: 10 * 60 * 1000, // 10 min
+  ARREST_CHANCE_BASE: 40,   // %
+  ARREST_CHANCE_FRESH: 60,  // % (se roubo foi < 10 min)
+  ARREST_CHANCE_LATE: 20,   // % (se roubo foi mais antigo)
+  REPORT_WINDOW_MS: 20 * 60 * 1000,   // tem que ser roubo recente
+  WANTED_DURATION_MS: 20 * 60 * 1000, // boletim válido por 20 min
+  ARREST_JAIL_MS: 60 * 60 * 1000, // 1h (prisão fixa da polícia)
+  POLICE_REWARD_RANGE: [30, 100] // Recompensa do policial
 };
 
 export function getJobById(id) {

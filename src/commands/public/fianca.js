@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { ECONOMY_CONFIG } from "../../features/jobs/catalog.js";
 
 const dbPath = path.resolve("src/database/lucky.json");
 
@@ -8,7 +9,7 @@ const dbPath = path.resolve("src/database/lucky.json");
  * CONFIG (edite aqui fácil)
  * =========================
  */
-const BAIL_COSTS = [800, 1600, 3000, 5500, 10000, 18000];
+// As fianças agora estão centralizadas no catalog.js (ECONOMY_CONFIG.BAIL_COSTS)
 
 function loadDB() {
   if (!fs.existsSync(dbPath)) {
@@ -55,8 +56,9 @@ function ensureUser(db, groupId, userId) {
 }
 
 function getBailCost(strikes) {
-  const idx = Math.min(Math.max(strikes - 1, 0), BAIL_COSTS.length - 1);
-  return BAIL_COSTS[idx];
+  const costs = ECONOMY_CONFIG.BAIL_COSTS;
+  const idx = Math.min(Math.max(strikes - 1, 0), costs.length - 1);
+  return costs[idx];
 }
 
 function formatTimeLeft(ms) {

@@ -135,7 +135,61 @@ export async function handleCommand({ sock, msg }) {
             commands.get(cmdName) ||
             commands.get(aliases.get(cmdName))
 
-        if (!command) return;
+        if (!command) {
+            // Só sugere em grupos autorizados, sem modo onlyAdmins bloqueando, fora do PV
+            if (!jid.endsWith("@g.us")) return;
+            if (groupCfg.onlyAdmins) return;
+
+            // Coleta todos os nomes de comandos públicos
+            const publicNames = [];
+            for (const [, cmd] of commands) {
+                if (cmd.permission !== "owner" && cmd.permission !== "creator" && cmd.permission !== "admin") {
+                    publicNames.push(cmd.name);
+                    if (cmd.aliases) cmd.aliases.forEach(a => publicNames.push(a));
+                }
+            }
+
+            // Levenshtein simples pra calcular distância entre strings
+            function levenshtein(a, b) {
+                const m = a.length, n = b.length;
+                const dp = Array.from({ length: m + 1 }, (_, i) =>
+                    Array.from({ length: n + 1 }, (_, j) => i === 0 ? j : j === 0 ? i : 0)
+                );
+                for (let i = 1; i <= m; i++)
+                    for (let j = 1; j <= n; j++)
+                        dp[i][j] = a[i-1] === b[j-1]
+                            ? dp[i-1][j-1]
+                            : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+                return dp[m][n];
+            }
+
+            // Calcula similaridade como porcentagem
+            function similarity(a, b) {
+                const dist = levenshtein(a, b);
+                const maxLen = Math.max(a.length, b.length);
+                return maxLen === 0 ? 100 : Math.round((1 - dist / maxLen) * 100);
+            }
+
+            let best = null;
+            let bestScore = 0;
+
+            for (const name of publicNames) {
+                const score = similarity(cmdName, name);
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = name;
+                }
+            }
+
+            const prefix = groupCfg.prefix || PREFIX;
+            let text = `❌ Comando *${prefix}${cmdName}* não encontrado.`;
+
+            if (best && bestScore >= 40) {
+                text += `\n\n🔎 *Você quis dizer:*\n> ${prefix}${best} (${bestScore}% parecido)`;
+            }
+
+            return sock.sendMessage(jid, { text }, { quoted: msg });
+        }
 
         const isBotOwner = (groupCfg.botOwners || []).includes(sender)
         const isPrivileged = isSuperUser || isBotOwner

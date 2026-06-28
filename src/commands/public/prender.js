@@ -1,5 +1,7 @@
 import fs from "fs";
 import path from "path";
+import { ECONOMY_CONFIG } from "../../features/jobs/catalog.js";
+import { grantJobAchievement } from "../../features/achievements/jobAchievements.js";
 
 const dbLuckyPath = path.resolve("src/database/lucky.json");
 const dbJobsPath = path.resolve("src/database/jobs.json");
@@ -7,29 +9,24 @@ const dbJobsPath = path.resolve("src/database/jobs.json");
 /**
  * =========================
  * CONFIG (prender)
+ * Agora carregado do catalog.js (ECONOMY_CONFIG)
  * =========================
  */
-const ARREST_COOLDOWN_MS = 10 * 60 * 1000; // 10 min
+const {
+  ARREST_COOLDOWN_MS,
+  ARREST_CHANCE_BASE,
+  ARREST_CHANCE_FRESH,
+  ARREST_CHANCE_LATE,
+  REPORT_WINDOW_MS,
+  WANTED_DURATION_MS,
+  ARREST_JAIL_MS,
+  JAIL_FINE_PERCENT,
+  JAIL_FINE_MIN,
+  JAIL_FINE_MAX
+} = ECONOMY_CONFIG;
 
-// chance fixa (não depende de VIP/itens)
-const ARREST_CHANCE_BASE = 10;   // %
-const ARREST_CHANCE_FRESH = 10;  // se roubo foi < 10 min
-const ARREST_CHANCE_LATE = 10;   // se roubo foi > 25 min
-
-const REPORT_WINDOW_MS = 20 * 60 * 1000;   // tem que ser roubo recente
-const WANTED_DURATION_MS = 20 * 60 * 1000; // boletim válido por 20 min
-
-// prisão aplicada no prender (modelo simples)
-const ARREST_JAIL_MS = 60 * 60 * 1000; // 1h
-
-// multa leve ao ser preso via !prender (separada da multa do roubar)
-const ARREST_FINE_PERCENT = 2;
-const ARREST_FINE_MIN = 80;
-const ARREST_FINE_MAX = 500;
-
-// recompensa pequena pro policial
-const ARREST_REWARD_MIN = 30;
-const ARREST_REWARD_MAX = 100;
+const ARREST_REWARD_MIN = ECONOMY_CONFIG.POLICE_REWARD_RANGE[0];
+const ARREST_REWARD_MAX = ECONOMY_CONFIG.POLICE_REWARD_RANGE[1];
 
 /**
  * =========================
@@ -248,6 +245,9 @@ export default {
       if (elapsed <= 10 * 60 * 1000) arrestChance = ARREST_CHANCE_FRESH;
       else if (elapsed >= 25 * 60 * 1000) arrestChance = ARREST_CHANCE_LATE;
 
+      // Incrementa a chance baseada em tentativas frustradas (ex: +15% por tentativa)
+      arrestChance += (suspect.arrestAttempts || 0) * 15;
+
       // rolagem
       const roll = randInt(0, 99);
       const success = roll < arrestChance;
@@ -259,6 +259,8 @@ export default {
       let text = "";
 
       if (!success) {
+        suspect.arrestAttempts = (suspect.arrestAttempts || 0) + 1;
+
         saveJSON(dbLuckyPath, luckyDB);
         saveJSON(dbJobsPath, jobsDB);
 
@@ -314,22 +316,22 @@ export default {
       }
 
       // multa leve (depois do refund)
-      const fineRaw = Math.floor((suspect.money || 0) * (ARREST_FINE_PERCENT / 100));
-      const fine = clamp(fineRaw, ARREST_FINE_MIN, ARREST_FINE_MAX);
+      const fineRaw = Math.floor((suspect.money || 0) * (JAIL_FINE_PERCENT / 100));
+      const fine = clamp(fineRaw, JAIL_FINE_MIN, JAIL_FINE_MAX);
       suspect.money = Math.max(0, (suspect.money || 0) - fine);
 
       // recompensa pequena pro policial
       const reward = randInt(ARREST_REWARD_MIN, ARREST_REWARD_MAX);
       policeLucky.money = (policeLucky.money || 0) + reward;
 
-      // prisão 1h e strike +1
-      suspect.jailStrikes = (suspect.jailStrikes || 0) + 1;
+      // prisão fixa de 1h sem dar strike
       suspect.lastJailAt = now;
       suspect.jailUntil = now + ARREST_JAIL_MS;
 
       // limpa estado de procurado (caso encerrado)
       suspect.wantedUntil = 0;
       suspect.wantedCaseId = null;
+      suspect.arrestAttempts = 0;
 
       // fecha o caso pra não reaproveitar o mesmo boletim
       suspect.lastRobberyCaseId = null;
@@ -349,6 +351,14 @@ export default {
         `🏆 Recompensa policial: *${formatMoney(reward)} fyne coins*`;
 
       await sock.sendMessage(from, { text, mentions }, { quoted: msg });
+
+      // Conquista de prisão
+      await grantJobAchievement({
+          sock, groupId: from, user: sender,
+          stat: "arrests_made",
+          achievementType: "arrests_made",
+          quoted: msg, pushName
+      });
     } catch (err) {
       console.error("Erro no comando prender:", err);
       await sock.sendMessage(from, { text: "❌ Ocorreu um erro ao executar o comando prender." }, { quoted: msg });

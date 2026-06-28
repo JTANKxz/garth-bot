@@ -1,4 +1,5 @@
 import { getGroupConfig } from "../../utils/groups.js"
+import { getGroupSpamConfig } from "../../utils/antispam.js"
 
 export default {
     name: "status",
@@ -10,6 +11,7 @@ export default {
     async run({ sock, msg }) {
         const jid = msg.key.remoteJid
         const gConfig = getGroupConfig(jid)
+        const spamConfig = getGroupSpamConfig(jid)
 
         const onOff = (value) => value ? "Ativado" : "Desativado"
 
@@ -28,6 +30,8 @@ export default {
 > *Blacklist:* ${gConfig.blacklisteds?.length || 0} usuários
 > *Mutados:* ${Object.keys(gConfig.muteds || {}).length}
 > *Advs:* ${Object.keys(gConfig.warnings || {}).length}
+
+> *Antispam:* ${spamConfig.enabled ? "🟢 Ativado" : "🔴 Desativado"}
 ╚════════════════════`
 
         return sock.sendMessage(jid, {

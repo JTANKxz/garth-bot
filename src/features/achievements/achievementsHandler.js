@@ -36,7 +36,23 @@ export async function checkAchievements({
         value = getStat(groupId, user, "termo_wins");
     }
 
-    if (!value) return;
+    if (type === "work_count") {
+        value = getStat(groupId, user, "work_count");
+    }
+
+    if (type === "robbery_success") {
+        value = getStat(groupId, user, "robberySuccess");
+    }
+
+    if (type === "job_action") {
+        // Cada sub-conquista usa uma stat diferente; aqui checamos qual ID está sendo avaliado
+        // A verificação é individual por ID, então passamos o stat diretamente
+        value = getStat(groupId, user, "job_action_total");
+    }
+
+    if (type === "arrests_made") {
+        value = getStat(groupId, user, "arrests_made");
+    }
 
     for (const ach of list) {
         if (value < ach.count) continue;

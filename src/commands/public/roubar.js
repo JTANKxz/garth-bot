@@ -2,6 +2,7 @@ import { readJSON, writeJSON } from "../../utils/readJSON.js";
 import { ECONOMY_CONFIG, getJobByKey } from "../../features/jobs/catalog.js";
 import { addMoney, removeMoney, formatMoney } from "../../utils/saldo.js";
 import { ensureJobsUser } from "../../features/jobs/service.js";
+import { grantJobAchievement } from "../../features/achievements/jobAchievements.js";
 
 const DB_LUCKY = "database/lucky.json";
 const DB_JOBS = "database/jobs.json";
@@ -18,6 +19,7 @@ function formatTimeLeft(ms) {
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
 
 export default {
   name: "roubar",
@@ -75,8 +77,9 @@ export default {
       
       const roll = randInt(0, 99);
       let text = "";
+      const isSuccess = (roll < chance && vitima.money > 0);
 
-      if (roll < chance && vitima.money > 0) {
+      if (isSuccess) {
         const percent = userJobs.job === "ladrao" ? ECONOMY_CONFIG.THIEF_ROB_PERCENT : ECONOMY_CONFIG.NORMAL_ROB_PERCENT;
         const roubado = Math.floor(vitima.money * percent);
         
@@ -99,6 +102,14 @@ export default {
         writeJSON(DB_LUCKY, db);
         
         text = `🕵️‍♂️ *${pushName}* roubou *${formatMoney(roubado)}* de @${target.split("@")[0]}! 💰`;
+
+        // Conquista de roubo bem-sucedido
+        await grantJobAchievement({
+            sock, groupId: from, user: sender,
+            stat: "robberySuccess",
+            achievementType: "robbery_success",
+            quoted: msg, pushName
+        });
       } else {
         const perda = Math.floor(ladrao.money * 0.05) || 50;
         removeMoney(from, sender, perda);
@@ -120,7 +131,51 @@ export default {
         text = `🚨 *${pushName}* falhou no roubo e perdeu *${formatMoney(perda)}* na fuga!`;
       }
 
-      await sock.sendMessage(from, { text, mentions: [target] }, { quoted: msg });
+      const arrestChance = isSuccess ? ECONOMY_CONFIG.JAIL_CHANCE_ON_SUCCESS : ECONOMY_CONFIG.JAIL_CHANCE_ON_FAIL;
+      const isArrested = (randInt(0, 99) < arrestChance);
+      const mentions = [target];
+
+      if (isArrested) {
+        const db = readJSON(DB_LUCKY);
+        if (!db[from]) db[from] = {};
+        if (!db[from][sender]) db[from][sender] = { money: 0 };
+        
+        const ladraoDb = db[from][sender];
+
+        // Reseta strikes se passou 24h desde a última prisão
+        if (now - (ladraoDb.lastJailAt || 0) >= ECONOMY_CONFIG.STRIKE_RESET_MS) {
+          ladraoDb.jailStrikes = 0;
+        }
+
+        ladraoDb.jailStrikes = (ladraoDb.jailStrikes || 0) + 1;
+        if (ladraoDb.jailStrikes > 4) ladraoDb.jailStrikes = 4;
+        
+        const jailTimeMs = ECONOMY_CONFIG.ARREST_JAIL_TIMES[ladraoDb.jailStrikes - 1];
+        ladraoDb.jailUntil = now + jailTimeMs;
+        ladraoDb.lastJailAt = now;
+        
+        // Paga recompensa a um policial aleatório
+        const groupJobs = jobsDB[from] || {};
+        const polices = Object.keys(groupJobs).filter(id => groupJobs[id].job === "policia" && id !== sender);
+        
+        let policeMsg = "";
+        if (polices.length > 0) {
+            const randomPoliceId = polices[randInt(0, polices.length - 1)];
+            const reward = randInt(ECONOMY_CONFIG.POLICE_REWARD_RANGE[0], ECONOMY_CONFIG.POLICE_REWARD_RANGE[1]);
+            
+            if (!db[from][randomPoliceId]) db[from][randomPoliceId] = { money: 0 };
+            db[from][randomPoliceId].money = (db[from][randomPoliceId].money || 0) + reward;
+            
+            policeMsg = `\n👮 O policial @${randomPoliceId.split("@")[0]} estava na patrulha e ganhou *${formatMoney(reward)}* de recompensa!`;
+            mentions.push(randomPoliceId);
+        }
+
+        writeJSON(DB_LUCKY, db);
+
+        text += `\n\n🚔 *FODEU!* A polícia te pegou em flagrante! Você foi preso por *${formatTimeLeft(jailTimeMs)}*.${policeMsg}`;
+      }
+
+      await sock.sendMessage(from, { text, mentions }, { quoted: msg });
 
     } catch (err) {
       console.error("Erro no comando roubar:", err);

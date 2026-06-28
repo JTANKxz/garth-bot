@@ -21,16 +21,11 @@ function findJob(query) {
   });
 }
 
-function getRequirement(job) {
-  if (!job.requirement) return "Sem requisitos.";
-  return job.desc;
-}
 
 function getJobInfoText(job, prefix) {
   return (
     `*${job.name}*\n\n` +
     `O que faz: ${job.info}\n` +
-    `Requisitos: ${getRequirement(job)}\n` +
     (job.salaryRange ? `Pagamento: ${job.salaryRange[0]} a ${job.salaryRange[1]} fyne coins por trabalho.\n` : "") +
     `XP por trabalho: ${job.xpGain}\n\n` +
     `Para escolher: *${prefix}emprego ${job.id}*`
