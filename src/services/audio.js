@@ -60,3 +60,24 @@ export async function processEarrape(inputPath, isVideo) {
         });
     });
 }
+
+export async function processCorteAudio(inputPath, start, end) {
+    return new Promise((resolve, reject) => {
+        const outFile = path.resolve(TEMP_DIR, getRandomName("mp3"));
+
+        let timeArgs = "";
+        if (start) timeArgs += `-ss ${start} `;
+        if (end)   timeArgs += `-to ${end} `;
+
+        // Copia o trecho do áudio sem recodificar (muito mais rápido)
+        const cmd = `ffmpeg -y -i "${inputPath}" ${timeArgs}-acodec libmp3lame -q:a 2 "${outFile}"`;
+
+        exec(cmd, (err, _, stderr) => {
+            if (err) {
+                console.error("FFmpeg erro (cortar áudio):", stderr);
+                return reject(new Error("Erro ao cortar o áudio."));
+            }
+            resolve(outFile);
+        });
+    });
+}
