@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename)
 
 export default {
     name: "kill",
-    aliases: [],
+    aliases: ["matar"],
     description: "Mata alguém no grupo com animação de GIF/MP4",
     category: "fun",
 

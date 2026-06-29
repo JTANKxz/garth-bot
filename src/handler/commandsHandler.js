@@ -136,6 +136,9 @@ export async function handleCommand({ sock, msg }) {
             commands.get(aliases.get(cmdName))
 
         if (!command) {
+            // Se o comando for vazio, apenas pontuação ou não tiver letras/números (ex: "!", "!!!!!")
+            if (!cmdName || !/[a-zA-Z0-9]/.test(cmdName)) return;
+
             // Só sugere em grupos autorizados, sem modo onlyAdmins bloqueando, fora do PV
             if (!jid.endsWith("@g.us")) return;
             if (groupCfg.onlyAdmins) return;
