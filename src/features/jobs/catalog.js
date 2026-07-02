@@ -20,34 +20,40 @@ export const JOBS = [
     id: 2,
     key: "ladrao",
     name: "Ladrão",
-    desc: "2 roubos bem-sucedidos",
+    desc: "2 roubos",
     info: "Tem vantagem ao usar !roubar e consegue levar uma parte maior do alvo. Se for pego, tambem corre mais risco.",
     salaryRange: [50, 250],
+    accidentChance: 15,
+    accidentLossRange: [30, 150],
     hint: "Use !roubar e consiga 2 roubos bem-sucedidos.",
     xpGain: 10,
-    requirement: { type: "robberySuccess", min: 2 }
+    requirement: [{ type: "robberySuccess", min: 2 }]
   },
   {
     id: 3,
     key: "chefe_do_crime",
     name: "Chefe do Crime",
-    desc: "25 roubos bem-sucedidos",
+    desc: "25 roubos",
     info: "Fica no topo do crime do grupo e recebe uma taxa sobre roubos bem-sucedidos feitos por outros membros.",
     hint: "Use !roubar e consiga 25 roubos bem-sucedidos.",
     salaryRange: [70, 350],
+    accidentChance: 10,
+    accidentLossRange: [50, 200],
     xpGain: 15,
-    requirement: { type: "robberySuccess", min: 25 }
+    requirement: [{ type: "robberySuccess", min: 25 }]
   },
   {
     id: 4,
     key: "policia",
     name: "Polícia",
-    desc: "2 denúncias feitas",
+    desc: "2 denúncias",
     info: "Pode prender suspeitos com comando prender e recebe recompensa quando a prisao da certo.",
     hint: "Use !denunciar 2 vezes.",
     salaryRange: [15, 135],
+    accidentChance: 15,
+    accidentLossRange: [30, 100],
     xpGain: 10,
-    requirement: { type: "reportsMade", min: 2 }
+    requirement: [{ type: "reportsMade", min: 2 }]
   },
   {
     id: 5,
@@ -58,29 +64,59 @@ export const JOBS = [
     hint: "Suba para o nivel 10 mandando mensagens e usando comandos no grupo.",
     salaryRange: [80, 550],
     xpGain: 20,
-    requirement: { type: "level", min: 10 }
+    requirement: [{ type: "level", min: 10 }]
   },
   {
     id: 6,
     key: "medico",
     name: "Médico",
     desc: "Nível 5",
-    info: "Recebe um salario alto e mais estavel. Tambem pode ajudar membros com ficha criminal.",
+    info: "Recebe um salario alto e mais estavel. Tambem pode ajudar membros com ficha criminal e curar acidentados.",
     hint: "Suba para o nivel 5 mandando mensagens e usando comandos no grupo.",
     salaryRange: [100, 400],
+    accidentChance: 15,
+    accidentLossRange: [50, 200],
     xpGain: 12,
-    requirement: { type: "level", min: 5 }
+    requirement: [{ type: "level", min: 5 }]
   },
   {
     id: 7,
     key: "advogado",
     name: "Advogado",
-    desc: "50.000 fyne coins",
+    desc: "50k fyne coins",
     info: "Defende membros do grupo, ganha comissao em fiancas e tem um dos melhores pagamentos.",
     hint: "Junte 50.000 fyne coins usando comandos como !trabalhar, !roubar e !explorar.",
     salaryRange: [100, 600],
+    accidentChance: 10,
+    accidentLossRange: [50, 250],
     xpGain: 15,
-    requirement: { type: "money", min: 50000 }
+    requirement: [{ type: "money", min: 50000 }]
+  },
+  {
+    id: 8,
+    key: "matador",
+    name: "Matador (Hitman)",
+    desc: "5 roubos e Nível 5",
+    info: "Profissao perigosa e lucrativa. Recebe contratos para colocar alvos no hospital.",
+    hint: "Consiga 5 roubos bem-sucedidos e alcance o Nível 5.",
+    salaryRange: [15, 50],
+    accidentChance: 15,
+    accidentLossRange: [50, 100],
+    xpGain: 15,
+    requirement: [{ type: "robberySuccess", min: 5 }, { type: "level", min: 5 }]
+  },
+  {
+    id: 9,
+    key: "mecanico",
+    name: "Mecânico",
+    desc: "Nível 3",
+    info: "Conserta a moto de entregadores acidentados e ganha recompensa por isso.",
+    hint: "Suba para o nivel 3 enviando mensagens e comandos.",
+    salaryRange: [40, 150],
+    accidentChance: 15,
+    accidentLossRange: [20, 80],
+    xpGain: 8,
+    requirement: [{ type: "level", min: 3 }]
   }
 ];
 

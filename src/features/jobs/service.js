@@ -56,20 +56,22 @@ export function hire(groupId, userId, jobKey) {
     }
 
     // Verificar requisitos
-    if (job.requirement) {
-        const { type, min } = job.requirement;
-        let current = 0;
-        
-        if (type === "level") {
-            const xp = countsDB[groupId]?.[userId]?.xp || 0;
-            current = calculateLevel(xp);
-        } else if (type === "money") {
-            current = getUserBalance(groupId, userId);
-        } else {
-            current = luckyDB[groupId]?.[userId]?.[type] || 0;
-        }
+    if (job.requirement && Array.isArray(job.requirement)) {
+        for (const req of job.requirement) {
+            const { type, min } = req;
+            let current = 0;
+            
+            if (type === "level") {
+                const xp = countsDB[groupId]?.[userId]?.xp || 0;
+                current = calculateLevel(xp);
+            } else if (type === "money") {
+                current = getUserBalance(groupId, userId);
+            } else {
+                current = luckyDB[groupId]?.[userId]?.[type] || 0;
+            }
 
-        if (current < min) return { ok: false, reason: "REQ_NOT_MET", type, min, current };
+            if (current < min) return { ok: false, reason: "REQ_NOT_MET", type, min, current };
+        }
     }
 
     // Contrata
@@ -135,7 +137,7 @@ export function work(groupId, userId) {
 
     // Incrementa XP do Emprego e Global XP
     userJobs.jobXP += job.xpGain;
-    addGlobalXP(groupId, userId, Math.floor(job.xpGain / 2)); // 50% do XP do job vai pro level global
+    addGlobalXP(groupId, userId, job.xpGain); // 100% do XP do job vai pro level global
 
     // Cooldown
     userJobs.workCooldownUntil = now + ECONOMY_CONFIG.WORK_COOLDOWN_MS;

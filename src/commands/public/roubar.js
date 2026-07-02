@@ -120,11 +120,7 @@ export default {
         if (!db[from][sender]) db[from][sender] = { money: 0 };
         db[from][sender].lastroubo = now;
 
-        // Salva dados do crime pro boletim (mesmo falhando)
-        db[from][sender].lastRobberyAt = now;
-        db[from][sender].lastRobberyVictim = target;
-        db[from][sender].lastRobberyAmount = 0;
-        db[from][sender].lastRobberyCaseId = `${from}-${sender}-${now}`;
+        // Não salva lastRobberyAt (apenas roubos com sucesso podem ser denunciados)
 
         writeJSON(DB_LUCKY, db);
         

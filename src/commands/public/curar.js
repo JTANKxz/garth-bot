@@ -78,13 +78,24 @@ export default {
         return sock.sendMessage(from, { text: `🏥 O paciente já foi atendido e curado deste acidente!` }, { quoted: msg });
       }
 
+      client.curado = true; // marca como curado para evitar duplo farm
+
+      // 30% de chance de falhar
+      const failed = Math.random() < 0.30;
+
+      if (failed) {
+        saveJSON(dbLuckyPath, luckyDB);
+        const text = `🚑 *ATENDIMENTO DE EMERGÊNCIA FALHOU!*\n\nO Dr(a). @${sender.split("@")[0]} tentou socorrer @${target.split("@")[0]}, mas o procedimento foi mal sucedido!\n\n` +
+                     `💔 O paciente não conseguiu recuperar os fyne coins perdidos no acidente.`;
+        return sock.sendMessage(from, { text, mentions: [target, sender] }, { quoted: msg });
+      }
+
       // Recupera o valor perdido pelo paciente
       const refund = client.lastAccidentLoss || 0;
       client.money = (client.money || 0) + refund;
-      client.curado = true; // marca como curado para evitar duplo farm
 
       // Médico cobra os custos do plano de saúde direto da prefeitura (recompensa extra)
-      const medicReward = Math.floor(refund * 0.40) + 150; // 40% do valor + base
+      const medicReward = Math.floor(refund * 0.20) + 50; // 20% do valor + base
       
       if (!luckyDB[from][sender]) luckyDB[from][sender] = { money: 0 };
       luckyDB[from][sender].money = (luckyDB[from][sender].money || 0) + medicReward;

@@ -36,11 +36,15 @@ function formatTimeLeft(ms) {
 
 function renderJobsList(groupId, userId) {
   const lines = JOBS.map(job => {
-    if (!job.requirement) return `*${job.id})* ${job.name} - Sem requisitos`;
+    if (!job.requirement || job.requirement.length === 0) return `*${job.id})* ${job.name} - Sem requisitos`;
 
-    const current = getCurrentRequirement(groupId, userId, job.requirement);
-    const name = REQUIREMENT_NAMES[job.requirement.type] || job.requirement.type;
-    return `*${job.id})* ${job.name} (${current}/${job.requirement.min}) ${name}.`;
+    const reqs = job.requirement.map(req => {
+        const current = getCurrentRequirement(groupId, userId, req);
+        const name = REQUIREMENT_NAMES[req.type] || req.type;
+        return `(${current}/${req.min}) ${name}`;
+    }).join(" e ");
+
+    return `*${job.id})* ${job.name} - ${reqs}`;
   });
 
   return (
@@ -55,13 +59,11 @@ function renderJobsList(groupId, userId) {
 function getRequirementText(res, job) {
   const name = REQUIREMENT_NAMES[res.type] || res.type;
   const missing = Math.max(0, res.min - res.current);
-  const hint = job?.hint ? `\nComo fazer: ${job.hint}` : "";
 
   return (
-    `Voce ainda nao tem os requisitos para virar *${job?.name || "essa profissao"}*.\n` +
-    `Requisito: ${res.min} ${name}.\n` +
-    `Seu progresso: ${res.current}/${res.min}.\n` +
-    `Falta: ${missing} ${name}.${hint}`
+    `⚠️ Você ainda não tem os requisitos para ser *${job?.name || "essa profissão"}*.\n` +
+    `Falta: ${missing} ${name}.\n\n` +
+    `*O que o emprego faz:*\n${job?.info || ""}`
   );
 }
 

@@ -23,6 +23,7 @@ import { checkSpam, clearUserSpamTracker } from "../utils/antispam.js";
 import { logMessage } from "../utils/messageLogger.js";
 import { applyWarning } from "../features/warning.js";
 import { handleAiTrigger } from "../utils/ollama.js";
+import { maybeSpawnCarroForte } from "../utils/carroForte.js";
 
 
 const groupMetadataCache = new Map()
@@ -208,6 +209,7 @@ export default async function messageHandler(messages, sock) {
     if (await handleAiTrigger({ sock, msg, groupJid, groupConfig, sender, pushName })) return;
 
     await maybeDropChest({ sock, msg });
+    await maybeSpawnCarroForte({ sock, msg });
 
     // ============ COMMANDS ============
     await handleCommand({ sock, msg, sender, isCreator });

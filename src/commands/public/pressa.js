@@ -69,8 +69,8 @@ export default {
       if (!luckyDB[from]) luckyDB[from] = {};
       if (!luckyDB[from][sender]) luckyDB[from][sender] = { money: 0 };
       
-      // 40% de chance de bater (acidente grave)
-      const acidente = randInt(0, 99) < 40;
+      // 50% de chance de bater (acidente grave)
+      const acidente = randInt(0, 99) < 50;
 
       if (acidente) {
         const loss = randInt(100, 350);
@@ -92,7 +92,7 @@ export default {
       }
 
       // Sucesso! Corrida extra rápida
-      const extraPay = randInt(150, 350);
+      const extraPay = randInt(100, 250);
       luckyDB[from][sender].money = (luckyDB[from][sender].money || 0) + extraPay;
 
       saveJSON(dbLuckyPath, luckyDB);

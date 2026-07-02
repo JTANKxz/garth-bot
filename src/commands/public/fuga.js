@@ -51,25 +51,38 @@ export default {
         return sock.sendMessage(from, { text: `✅ Você não está sendo procurado pela polícia no momento.` }, { quoted: msg });
       }
 
+      // Cooldown de 2 horas para fugas
+      if (ladrao.lastFugaAt && now - ladrao.lastFugaAt < 2 * 60 * 60 * 1000) {
+        const left = 2 * 60 * 60 * 1000 - (now - ladrao.lastFugaAt);
+        const totalMinutes = Math.ceil(left / 60000);
+        const h = Math.floor(totalMinutes / 60);
+        const m = totalMinutes % 60;
+        const timeStr = h > 0 ? `${h}h ${m}min` : `${m}min`;
+        return sock.sendMessage(from, { text: `⏳ Você já armou uma fuga recentemente. Aguarde *${timeStr}* para tentar de novo.` }, { quoted: msg });
+      }
+
       // Preço da fuga
-      const bribeCost = 1500; 
+      const bribeCost = 1000; 
 
       if ((ladrao.money || 0) < bribeCost) {
         return sock.sendMessage(from, { text: `💸 Você precisa de *${formatMoney(bribeCost)} fyne coins* para pagar o suborno da fuga!` }, { quoted: msg });
       }
 
-      // Paga o suborno e limpa o boletim
+      // Paga o suborno, limpa o boletim e reseta o cooldown de roubo
       ladrao.money -= bribeCost;
       ladrao.wantedUntil = 0;
       ladrao.wantedCaseId = null;
       ladrao.arrestAttempts = 0;
       ladrao.lastRobberyCaseId = null; // fecha o caso
+      ladrao.lastroubo = 0; // Zera o cooldown do roubo
+      ladrao.lastFugaAt = now;
 
       saveJSON(dbLuckyPath, luckyDB);
 
       const text = `🏃‍♂️💨 *FUGA BEM-SUCEDIDA!*\n\n` +
                    `@${sender.split("@")[0]} pagou um suborno de *${formatMoney(bribeCost)} fyne coins* para apagar as câmeras de segurança!\n\n` +
-                   `🚔 A polícia perdeu o seu rastro. Seu boletim de ocorrência foi cancelado.`;
+                   `🚔 A polícia perdeu o seu rastro. Seu boletim de ocorrência foi cancelado.\n` +
+                   `🥷 _O seu tempo de espera para roubar foi zerado!_`;
 
       await sock.sendMessage(from, { text, mentions: [sender] }, { quoted: msg });
 

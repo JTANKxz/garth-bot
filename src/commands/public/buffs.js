@@ -1,6 +1,12 @@
 import fs from "fs"
 import path from "path"
 
+const shopPath = path.resolve("src/database/shop.json")
+
+function loadShop() {
+    try { return JSON.parse(fs.readFileSync(shopPath)) } catch { return [] }
+}
+
 const dbPath = path.resolve("src/database/lucky.json")
 
 function loadDB() {
@@ -68,29 +74,16 @@ export default {
                 return
             }
 
-            // 🔻 Buffs normais (quando NÃO é VIP)
-            const buffDefs = [
-                {
-                    key: "daily_double",
-                    title: "💸 Daily dobrado",
-                    desc: "Seu daily vem em dobro"
-                },
-                {
-                    key: "anti_roubo",
-                    title: "🛡️ Proteção anti-roubo",
-                    desc: "Impede que roubem você"
-                },
-                {
-                    key: "roubo_bonus_chance",
-                    title: "🎯 +50% chance no roubo",
-                    desc: "Mais chance de sucesso no roubo"
-                },
-                {
-                    key: "bet_bonus",
-                    title: "🎲 +30% sucesso em aposta",
-                    desc: "Mais chance de ganhar na aposta"
-                }
-            ]
+            // 🔻 Buffs normais (quando NÃO é VIP) — lidos do shop.json
+            const shopItems = loadShop()
+            const buffDefs = shopItems
+                .filter(item => item.key && item.duration) // apenas itens com duração (temporários)
+                .filter(item => item.key !== "vip_profile") // VIP já tratado acima
+                .map(item => ({
+                    key: item.key,
+                    title: item.name,
+                    desc: item.description
+                }))
 
             const active = buffDefs
                 .map(b => {

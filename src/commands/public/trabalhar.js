@@ -34,18 +34,28 @@ export default {
             const now = Date.now();
             let isJailed = false;
             let jailTimeLeft = 0;
+            let isHospitalized = false;
+            let hospitalTimeLeft = 0;
             
             if (fs.existsSync(dbLuckyPath)) {
                 const luckyDB = JSON.parse(fs.readFileSync(dbLuckyPath));
                 const userLucky = luckyDB[from]?.[sender];
-                if (userLucky && userLucky.jailUntil && userLucky.jailUntil > now) {
+                if (userLucky?.jailUntil && userLucky.jailUntil > now) {
                     isJailed = true;
                     jailTimeLeft = userLucky.jailUntil - now;
+                }
+                if (userLucky?.hospitalUntil && userLucky.hospitalUntil > now) {
+                    isHospitalized = true;
+                    hospitalTimeLeft = userLucky.hospitalUntil - now;
                 }
             }
 
             if (isJailed) {
                 return sock.sendMessage(from, { text: `🚔 *${pushName}*, você está preso e não pode trabalhar!\n⏳ Tempo restante: *${formatTimeLeft(jailTimeLeft)}*.\nUse *!fianca* para tentar sair.` }, { quoted: msg });
+            }
+
+            if (isHospitalized) {
+                return sock.sendMessage(from, { text: `🏥 *${pushName}*, você está internado no hospital e não pode trabalhar!\n⏳ Alta em: *${formatTimeLeft(hospitalTimeLeft)}*.` }, { quoted: msg });
             }
 
             const res = work(from, sender);

@@ -94,8 +94,15 @@ export default {
         hackerJobData.workCooldownUntil = now + (4 * 60 * 60 * 1000);
         saveJSON(dbJobsPath, jobsDB);
 
-        const text = `📡 *BLOQUEIO DE REDE*\n\n🚫 O firewall da conta de @${target.split("@")[0]} detectou sua invasão!\n` +
-                     `🔒 Seu IP foi banido e você não poderá trabalhar nas próximas *4 horas*.`;
+        // Coloca o hacker como procurado por 20 minutos
+        if (!luckyDB[from][sender]) luckyDB[from][sender] = { money: 0 };
+        luckyDB[from][sender].wantedUntil = now + (20 * 60 * 1000);
+        luckyDB[from][sender].wantedCaseId = `${from}-${sender}-${now}`;
+        saveJSON(dbLuckyPath, luckyDB);
+
+        const text = `📡 *BLOQUEIO DE REDE E FLAGRANTE!*\n\n🚫 O firewall da conta de @${target.split("@")[0]} detectou sua invasão!\n` +
+                     `🔒 Seu IP foi banido e você não poderá trabalhar nas próximas *4 horas*.\n` +
+                     `🚔 A polícia cibernética rastreou você. Você está *PROCURADO* por 20 minutos!`;
         
         return sock.sendMessage(from, { text, mentions: [target] }, { quoted: msg });
       }
@@ -114,7 +121,8 @@ export default {
 
       const text = `💻 *SISTEMA INVADIDO!*\n\n` +
                    `@${sender.split("@")[0]} furou todas as defesas digitais de @${target.split("@")[0]}!\n\n` +
-                   `💸 Dinheiro transferido para offshore: *${formatMoney(roubado)} fyne coins*!`;
+                   `💸 Dinheiro transferido para offshore: *${formatMoney(roubado)} fyne coins*!\n` +
+                   `🔍 _Análise do banco de dados revelou que o alvo ficou com exatos *${formatMoney(vitima.money)} fyne coins* na conta._`;
 
       await sock.sendMessage(from, { text, mentions: [sender, target] }, { quoted: msg });
 

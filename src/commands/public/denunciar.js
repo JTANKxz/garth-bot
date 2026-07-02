@@ -180,7 +180,7 @@ export default {
       const suspect = ensureLuckyUser(luckyDB, from, target);
 
       // precisa ter roubo bem-sucedido recente
-      if (!suspect.lastRobberyAt || now - suspect.lastRobberyAt > REPORT_WINDOW_MS) {
+      if (!suspect.lastRobberyAt || (suspect.lastRobberyAmount || 0) <= 0 || now - suspect.lastRobberyAt > REPORT_WINDOW_MS) {
         reporter.lastReportAt = now;
         saveJSON(dbLuckyPath, luckyDB);
 
