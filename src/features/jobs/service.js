@@ -7,6 +7,7 @@ import { readJSON, writeJSON } from "../../utils/readJSON.js";
 import { getJobByKey, ECONOMY_CONFIG } from "./catalog.js";
 import { addMoney, removeMoney, getUserBalance } from "../../utils/saldo.js";
 import { calculateLevel, addGlobalXP } from "../progress/levelSystem.js";
+import { getBotConfig } from "../../config/botConfig.js";
 
 const JOBS_DB = "database/jobs.json";
 const LUCKY_DB = "database/lucky.json";
@@ -48,15 +49,20 @@ export function hire(groupId, userId, jobKey) {
     const job = getJobByKey(jobKey);
     
     if (!job) return { ok: false, reason: "JOB_NOT_FOUND" };
+    const isCreator = userId === getBotConfig().botCreator;
+
     if (userJobs.job) return { ok: false, reason: "ALREADY_EMPLOYED" };
-    
-    // Verificando cooldown de demissão
-    if (userJobs.quitUntil > Date.now()) {
-        return { ok: false, reason: "QUIT_COOLDOWN", time: userJobs.quitUntil - Date.now() };
+
+    // Criador ignora cooldown de demissão e requisitos
+    if (!isCreator) {
+        // Verificando cooldown de demissão
+        if (userJobs.quitUntil > Date.now()) {
+            return { ok: false, reason: "QUIT_COOLDOWN", time: userJobs.quitUntil - Date.now() };
+        }
     }
 
-    // Verificar requisitos
-    if (job.requirement && Array.isArray(job.requirement)) {
+    // Verificar requisitos (criador ignora todos)
+    if (!isCreator && job.requirement && Array.isArray(job.requirement)) {
         for (const req of job.requirement) {
             const { type, min } = req;
             let current = 0;
