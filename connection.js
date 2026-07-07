@@ -13,7 +13,7 @@ import { groupHandler } from './src/handler/groupHandler.js'
 // Logger do Baileys
 const logger = pino({ level: 'error' })
 
-export async function connectBot(phoneNumber, messageHandler) {
+export async function connectBot(phoneNumber, messageHandler, connectionMethod = 'qr') {
     try {
         console.log('🚀 Iniciando bot...')
 
@@ -27,7 +27,7 @@ export async function connectBot(phoneNumber, messageHandler) {
             auth: state,
             version,
             browser: Browsers.ubuntu('Chrome'),
-            printQRInTerminal: false,
+            printQRInTerminal: connectionMethod === 'qr' ? true : false,
             syncFullHistory: false,
             markOnlineOnConnect: false,
             connectTimeoutMs: 60000,
@@ -66,25 +66,31 @@ export async function connectBot(phoneNumber, messageHandler) {
                 }
 
                 console.log('🔄 Reconectando em 5 segundos...')
-                setTimeout(() => connectBot(phoneNumber, messageHandler), 5000)
+                setTimeout(() => connectBot(phoneNumber, messageHandler, connectionMethod), 5000)
                 return
             }
 
             if (connection === 'connecting' && !pairingRequested) {
                 pairingRequested = true
-                setTimeout(async () => {
-                    if (!sock.authState.creds.registered && phoneNumber) {
-                        try {
-                            console.log(`\n🔐 SOLICITANDO CÓDIGO DE PAREAMENTO PARA ${phoneNumber}...`)
-                            const code = await sock.requestPairingCode(phoneNumber)
-                            console.log('📟 CÓDIGO DE PAREAMENTO:', code)
-                            console.log('📱 Use este código no WhatsApp para vincular o dispositivo.')
-                        } catch (err) {
-                            console.log('❌ Erro ao gerar código:', err.message)
-                            pairingRequested = false
+                
+                // Apenas solicita código de pareamento se o método escolhido foi 'pairing'
+                if (connectionMethod === 'pairing') {
+                    setTimeout(async () => {
+                        if (!sock.authState.creds.registered && phoneNumber) {
+                            try {
+                                console.log(`\n🔐 SOLICITANDO CÓDIGO DE PAREAMENTO PARA ${phoneNumber}...`)
+                                const code = await sock.requestPairingCode(phoneNumber)
+                                console.log('📟 CÓDIGO DE PAREAMENTO:', code)
+                                console.log('📱 Use este código no WhatsApp para vincular o dispositivo.')
+                            } catch (err) {
+                                console.log('❌ Erro ao gerar código:', err.message)
+                                pairingRequested = false
+                            }
                         }
-                    }
-                }, 3000)
+                    }, 3000)
+                } else if (connectionMethod === 'qr') {
+                    console.log('\n📱 Escaneie o QR Code com seu celular para conectar...')
+                }
             }
         })
 
@@ -100,6 +106,6 @@ export async function connectBot(phoneNumber, messageHandler) {
     } catch (error) {
         console.log('💥 ERRO CRÍTICO na inicialização:', error)
         console.log('🔄 Reiniciando em 10 segundos...')
-        setTimeout(() => connectBot(phoneNumber, messageHandler), 10000)
+        setTimeout(() => connectBot(phoneNumber, messageHandler, connectionMethod), 10000)
     }
 }
