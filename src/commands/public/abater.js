@@ -1,4 +1,4 @@
-﻿import fs from "fs";
+import fs from "fs";
 import path from "path";
 
 const dbLuckyPath     = path.resolve("src/database/lucky.json");
@@ -88,33 +88,20 @@ export default {
       await sock.sendMessage(from, { text, mentions: [alvo, sender] }, { quoted: msg });
 
     } else {
-      // Falha: matador é preso por 12h, perde o emprego, contratante recebe reembolso
-      if (!luckyDB[from][sender]) luckyDB[from][sender] = { money: 0 };
-      luckyDB[from][sender].jailUntil = now + JAIL_MS;
-      luckyDB[from][sender].wantedUntil = 0;
-
       // Reembolso ao contratante
       if (!luckyDB[from][contrato.contratante]) luckyDB[from][contrato.contratante] = { money: 0 };
       luckyDB[from][contrato.contratante].money = (luckyDB[from][contrato.contratante].money || 0) + contrato.valor;
-
-      // Matador perde o emprego
-      if (jobsDB[from]?.[sender]) {
-        jobsDB[from][sender].job = null;
-      }
 
       // Fecha o contrato
       contratos[from][contratoId].status = "falhou";
 
       saveJSON(dbLuckyPath, luckyDB);
-      saveJSON(dbJobsPath, jobsDB);
       saveJSON(dbContratosPath, contratos);
 
       const text =
         `🚨 *MISSÃO FRACASSADA!*\n` +
         `━━━━━━━━━━━━━━━━━━\n` +
-        `❌ @${sender.split("@")[0]} foi interceptado pela polícia!\n\n` +
-        `🏛️ Sentença: *12 horas de prisão* (sem fiança)\n` +
-        `💼 Emprego de Matador: *REVOGADO*\n` +
+        `❌ @${sender.split("@")[0]} não conseguiu abater o alvo!\n\n` +
         `💸 Reembolso: *${formatMoney(contrato.valor)} fyne coins* devolvidos ao contratante.`;
 
       await sock.sendMessage(from, { text, mentions: [sender, contrato.contratante] }, { quoted: msg });

@@ -110,25 +110,35 @@ export async function handleCommand({ sock, msg }) {
 
         const prefix = groupCfg.prefix || PREFIX
         const noprefix = groupCfg.noprefix && isCreator
+        const trimmedBody = body.trim()
 
-        if (body.trim().toLowerCase() === "prefixo") {
+        if (trimmedBody.toLowerCase() === "prefixo") {
             return sock.sendMessage(jid, {
                 text: `Prefixo atual: *${prefix}*\n\nExemplo: *${prefix}menu*`
             }, { quoted: msg });
         }
 
+        if (!trimmedBody) return
+
+        const hasPrefix = trimmedBody.startsWith(prefix)
+
         // Se não tem prefixo e noprefix não está ativado, ignora
-        if (!body.startsWith(prefix) && !noprefix) return
+        if (!hasPrefix && !noprefix) return
 
         // Extrai args com ou sem prefixo
         let args, cmdName
-        if (body.startsWith(prefix)) {
-          args = body.slice(prefix.length).trim().split(/ +/)
-          cmdName = args.shift().toLowerCase()
+        if (hasPrefix) {
+          args = trimmedBody.slice(prefix.length).trim().split(/ +/)
+          cmdName = args.shift()?.toLowerCase() || ""
         } else {
-          // Modo noprefix - primeiro word é o comando
-          args = body.trim().split(/ +/)
-          cmdName = args.shift().toLowerCase()
+          // Modo noprefix - só trata como comando se a primeira palavra for um comando válido
+          const parts = trimmedBody.split(/ +/)
+          cmdName = parts[0]?.toLowerCase() || ""
+          const matchedCommand = commands.get(cmdName) || commands.get(aliases.get(cmdName))
+
+          if (!matchedCommand) return
+
+          args = parts.slice(1)
         }
 
         const command =

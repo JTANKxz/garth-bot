@@ -1,4 +1,4 @@
-﻿import fs from "fs";
+import fs from "fs";
 import path from "path";
 
 const dbLuckyPath    = path.resolve("src/database/lucky.json");
@@ -72,7 +72,7 @@ export default {
     // Verificar se o matador já tem um contrato ativo
     const contratos = loadJSON(dbContratosPath);
     if (!contratos[from]) contratos[from] = {};
-    const contratoAtivo = Object.values(contratos[from]).find(c => c.matador === matador && c.expiresAt > now);
+    const contratoAtivo = Object.values(contratos[from]).find(c => c.matador === matador && c.status === "pendente" && c.expiresAt > now);
     if (contratoAtivo) {
       return sock.sendMessage(from, { text: `🗡️ Esse matador já está com um contrato ativo. Aguarde ele terminar!` }, { quoted: msg });
     }

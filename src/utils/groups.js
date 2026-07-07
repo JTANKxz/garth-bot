@@ -217,3 +217,22 @@ export function resetAllGroupsEconomy() {
   if (count > 0) saveCache();
   return count;
 }
+
+// Reseta customizações de economia de um grupo específico
+export function resetGroupEconomy(groupId) {
+  loadCache();
+  if (!groupCache[groupId]) return false;
+  
+  let changed = false;
+  if (groupCache[groupId].economy !== undefined) {
+    delete groupCache[groupId].economy;
+    changed = true;
+  }
+  if (groupCache[groupId].shopOverrides !== undefined) {
+    delete groupCache[groupId].shopOverrides;
+    changed = true;
+  }
+  
+  if (changed) saveCache();
+  return changed;
+}

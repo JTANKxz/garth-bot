@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 import { getBotConfig } from "../../config/botConfig.js";
+import { removeUser as removeMsgCount } from "../../features/messageCounts.js";
+import { removeUser as removeSimpleCount } from "../../features/simpleMessageCounts.js";
 
 const dbPath = path.resolve(process.cwd(), "src", "database");
 
@@ -100,6 +102,9 @@ export default {
               delete db[groupId][key];
               removedInThisFile++;
               totalRemoved++;
+
+              if (dbFile === "messageCounts.json") removeMsgCount(groupId, key);
+              if (dbFile === "simpleMessageCounts.json") removeSimpleCount(groupId, key);
             }
           }
 
