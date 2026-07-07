@@ -1,111 +1,172 @@
-// connection.js - fica responsável por conectar o bot
+// connection.js
 import makeWASocket, {
-    useMultiFileAuthState,
-    fetchLatestBaileysVersion,
-    Browsers,
-    DisconnectReason
-} from 'baileys'
-import fs from 'fs/promises'
-import pino from 'pino' 
-import { groupHandler } from './src/handler/groupHandler.js'
+  useMultiFileAuthState,
+  fetchLatestBaileysVersion,
+  Browsers,
+  DisconnectReason,
+} from "baileys";
 
+import fs from "fs/promises";
+import pino from "pino";
+import QRCode from "qrcode-terminal";
+import { groupHandler } from "./src/handler/groupHandler.js";
 
-// Logger do Baileys
-const logger = pino({ level: 'error' })
+const logger = pino({ level: "silent" });
 
-export async function connectBot(phoneNumber, messageHandler, connectionMethod = 'qr') {
-    try {
-        console.log('🚀 Iniciando bot...')
+export async function connectBot(
+  phoneNumber,
+  messageHandler,
+  connectionMethod = "qr",
+) {
+  try {
+    console.log("🚀 Iniciando bot...");
 
-        try { await fs.access('./auth') }
-        catch { await fs.mkdir('./auth', { recursive: true }) }
+    await fs.mkdir("./auth", { recursive: true });
 
-        const { state, saveCreds } = await useMultiFileAuthState('./auth')
-        const { version } = await fetchLatestBaileysVersion()
+    const { state, saveCreds } = await useMultiFileAuthState("./auth");
+    const { version } = await fetchLatestBaileysVersion();
 
-        const sock = makeWASocket({
-            auth: state,
-            version,
-            browser: Browsers.ubuntu('Chrome'),
-            printQRInTerminal: connectionMethod === 'qr' ? true : false,
-            syncFullHistory: false,
-            markOnlineOnConnect: false,
-            connectTimeoutMs: 60000,
-            keepAliveIntervalMs: 10000,
-            emitOwnEvents: false,
-            fireInitQueries: false,
-            logger
-        })
+    const sock = makeWASocket({
+      auth: state,
+      version,
+      browser: Browsers.ubuntu("Chrome"),
+      printQRInTerminal: false,
+      markOnlineOnConnect: false,
+      connectTimeoutMs: 60000,
+      keepAliveIntervalMs: 10000,
+      logger,
+    });
 
-        sock.ev.on('creds.update', saveCreds)
+    sock.ev.on("creds.update", saveCreds);
 
-        let pairingRequested = false
+    let pairingRequested = false;
 
-        // Conexão
-        sock.ev.on('connection.update', async ({ connection, lastDisconnect }) => {
-            if (connection === 'open') {
-                console.log('✅ Conectado com sucesso!')
-                console.log(`📞 Número conectado: ${sock.user.id.replace('@s.whatsapp.net', '')}`)
-                pairingRequested = false
-                return
+    sock.ev.on("connection.update", async (update) => {
+      const { connection, lastDisconnect, qr } = update;
+
+      // ==========================
+      // QR CODE
+      // ==========================
+      if (qr && connectionMethod === "qr") {
+        console.clear();
+        console.log("\n📱 ESCANEIE O QR CODE:\n");
+        QRCode.generate(qr, { small: true });
+        console.log("");
+      }
+
+      // ==========================
+      // PAIRING CODE
+      // ==========================
+      if (
+        connection === "connecting" &&
+        connectionMethod === "pairing" &&
+        !pairingRequested
+      ) {
+        pairingRequested = true;
+
+        setTimeout(async () => {
+          try {
+            if (!sock.authState.creds.registered && phoneNumber) {
+              console.log(
+                `\n🔐 Gerando código para ${phoneNumber}...\n`,
+              );
+
+              const code = await sock.requestPairingCode(phoneNumber);
+
+              console.log("═══════════════════════════════");
+              console.log("📟 CÓDIGO DE PAREAMENTO");
+              console.log(code);
+              console.log("═══════════════════════════════");
             }
+          } catch (e) {
+            console.log("Erro:", e.message);
+            pairingRequested = false;
+          }
+        }, 3000);
+      }
 
-            if (connection === 'close') {
-                const statusCode = lastDisconnect?.error?.output?.statusCode
-                console.log(`❌ Conexão fechada (${statusCode}). Tentando reconectar...`)
+      // ==========================
+      // CONECTADO
+      // ==========================
+      if (connection === "open") {
+        console.clear();
 
-                if (statusCode === DisconnectReason.loggedOut || statusCode === 401) {
-                    console.log('🧹 Sessão inválida, limpando autenticação...')
-                    try {
-                        await fs.rm('./auth', { recursive: true, force: true })
-                        await fs.mkdir('./auth', { recursive: true })
-                        console.log('✅ Pasta auth limpa!')
-                    } catch (err) {
-                        console.log('⚠️ Erro ao limpar auth:', err)
-                    }
-                }
+        console.log("✅ BOT CONECTADO!");
 
-                console.log('🔄 Reconectando em 5 segundos...')
-                setTimeout(() => connectBot(phoneNumber, messageHandler, connectionMethod), 5000)
-                return
-            }
+        if (sock.user) {
+          console.log(
+            "📞 Número:",
+            sock.user.id.replace("@s.whatsapp.net", ""),
+          );
+        }
 
-            if (connection === 'connecting' && !pairingRequested) {
-                pairingRequested = true
-                
-                // Apenas solicita código de pareamento se o método escolhido foi 'pairing'
-                if (connectionMethod === 'pairing') {
-                    setTimeout(async () => {
-                        if (!sock.authState.creds.registered && phoneNumber) {
-                            try {
-                                console.log(`\n🔐 SOLICITANDO CÓDIGO DE PAREAMENTO PARA ${phoneNumber}...`)
-                                const code = await sock.requestPairingCode(phoneNumber)
-                                console.log('📟 CÓDIGO DE PAREAMENTO:', code)
-                                console.log('📱 Use este código no WhatsApp para vincular o dispositivo.')
-                            } catch (err) {
-                                console.log('❌ Erro ao gerar código:', err.message)
-                                pairingRequested = false
-                            }
-                        }
-                    }, 3000)
-                } else if (connectionMethod === 'qr') {
-                    console.log('\n📱 Escaneie o QR Code com seu celular para conectar...')
-                }
-            }
-        })
+        pairingRequested = false;
+      }
 
-        // Mensagens
-        sock.ev.on('messages.upsert', async ({ messages }) => {
-            if (messageHandler) messageHandler(messages, sock)
-        })
+      // ==========================
+      // DESCONECTOU
+      // ==========================
+      if (connection === "close") {
+        const statusCode = lastDisconnect?.error?.output?.statusCode;
 
-        sock.ev.on('group-participants.update', async (update) => {
-            await groupHandler(sock, update)
-        })
+        console.log(
+          `❌ Conexão encerrada (${statusCode}).`,
+        );
 
-    } catch (error) {
-        console.log('💥 ERRO CRÍTICO na inicialização:', error)
-        console.log('🔄 Reiniciando em 10 segundos...')
-        setTimeout(() => connectBot(phoneNumber, messageHandler, connectionMethod), 10000)
-    }
+        if (
+          statusCode === DisconnectReason.loggedOut ||
+          statusCode === 401
+        ) {
+          console.log("🧹 Limpando sessão...");
+
+          try {
+            await fs.rm("./auth", {
+              recursive: true,
+              force: true,
+            });
+
+            await fs.mkdir("./auth", {
+              recursive: true,
+            });
+
+            console.log("✅ Sessão apagada.");
+          } catch (err) {
+            console.log(err);
+          }
+        }
+
+        console.log("🔄 Reconectando em 5 segundos...");
+
+        setTimeout(() => {
+          connectBot(
+            phoneNumber,
+            messageHandler,
+            connectionMethod,
+          );
+        }, 5000);
+      }
+    });
+
+    sock.ev.on("messages.upsert", async ({ messages }) => {
+      if (messageHandler) {
+        await messageHandler(messages, sock);
+      }
+    });
+
+    sock.ev.on("group-participants.update", async (update) => {
+      await groupHandler(sock, update);
+    });
+
+    return sock;
+  } catch (err) {
+    console.log("💥 Erro:", err);
+
+    setTimeout(() => {
+      connectBot(
+        phoneNumber,
+        messageHandler,
+        connectionMethod,
+      );
+    }, 10000);
+  }
 }

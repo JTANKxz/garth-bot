@@ -40,8 +40,7 @@ async function start() {
 
     if (hasAuth) {
         console.log("🔁 Sessão detectada! Conectando automaticamente...")
-        const sock = await connectBot(null, messageHandler)
-
+        connectBot(null, messageHandler, 'qr')
         return
     }
 
@@ -54,15 +53,15 @@ async function start() {
     if (method === '1') {
         // Conexão via QR Code
         console.log('\n📱 Modo QR Code selecionado')
-        const sock = await connectBot(null, messageHandler, 'qr')
+        connectBot(null, messageHandler, 'qr')
     } else if (method === '2') {
         // Conexão via Código de Pareamento
         console.log('\n📲 Modo Código de Pareamento selecionado')
         const phoneNumber = await askPhoneNumber()
-        const sock = await connectBot(phoneNumber, messageHandler, 'pairing')
+        connectBot(phoneNumber, messageHandler, 'pairing')
     } else {
         console.log('❌ Opção inválida! Usando QR Code por padrão...')
-        const sock = await connectBot(null, messageHandler, 'qr')
+        connectBot(null, messageHandler, 'qr')
     }
 }
 
