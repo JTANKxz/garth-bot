@@ -1,20 +1,9 @@
-/**
- * Normaliza um JID para o formato correto
- * Converte @lid para :1@lid se necessário
- */
-function normalizeJid(jid) {
-  if (!jid) return null;
-  
-  // Se já tem :1@lid, retorna
-  if (jid.includes(":1@lid")) return jid;
-  
-  // Se tem @lid sem :1, adiciona :1
-  if (jid.includes("@lid") && !jid.includes(":")) {
-    const number = jid.replace("@lid", "").replace(":1", "");
-    return `${number}:1@lid`;
-  }
-  
-  return jid;
+function cleanJid(jidStr) {
+  if (!jidStr) return ""
+
+  const [user, host] = String(jidStr).split('@')
+  const cleanUser = user.split(':')[0]
+  return `${cleanUser}@${host || 's.whatsapp.net'}`
 }
 
 export default {
@@ -24,14 +13,27 @@ export default {
 
     async run({ sock, msg }) {
         const from = msg.key.remoteJid
-        if (!from.endsWith('@g.us')) return
+        if (!from?.endsWith('@g.us')) return
 
-        let sender = msg.key.participant || from
-        
-        // Normaliza o sender para garantir formato correto
-        sender = normalizeJid(sender);
-        
+        const sender = msg.key.participant || from
+        const targetJid = cleanJid(sender)
         const pushName = msg.pushName || "Usuário"
+
+        let groupMetadata
+        try {
+            groupMetadata = await sock.groupMetadata(from)
+        } catch (e) {
+            console.error('Erro ao buscar metadata do grupo:', e)
+            return sock.sendMessage(from, { text: '❌ Não consegui acessar os dados do grupo.' }, { quoted: msg })
+        }
+
+        const botEntry = groupMetadata.participants.find(p => cleanJid(p.id) === cleanJid(sock.user?.id))
+        if (!botEntry?.admin) {
+            return sock.sendMessage(from, { text: '❌ Eu preciso ser admin para remover membros do grupo.' }, { quoted: msg })
+        }
+
+        const targetFromGroup = groupMetadata.participants.find(p => cleanJid(p.id) === targetJid)
+        const finalTargetJid = targetFromGroup?.id || targetJid
 
         const resultado = Math.floor(Math.random() * 6) + 1
 
@@ -39,9 +41,10 @@ export default {
             await sock.sendMessage(from, { text: `💥 *${pushName} puxou o gatilho... e morreu!* 💀` }, { quoted: msg })
 
             try {
-                await sock.groupParticipantsUpdate(from, [sender], "remove")
+                await sock.groupParticipantsUpdate(from, [finalTargetJid], 'remove')
             } catch (e) {
-                await sock.sendMessage(from, { text: `❌ Não consegui remover ${pushName}. Talvez eu não seja admin.` }, { quoted: msg })
+                console.error('Erro ao remover participante na roleta russa:', e)
+                await sock.sendMessage(from, { text: `❌ Não consegui remover ${pushName}. Talvez eu não tenha permissão para expulsar membros.` }, { quoted: msg })
             }
         } else {
             await sock.sendMessage(from, { text: `*${pushName} puxou o gatilho... e sobreviveu!*` }, { quoted: msg })
