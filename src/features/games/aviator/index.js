@@ -72,7 +72,10 @@ export async function startAviator(sock, msg, betAmount, targetMultiplier) {
         
         // 12% de chance de dar crash imediato (1.00x) - Vantagem pesada da casa
         if (r > 0.12) {
-            crashPoint = 0.80 / r; 
+            crashPoint = 0.80 / Math.random(); 
+            if (crashPoint > 10.01) {
+                crashPoint = 10.01; // Teto visual
+            }
         }
 
         let current = 1.0;

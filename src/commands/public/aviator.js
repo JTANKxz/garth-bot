@@ -1,4 +1,4 @@
-﻿import { startAviator } from "../../features/games/aviator/index.js";
+import { startAviator } from "../../features/games/aviator/index.js";
 
 const cooldowns = new Map();
 
@@ -25,7 +25,7 @@ export default {
 
         try {
             if (args.length < 2) {
-                return sock.sendMessage(from, { text: "❌ Uso correto: `!aviator [aposta] [multiplicador]`\nExemplo: `!aviator 500 2.0`\n\n*Nota:* O multiplicador mínimo é 1.1x." }, { quoted: msg });
+                return sock.sendMessage(from, { text: "❌ Uso correto: `!aviator [aposta] [multiplicador]`\nExemplo: `!aviator 500 2.0`\n\n*Nota:* O multiplicador deve estar entre 1.1x e 10.0x." }, { quoted: msg });
             }
 
             const betAmount = parseInt(args[0]);
@@ -35,8 +35,8 @@ export default {
                 return sock.sendMessage(from, { text: "❌ Valor de aposta inválido. A aposta mínima é 10." }, { quoted: msg });
             }
 
-            if (isNaN(targetMultiplier) || targetMultiplier < 1.1) {
-                return sock.sendMessage(from, { text: "❌ Multiplicador alvo inválido. O mínimo é 1.1x.\nExemplo: `!aviator 500 2.0`" }, { quoted: msg });
+            if (isNaN(targetMultiplier) || targetMultiplier < 1.1 || targetMultiplier > 10.0) {
+                return sock.sendMessage(from, { text: "❌ Multiplicador alvo inválido. Escolha um valor entre 1.1x e 10.0x.\nExemplo: `!aviator 500 2.0`" }, { quoted: msg });
             }
 
             cooldowns.set(sender, now);
