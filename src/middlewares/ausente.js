@@ -23,13 +23,13 @@ export async function ausenteMiddleware(msg, sock) {
     let handled = false;
 
     // 1. O próprio usuário ausente falou algo? (Remove a ausência)
-    if (db[sender]) {
+    if (db[from]?.[sender]) {
         const text = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
         
         // Se a mensagem for o próprio comando ativando, ignoramos para não desativar no mesmo milissegundo
         const textLower = text.toLowerCase().trim();
         if (!textLower.startsWith("!ausente") && !textLower.startsWith("/ausente") && !textLower.startsWith(".ausente")) {
-            delete db[sender];
+            delete db[from][sender];
             writeJSON(DB_AUSENTES, db);
             
             // Avisa o usuário que ele voltou, mas não bloqueia a execução normal do comando que ele possa ter digitado
@@ -47,7 +47,7 @@ export async function ausenteMiddleware(msg, sock) {
     if (msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.length) {
         // Encontra o primeiro usuário mencionado que esteja na DB de ausentes
         for (const jid of msg.message.extendedTextMessage.contextInfo.mentionedJid) {
-            if (db[jid]) {
+            if (db[from]?.[jid]) {
                 targetId = jid;
                 break;
             }
@@ -57,14 +57,14 @@ export async function ausenteMiddleware(msg, sock) {
     // Checa se respondeu uma mensagem
     if (!targetId && msg.message?.extendedTextMessage?.contextInfo?.participant) {
         const quotedParticipant = msg.message.extendedTextMessage.contextInfo.participant;
-        if (db[quotedParticipant]) {
+        if (db[from]?.[quotedParticipant]) {
             targetId = quotedParticipant;
         }
     }
 
     // Se marcou um ausente (e não foi o próprio ausente marcando a si mesmo)
-    if (targetId && targetId !== sender && db[targetId]) {
-        const info = db[targetId];
+    if (targetId && targetId !== sender && db[from]?.[targetId]) {
+        const info = db[from][targetId];
         const tempo = formatTimeLeft(Date.now() - info.time);
         
         await sock.sendMessage(from, {

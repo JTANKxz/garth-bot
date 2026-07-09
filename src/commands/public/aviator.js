@@ -15,7 +15,8 @@ export default {
 
         // Cooldown de 1 minuto (60000 ms)
         const now = Date.now();
-        const lastGame = cooldowns.get(sender) || 0;
+        const cooldownKey = `${from}_${sender}`;
+        const lastGame = cooldowns.get(cooldownKey) || 0;
         const COOLDOWN_MS = 60 * 1000;
 
         if (now - lastGame < COOLDOWN_MS) {
@@ -39,7 +40,7 @@ export default {
                 return sock.sendMessage(from, { text: "❌ Multiplicador alvo inválido. Escolha um valor entre 1.1x e 10.0x.\nExemplo: `!aviator 500 2.0`" }, { quoted: msg });
             }
 
-            cooldowns.set(sender, now);
+            cooldowns.set(cooldownKey, now);
             
             await startAviator(sock, msg, betAmount, targetMultiplier);
             
