@@ -113,8 +113,8 @@ export function work(groupId, userId) {
         result.salary = salary;
         result.type = "salary";
     } else if (job.key === "hacker") {
-        // Hacker: Chance de bloqueio de rede (15%)
-        if (randInt(0, 99) < 15) {
+        // Hacker: Chance de bloqueio de rede (5%)
+        if (randInt(0, 99) < 5) {
             userJobs.workCooldownUntil = now + (4 * 60 * 60 * 1000); // 4h ban
             result.type = "hack_fail";
             result.cooldown = 4 * 60 * 60 * 1000;

@@ -86,8 +86,8 @@ export default {
 
       hackerJobData.lastHackAt = now;
 
-      // 40% de chance de sucesso
-      const success = randInt(0, 99) < 40;
+      // 65% de chance de sucesso
+      const success = randInt(0, 99) < 65;
 
       if (!success) {
         // Bloqueio de rede por 4h (impede trabalhar)

@@ -10,7 +10,7 @@ const { ytmp3 } = dxz;
 
 // Cooldown DB (persistente, funciona mesmo se reiniciar)
 const cooldownPath = path.resolve("src/database/playCooldown.json");
-const COOLDOWN_MS = 5 * 60 * 1000; // 5 min
+const COOLDOWN_MS = 3 * 60 * 1000; // 3 min
 
 function loadCooldown() {
     if (!fs.existsSync(cooldownPath)) {

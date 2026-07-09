@@ -52,9 +52,15 @@ export default {
 
     try {
       const metadata = await sock.groupMetadata(groupId);
-      const currentParticipants = new Set(
-        metadata.participants.map((p) => p.id)
-      );
+      const currentParticipants = new Set();
+      let hasLidInParticipants = false;
+      for (const p of metadata.participants) {
+          if (p.id) currentParticipants.add(p.id);
+          if (p.lid) {
+              currentParticipants.add(p.lid);
+              hasLidInParticipants = true;
+          }
+      }
 
       const databases = [
         "lucky.json", 
@@ -94,7 +100,12 @@ export default {
             } else {
               // ✅ Lógica normal para JIDs individuais
               if (!currentParticipants.has(key)) {
-                shouldDelete = true;
+                // Prevenção de bug: se a chave é @lid mas o Baileys não está retornando p.lid, não apagamos
+                if (key.includes("@lid") && !hasLidInParticipants) {
+                  shouldDelete = false;
+                } else {
+                  shouldDelete = true;
+                }
               }
             }
 

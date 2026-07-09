@@ -1,4 +1,4 @@
-﻿import fs from "fs";
+import fs from "fs";
 import path from "path";
 
 const dbLuckyPath = path.resolve("src/database/lucky.json");
@@ -19,7 +19,6 @@ function msToStr(ms) {
   return `${m}min`;
 }
 
-const COST = 300;
 
 export default {
   name: "espionar",
@@ -46,16 +45,10 @@ export default {
       return sock.sendMessage(from, { text: `💡 Use: *!espionar @alvo*` }, { quoted: msg });
     }
 
-    // Cobra o custo
+    // Sem custo
     const luckyDB = loadJSON(dbLuckyPath);
     if (!luckyDB[from]) luckyDB[from] = {};
     if (!luckyDB[from][sender]) luckyDB[from][sender] = { money: 0 };
-
-    const myData = luckyDB[from][sender];
-    if ((myData.money || 0) < COST) {
-      return sock.sendMessage(from, { text: `💸 Você precisa de *${COST} fyne coins* para espionar. Você tem ${formatMoney(myData.money || 0)}.` }, { quoted: msg });
-    }
-    myData.money -= COST;
 
     // Dados do alvo
     const vitima = luckyDB[from]?.[target] || {};
@@ -94,8 +87,7 @@ export default {
       `🛡️ *Buffs ativos:*\n${buffText}\n\n` +
       `⏱️ *Cooldowns:*\n` +
       `  • Trabalho: ${workLeft}\n` +
-      `  • Roubo: ${robLeft}\n\n` +
-      `💸 _Custo da espionagem: -${COST} fyne coins_`;
+      `  • Roubo: ${robLeft}`;
 
     await sock.sendMessage(from, { text, mentions: [target] }, { quoted: msg });
   }

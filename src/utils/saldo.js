@@ -67,10 +67,6 @@ export function removeUserBalance(groupId, user, amount) {
 
     db[groupId][user].money -= amount;
 
-    if (db[groupId][user].money < 0) {
-        db[groupId][user].money = 0;
-    }
-
     saveDB(db);
     return db[groupId][user].money;
 }
@@ -79,7 +75,7 @@ export function setUserBalance(groupId, user, amount) {
     const db = loadDB();
     ensureUser(db, groupId, user);
 
-    db[groupId][user].money = Math.max(0, amount);
+    db[groupId][user].money = amount;
 
     saveDB(db);
     return db[groupId][user].money;

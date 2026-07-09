@@ -57,6 +57,12 @@ export default {
       const ladrao = luckyDB[from]?.[sender] || { money: 0, lastroubo: 0 };
       const vitima = luckyDB[from]?.[target] || { money: 0 };
 
+      // Verifica prisão
+      if (ladrao.jailUntil && ladrao.jailUntil > now) {
+          const jailTimeLeft = ladrao.jailUntil - now;
+          return sock.sendMessage(from, { text: `🚔 *${pushName}*, você está preso e não pode roubar!\n⏳ Tempo restante: *${formatTimeLeft(jailTimeLeft)}*.\nUse *!fianca* para tentar sair.` }, { quoted: msg });
+      }
+
       // Cooldown
       if (now - (ladrao.lastroubo || 0) < ECONOMY_CONFIG.ROUBO_COOLDOWN_MS) {
         return sock.sendMessage(from, { text: `⏳ *${pushName}*, aguarde *${formatTimeLeft(ECONOMY_CONFIG.ROUBO_COOLDOWN_MS - (now - ladrao.lastroubo))}* para roubar de novo.` }, { quoted: msg });
