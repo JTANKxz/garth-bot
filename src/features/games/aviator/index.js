@@ -94,12 +94,14 @@ export async function startAviator(sock, msg, betAmount, targetMultiplier) {
             let step = 0.1 + (current * 0.1); 
             current += step;
 
-            if (current >= crashPoint) {
-                current = crashPoint;
-                status = "crashed";
-            } else if (current >= targetMultiplier) {
+            // Como o multiplicador sobe em saltos maiores a cada tick,
+            // precisamos verificar quem ele atingiu "primeiro" (qual era o menor)
+            if (current >= targetMultiplier && targetMultiplier <= crashPoint) {
                 current = targetMultiplier;
                 status = "won";
+            } else if (current >= crashPoint) {
+                current = crashPoint;
+                status = "crashed";
             }
 
             const frameText = renderAviator(current, status, betInfo);
