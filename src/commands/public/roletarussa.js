@@ -1,11 +1,3 @@
-function cleanJid(jidStr) {
-  if (!jidStr) return ""
-
-  const [user, host] = String(jidStr).split('@')
-  const cleanUser = user.split(':')[0]
-  return `${cleanUser}@${host || 's.whatsapp.net'}`
-}
-
 export default {
     name: 'roletarussa',
     description: 'Roleta russa: se morrer, é removido do grupo',
@@ -16,7 +8,6 @@ export default {
         if (!from?.endsWith('@g.us')) return
 
         const sender = msg.key.participant || from
-        const targetJid = cleanJid(sender)
         const pushName = msg.pushName || "Usuário"
 
         let groupMetadata
@@ -27,13 +18,23 @@ export default {
             return sock.sendMessage(from, { text: '❌ Não consegui acessar os dados do grupo.' }, { quoted: msg })
         }
 
-        const botEntry = groupMetadata.participants.find(p => cleanJid(p.id) === cleanJid(sock.user?.id))
-        if (!botEntry?.admin) {
+        const participants = groupMetadata.participants
+
+        // Verifica se o bot é admin — comparação direta sem cleanJid (igual ao roletaban)
+        const botEntry = participants.find(p => p.id === sock.user.id)
+        if (!botEntry || (botEntry.admin !== 'admin' && botEntry.admin !== 'superadmin')) {
             return sock.sendMessage(from, { text: '❌ Eu preciso ser admin para remover membros do grupo.' }, { quoted: msg })
         }
 
-        const targetFromGroup = groupMetadata.participants.find(p => cleanJid(p.id) === targetJid)
-        const finalTargetJid = targetFromGroup?.id || targetJid
+        // Encontra o participante real pelo sender (já vem como @lid)
+        const senderEntry = participants.find(p => p.id === sender)
+
+        // Protege admins
+        if (senderEntry?.admin === 'admin' || senderEntry?.admin === 'superadmin') {
+            return sock.sendMessage(from, {
+                text: `🛡️ *${pushName}*, administradores não podem jogar roleta russa!`
+            }, { quoted: msg })
+        }
 
         const resultado = Math.floor(Math.random() * 6) + 1
 
@@ -41,13 +42,17 @@ export default {
             await sock.sendMessage(from, { text: `💥 *${pushName} puxou o gatilho... e morreu!* 💀` }, { quoted: msg })
 
             try {
-                await sock.groupParticipantsUpdate(from, [finalTargetJid], 'remove')
+                // Usa o id original do participante para o remove
+                const targetId = senderEntry?.id || sender
+                await sock.groupParticipantsUpdate(from, [targetId], 'remove')
             } catch (e) {
                 console.error('Erro ao remover participante na roleta russa:', e)
-                await sock.sendMessage(from, { text: `❌ Não consegui remover ${pushName}. Talvez eu não tenha permissão para expulsar membros.` }, { quoted: msg })
+                await sock.sendMessage(from, {
+                    text: `❌ Não consegui remover *${pushName}*. Verifique se o bot tem permissão de expulsar no grupo.`
+                }, { quoted: msg })
             }
         } else {
-            await sock.sendMessage(from, { text: `*${pushName} puxou o gatilho... e sobreviveu!*` }, { quoted: msg })
+            await sock.sendMessage(from, { text: `🍀 *${pushName} puxou o gatilho... e sobreviveu! (${resultado}/6)*` }, { quoted: msg })
         }
     }
 }

@@ -85,6 +85,33 @@ export default {
             }
         }
 
+        // Tentou banir o BOT — remove o admin que tentou (exceto superadmin e criador)
+        const botJid = sock.user.id
+        const targetIsBotId = target === botJid || cleanJid(target) === cleanJid(botJid)
+        if (targetIsBotId) {
+            // Verifica se o sender é superadmin ou criador
+            const groupMeta = await sock.groupMetadata(jid).catch(() => null)
+            const senderEntry = groupMeta?.participants.find(p => p.id === sender)
+            const senderIsSuperAdmin = senderEntry?.admin === "superadmin"
+            const senderIsCreator = sender === botConfig.botCreator || sender === botConfig.botMaster
+
+            if (senderIsSuperAdmin || senderIsCreator) {
+                return sock.sendMessage(jid, { text: "🤨 Ué, isso não faz sentido." }, { quoted: msg })
+            }
+
+            try {
+                await sock.sendMessage(jid, {
+                    text: `KKKKKK tentou me banir 💀`,
+                    mentions: [sender]
+                }, { quoted: msg })
+                await sock.groupParticipantsUpdate(jid, [sender], "remove")
+            } catch (e) {
+                console.error("Erro ao remover admin que tentou banir o bot:", e)
+            }
+            return
+        }
+
+
         const jidBase = (x = "") => String(x).split("@")[0].split(":")[0];
         const isSenderCreator = jidBase(sender) === jidBase(botConfig.botCreator);
 
