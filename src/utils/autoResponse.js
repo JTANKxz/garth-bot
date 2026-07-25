@@ -44,9 +44,6 @@ function loadResponses() {
     return combined
 }
 
-// ==============================
-// Retorna resposta automática
-// ==============================
 export function getAutoResponse(message) {
     if (!message) return null
 
@@ -59,9 +56,6 @@ export function getAutoResponse(message) {
     return options[Math.floor(Math.random() * options.length)]
 }
 
-// ==============================
-// Aprende nova resposta (responses2.json)
-// ==============================
 export function learnAutoResponse(message, reply) {
     if (!message || !reply) return
 
