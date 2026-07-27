@@ -4,6 +4,7 @@
 import fs from "fs";
 import path from "path";
 import { getGroupConfig } from "./groups.js";
+import { isRpgEnabled } from "./rpg.js";
 import { getBotConfig } from "../config/botConfig.js";
 
 const dbLuckyPath = path.resolve("src/database/lucky.json");
@@ -46,6 +47,14 @@ export async function maybeSpawnCarroForte({ sock, msg }) {
 
   // Trava 2: modo onlyAdmins?
   const cfg = getGroupConfig(from);
+  if (!isRpgEnabled(cfg)) {
+    const activeEvents = loadJSON(activePath);
+    if (activeEvents[from]) {
+      delete activeEvents[from];
+      saveJSON(activePath, activeEvents);
+    }
+    return;
+  }
   if (cfg?.onlyAdmins) return;
 
   // Trava 3: aluguel expirado?
