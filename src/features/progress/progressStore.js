@@ -1,6 +1,8 @@
 // src/features/progress/progressStore.js
 import fs from "fs";
 import path from "path";
+import { getGroupConfig } from "../../utils/groups.js";
+import { isRpgEnabled } from "../../utils/rpg.js";
 
 const FILE = path.resolve("src/database/conquistas.json");
 
@@ -56,6 +58,8 @@ function getUser(db, groupId, user) {
 // =========================
 
 export function incrementStat(groupId, user, stat, amount = 1) {
+    if (!isRpgEnabled(getGroupConfig(groupId))) return getStat(groupId, user, stat);
+
     const db = load();
     const u = getUser(db, groupId, user);
 
@@ -80,6 +84,8 @@ export function hasAchievement(groupId, user, id) {
 }
 
 export function addAchievement(groupId, user, id) {
+    if (!isRpgEnabled(getGroupConfig(groupId))) return;
+
     const db = load();
     const u = getUser(db, groupId, user);
 

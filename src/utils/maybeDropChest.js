@@ -3,7 +3,8 @@ import fs from "fs";
 import path from "path";
 import sharp from "sharp";
 
-import { getDrop, setDrop } from "./drops.js";
+import { getDrop, setDrop, clearDrop } from "./drops.js";
+import { isRpgEnabled } from "./rpg.js";
 import { getGroupConfig } from "./groups.js";
 
 const DROP_CHANCE_PER_MESSAGE = 0.4; // % por mensagem (ajuste)
@@ -27,6 +28,10 @@ export async function maybeDropChest({ sock, msg }) {
   if (!from?.endsWith("@g.us")) return;
 
   const cfg = getGroupConfig(from);
+  if (!isRpgEnabled(cfg)) {
+    clearDrop(from);
+    return;
+  }
   if (cfg?.onlyAdmins) return;
 
   const now = Date.now();

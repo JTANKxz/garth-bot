@@ -4,6 +4,8 @@
 import { ACHIEVEMENTS } from "./achievements.js";
 import { hasAchievement, addAchievement, incrementStat, getStat } from "../progress/progressStore.js";
 import { addUserBalance } from "../../utils/saldo.js";
+import { getGroupConfig } from "../../utils/groups.js";
+import { isRpgEnabled } from "../../utils/rpg.js";
 
 /**
  * Checa e concede uma conquista de emprego específica por stat individual.
@@ -18,6 +20,8 @@ import { addUserBalance } from "../../utils/saldo.js";
  */
 export async function grantJobAchievement({ sock, groupId, user, stat, achievementType, quoted, pushName }) {
     try {
+        if (!isRpgEnabled(getGroupConfig(groupId))) return;
+
         const newVal = incrementStat(groupId, user, stat);
         const list = ACHIEVEMENTS[achievementType];
         if (!list) return;
@@ -56,6 +60,8 @@ ${reward ? `💰 +${reward} fyne coins 💸` : ""}
  */
 export async function grantJobActionAchievement({ sock, groupId, user, actionStat, targetIds, quoted, pushName }) {
     try {
+        if (!isRpgEnabled(getGroupConfig(groupId))) return;
+
         const newVal = incrementStat(groupId, user, actionStat);
         const list = ACHIEVEMENTS["job_action"];
         if (!list) return;

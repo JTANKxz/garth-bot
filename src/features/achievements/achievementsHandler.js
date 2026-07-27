@@ -7,6 +7,8 @@ import {
 } from "../progress/progressStore.js";
 import { addUserBalance } from "../../utils/saldo.js";
 import { messageCount } from "../messageCounts.js";
+import { getGroupConfig } from "../../utils/groups.js";
+import { isRpgEnabled } from "../../utils/rpg.js";
 
 export async function checkAchievements({
     sock,
@@ -16,6 +18,8 @@ export async function checkAchievements({
     quoted,
     pushName
 }) {
+    if (!isRpgEnabled(getGroupConfig(groupId))) return;
+
     const list = ACHIEVEMENTS[type];
     if (!list) return;
 

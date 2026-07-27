@@ -8,7 +8,7 @@ const ECONOMY_COMMANDS = new Set([
   "loteria", "mochila", "pagar", "perfil", "pet", "prender", "pressa",
   "roubar", "saldo", "saquear", "trabalhar", "usar",
   "tank", "addvip", "getvip", "ranksaldo", "ecohelp", "resetglobaleco",
-  "resetsaldo", "reseteco", "setglobal", "ungive"
+  "resetsaldo", "reseteco", "setglobal", "ungive", "conquistas"
 ]);
 
 export function isRpgEnabled(groupConfig) {
