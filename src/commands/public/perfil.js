@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { messageCount, initializeAttributes } from "../../features/messageCounts.js";
 import { getGroupConfig } from "../../utils/groups.js";
+import { isRpgEnabled } from "../../utils/rpg.js";
 import { getBotConfig } from "../../config/botConfig.js";
 import { generateProfileCard } from "../../utils/cardprofile.js";
 import { calculateLevel, getXPProgressBar } from "../../features/progress/levelSystem.js";
@@ -26,6 +27,7 @@ export default {
     const from = msg.key.remoteJid;
     const botConfig = getBotConfig();
     const senderId = msg.key.participant || msg.key.remoteJid;
+    const rpgEnabled = isRpgEnabled(getGroupConfig(from));
 
     await sock.sendMessage(from, { react: { text: "⏳", key: msg.key } });
 
@@ -109,13 +111,15 @@ export default {
       }
       legend += `> ──────────────\n`;
 
-      // RPG STATUS (Nível e XP) - Sempre visível
-      legend += `> *Nível:* ${level}\n`;
-      legend += `> *XP:* ${xp}\n`;
-      legend += `> *Progresso:* [${progress.bar}] ${progress.percent}%\n`;
-      legend += `> ──────────────\n`;
+      if (rpgEnabled) {
+        // RPG STATUS (Nível e XP) - Sempre visível
+        legend += `> *Nível:* ${level}\n`;
+        legend += `> *XP:* ${xp}\n`;
+        legend += `> *Progresso:* [${progress.bar}] ${progress.percent}%\n`;
+        legend += `> ──────────────\n`;
 
-      legend += `> *Emprego:* ${currentJob ? currentJob.name : "Desempregado"}\n`;
+        legend += `> *Emprego:* ${currentJob ? currentJob.name : "Desempregado"}\n`;
+      }
 
       // Regra: Normal vê Mensagens e Stats RPG, Estilo VIP não vê
       if (!isVipStyle) {
