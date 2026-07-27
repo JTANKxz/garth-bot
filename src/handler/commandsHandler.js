@@ -6,6 +6,7 @@ import { GLOBALS } from '../utils/globals.js'
 import { getGroupConfig, updateGroupName } from "../utils/groups.js"
 import { getBotConfig } from "../config/botConfig.js"
 import { getDisabledCommand } from "../utils/disabledCommands.js"
+import { isEconomyCommand, isRpgEnabled } from "../utils/rpg.js"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -206,6 +207,10 @@ export async function handleCommand({ sock, msg }) {
 
         const isBotOwner = (groupCfg.botOwners || []).includes(sender)
         const isPrivileged = isSuperUser || isBotOwner
+
+        if (jid.endsWith("@g.us") && !isRpgEnabled(groupCfg) && isEconomyCommand(command)) {
+            return
+        }
 
         // Validações para comandos builtin
         const disabled = getDisabledCommand(command.name)

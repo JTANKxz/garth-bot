@@ -1,5 +1,7 @@
 import { readJSON, writeJSON } from "../../../utils/readJSON.js";
 import { formatMoney } from "../../../utils/saldo.js";
+import { getGroupConfig } from "../../../utils/groups.js";
+import { isRpgEnabled } from "../../../utils/rpg.js";
 
 const LUCKY_DB = "database/lucky.json";
 export const games = {}  // { [groupJid]: { challenger, opponent, board, turn, status, bet } }
@@ -54,8 +56,9 @@ export async function createChallenge(sock, msg, args = []) {
     if (games[from])
         return sock.sendMessage(from, { text: '🎮 Já existe um jogo em andamento neste grupo.' }, { quoted: msg })
 
+    const rpgEnabled = isRpgEnabled(getGroupConfig(from));
     let bet = 0;
-    if (args[1] && !isNaN(parseInt(args[1]))) {
+    if (rpgEnabled && args[1] && !isNaN(parseInt(args[1]))) {
         bet = parseInt(args[1]);
         if (bet < 0) bet = 0;
     }
@@ -97,6 +100,8 @@ export async function handleTicTacToe(sock, msg, text) {
     const sender = msg.key.participant || from
     const g = games[from]
     if (!g) return false
+
+    if (!isRpgEnabled(getGroupConfig(from))) g.bet = 0
 
     const body = text.trim()
 

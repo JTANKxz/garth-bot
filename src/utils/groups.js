@@ -20,6 +20,7 @@ const defaultConfig = {
   auto: false,
   autoLearn: false,
   ai: false,
+  rpg: true,
   blacklisteds: [],
   warnings: {},
   muteds: {},
