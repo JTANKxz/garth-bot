@@ -4,100 +4,109 @@ import path from "path";
 const dbPath = path.resolve("src/database/lucky.json");
 
 function loadDB() {
-    if (!fs.existsSync(dbPath)) {
-        fs.writeFileSync(dbPath, JSON.stringify({}, null, 2));
-    }
-    return JSON.parse(fs.readFileSync(dbPath));
+  if (!fs.existsSync(dbPath)) fs.writeFileSync(dbPath, JSON.stringify({}, null, 2));
+  return JSON.parse(fs.readFileSync(dbPath, "utf8"));
 }
 
 function saveDB(data) {
-    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+  fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 }
 
-function formatNumber(valor) {
-    return valor.toLocaleString("pt-BR");
+function formatMoney(value) {
+  return Number(value || 0).toLocaleString("pt-BR");
 }
 
-function formatMoney(valor) {
-    if (valor >= 1_000_000_000)
-        return `${formatNumber(valor)}B`;
+function getMentionedUser(msg) {
+  return msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0]
+    || msg.message?.extendedTextMessage?.contextInfo?.participant;
+}
 
-    if (valor >= 1_000_000)
-        return `${formatNumber(valor)}M`;
+function normalizeUserJid(value) {
+  const raw = value?.trim();
+  if (!raw) return null;
+  if (/@(?:s\.whatsapp\.net|lid)$/.test(raw)) return raw;
 
-    if (valor >= 1_000)
-        return `${formatNumber(valor)}K`;
+  const number = raw.replace(/\D/g, "");
+  return number.length >= 7 ? `${number}@s.whatsapp.net` : null;
+}
 
-    return formatNumber(valor);
+function isGroupJid(value) {
+  return /^\d+-\d+@g\.us$/.test(value || "");
+}
+
+function userLabel(userId) {
+  return userId.split("@")[0];
+}
+
+function usage(prefix) {
+  return [
+    `Use atual: ${prefix}tank @membro <valor>`,
+    "Para outro grupo, use o numero do membro (com DDI) ou o LID exibido no ranksaldo:",
+    `${prefix}tank ver <id-do-grupo> <numero>`,
+    `${prefix}tank add <id-do-grupo> <numero> <valor>`,
+    `${prefix}tank remove <id-do-grupo> <numero> <valor>`
+  ].join("\n");
 }
 
 export default {
-    name: "tank",
-    aliases: [],
-    description: "Adiciona fyne coins a um usuário específico 💰",
-    category: "owner",
-    showInMenu: false,
+  name: "tank",
+  aliases: [],
+  description: "Consulta, adiciona ou remove saldo; o criador pode escolher outro grupo",
+  category: "owner",
+  showInMenu: false,
 
-    async run({ sock, msg, args }) {
-        const from = msg.key.remoteJid;
-        const sender = msg.key.participant || msg.key.remoteJid;
+  async run({ sock, msg, args }) {
+    const from = msg.key.remoteJid;
+    const sender = msg.key.participant || from;
+    const prefix = msg.groupConfig?.prefix || "!";
+    const mentionedUser = getMentionedUser(msg);
+    const requestedAction = ["ver", "add", "remover", "remove"].includes(args[0]?.toLowerCase())
+      ? args[0].toLowerCase()
+      : null;
+    const action = requestedAction || "add";
+    const crossGroup = Boolean(requestedAction);
+    const groupId = crossGroup ? args[1] : from;
+    const rawTarget = crossGroup
+      ? args[2]
+      : (!mentionedUser && args.length >= 2 ? args[0] : null);
+    const target = mentionedUser || normalizeUserJid(rawTarget) || (crossGroup ? null : sender);
+    const amountArg = crossGroup
+      ? args[3]
+      : (rawTarget ? args[1] : args[args.length - 1]);
 
-        await sock.sendMessage(from, { react: { text: "⏳", key: msg.key } });
-
-        try {
-            const db = loadDB();
-            if (!db[from]) db[from] = {};
-
-            let target;
-            if (msg.message?.extendedTextMessage?.contextInfo?.mentionedJid?.length) {
-                target = msg.message.extendedTextMessage.contextInfo.mentionedJid[0];
-            } else {
-                target = sender;
-            }
-
-            const valor = parseInt(args[args.length - 1]);
-            if (!valor || valor <= 0) {
-                await sock.sendMessage(
-                    from,
-                    { text: "💸 Informe um valor válido." },
-                    { quoted: msg }
-                );
-                return;
-            }
-
-            if (!db[from][target]) {
-                db[from][target] = { money: 0 };
-            }
-
-            db[from][target].money += valor;
-
-            saveDB(db);
-
-            const texto =
-                target === sender
-                    ? `✅ Saldo adicionado com sucesso!\n💰 Valor: *${formatMoney(valor)}*\n📊 Total atual: *${formatMoney(db[from][target].money)}*`
-                    : `👤 Usuário: @${target.split("@")[0]}\n💰 Valor: *${formatMoney(valor)}*\n📊 Total atual: *${formatMoney(db[from][target].money)}*`;
-
-            await sock.sendMessage(
-                from,
-                {
-                    text: texto,
-                    mentions: target === sender ? [] : [target]
-                },
-                { quoted: msg }
-            );
-
-            await sock.sendMessage(from, { react: { text: "✅", key: msg.key } });
-
-        } catch (err) {
-            console.error("Erro no comando addsaldo:", err);
-
-            await sock.sendMessage(from, { react: { text: "❌", key: msg.key } });
-            await sock.sendMessage(
-                from,
-                { text: "❌ Ocorreu um erro ao executar o comando addsaldo." },
-                { quoted: msg }
-            );
-        }
+    if (crossGroup && !isGroupJid(groupId)) {
+      return sock.sendMessage(from, { text: usage(prefix) }, { quoted: msg });
     }
+
+    if (!target) {
+      return sock.sendMessage(from, { text: "Informe o numero do membro com DDI ou mencione-o no grupo atual." }, { quoted: msg });
+    }
+
+    const db = loadDB();
+    if (!db[groupId]) db[groupId] = {};
+    if (!db[groupId][target]) db[groupId][target] = { money: 0, items: {} };
+
+    const user = db[groupId][target];
+    const balance = Number(user.money) || 0;
+
+    if (action === "ver") {
+      return sock.sendMessage(from, {
+        text: `Saldo de ${userLabel(target)} no grupo ${groupId}: *${formatMoney(balance)} fyne coins*`
+      }, { quoted: msg });
+    }
+
+    const amount = Number.parseInt(amountArg, 10);
+    if (!Number.isSafeInteger(amount) || amount <= 0) {
+      return sock.sendMessage(from, { text: usage(prefix) }, { quoted: msg });
+    }
+
+    const removing = action === "remover" || action === "remove";
+    user.money = removing ? Math.max(0, balance - amount) : balance + amount;
+    saveDB(db);
+
+    const verb = removing ? "removido" : "adicionado";
+    await sock.sendMessage(from, {
+      text: `Saldo ${verb} para ${userLabel(target)}.\nGrupo: ${groupId}\nValor: *${formatMoney(amount)}*\nTotal atual: *${formatMoney(user.money)} fyne coins*`
+    }, { quoted: msg });
+  }
 };

@@ -38,6 +38,13 @@ function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function rollHackRewardLimit() {
+  const luck = randInt(1, 100);
+  if (luck <= 75) return randInt(100, 500);
+  if (luck <= 95) return randInt(501, 800);
+  return randInt(801, 1000);
+}
+
 export default {
   name: "hackear",
   aliases: ["invadir"],
@@ -108,8 +115,9 @@ export default {
       }
 
       // Rouba 15 a 25% do dinheiro da vítima ignorando proteções
-      const percent = randInt(15, 25) / 100;
-      const roubado = Math.floor(vitima.money * percent);
+      const percent = randInt(5, 12) / 100;
+      const potential = Math.floor(vitima.money * percent);
+      const roubado = Math.min(vitima.money, potential, rollHackRewardLimit());
 
       vitima.money -= roubado;
       

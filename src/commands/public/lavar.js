@@ -39,6 +39,13 @@ function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function rollLaunderProfit() {
+  const luck = randInt(1, 100);
+  if (luck <= 70) return randInt(250, 800);
+  if (luck <= 95) return randInt(801, 1200);
+  return randInt(1201, 1500);
+}
+
 export default {
   name: "lavar",
   aliases: ["lavardinheiro"],
@@ -102,7 +109,7 @@ export default {
       }
 
       // Sucesso! Dinheiro lavado volta com lucro
-      const profit = randInt(1500, 4000);
+      const profit = rollLaunderProfit();
       chefe.money += profit; // Retorna o custo + lucro
 
       saveJSON(dbLuckyPath, luckyDB);

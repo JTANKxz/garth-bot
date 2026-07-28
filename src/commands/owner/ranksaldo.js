@@ -4,111 +4,69 @@ import path from "path";
 const dbPath = path.resolve("src/database/lucky.json");
 
 function loadDB() {
-    if (!fs.existsSync(dbPath)) {
-        fs.writeFileSync(dbPath, JSON.stringify({}, null, 2));
-    }
-    return JSON.parse(fs.readFileSync(dbPath));
+  if (!fs.existsSync(dbPath)) fs.writeFileSync(dbPath, JSON.stringify({}, null, 2));
+  return JSON.parse(fs.readFileSync(dbPath, "utf8"));
 }
 
-function formatNumber(valor) {
-    return valor.toLocaleString("pt-BR");
+function isGroupJid(value) {
+  return /^\d+-\d+@g\.us$/.test(value || "");
 }
 
-function formatMoney(valor) {
-    if (valor >= 1_000_000_000)
-        return `${formatNumber(valor)}B`;
-
-    if (valor >= 1_000_000)
-        return `${formatNumber(valor)}M`;
-
-    if (valor >= 1_000)
-        return `${formatNumber(valor)}K`;
-
-    return formatNumber(valor);
+function formatMoney(value) {
+  return Number(value || 0).toLocaleString("pt-BR");
 }
 
 export default {
-    name: "ranksaldo",
-    aliases: ["ricos"],
-    description: "Mostra o ranking de saldo do grupo (top 30) 💰",
-    category: "owner",
+  name: "ranksaldo",
+  aliases: ["ricos"],
+  description: "Mostra os maiores saldos; o criador pode informar o ID de outro grupo",
+  category: "owner",
 
-    async run({ sock, msg }) {
-        const from = msg.key.remoteJid;
+  async run({ sock, msg, args }) {
+    const from = msg.key.remoteJid;
+    const targetGroup = isGroupJid(args[0]) ? args[0] : from;
 
-        await sock.sendMessage(from, { react: { text: "⏳", key: msg.key } });
+    try {
+      const db = loadDB();
+      const users = db[targetGroup] || {};
+      const ranking = Object.entries(users)
+        .filter(([, data]) => data && typeof data.money === "number")
+        .sort(([, a], [, b]) => b.money - a.money)
+        .slice(0, 30);
 
-        try {
-            const db = loadDB();
-            const users = db[from] || {};
+      if (!ranking.length) {
+        return sock.sendMessage(from, { text: "Nenhum usuario com saldo encontrado nesse grupo." }, { quoted: msg });
+      }
 
-            const sortedRanking = Object.entries(users)
-                .filter(([, data]) => data && typeof data.money === "number")
-                .sort(([, a], [, b]) => b.money - a.money)
-                .slice(0, 30);
+      let groupName = targetGroup;
+      try {
+        const metadata = await sock.groupMetadata(targetGroup);
+        groupName = metadata.subject || targetGroup;
+      } catch {}
 
-            if (sortedRanking.length === 0) {
-                await sock.sendMessage(
-                    from,
-                    { text: "💰 Nenhum usuário com saldo encontrado." },
-                    { quoted: msg }
-                );
-                await sock.sendMessage(from, { react: { text: "✅", key: msg.key } });
-                return;
-            }
+      const lines = ranking.map(([jid, data], index) => {
+        const kind = jid.endsWith("@lid") ? "LID" : "ID";
+        return [
+          `${index + 1}. ${jid.split("@")[0]}`,
+          `   ${kind}: ${jid}`,
+          `   Saldo: ${formatMoney(data.money)} fyne coins`
+        ].join("\n");
+      }).join("\n--------------------\n");
 
-            let groupName = "Grupo";
-            if (from.endsWith("@g.us")) {
-                try {
-                    const metadata = await sock.groupMetadata(from);
-                    groupName = metadata.subject || "Grupo";
-                } catch {}
-            }
+      const date = new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+      const text = [
+        "TOP 30 RICOS",
+        `Grupo: ${groupName}`,
+        `Grupo ID: ${targetGroup}`,
+        `Data: ${date}`,
+        "--------------------",
+        lines
+      ].join("\n");
 
-            const lines = sortedRanking
-                .map(([jid, data], index) => {
-                    const userNumber = jid.split("@")[0];
-                    const saldo = formatMoney(data.money);
-
-                    return (
-`│ ${index + 1} - @${userNumber}
-│ 💰 *${saldo} fyne coins*`
-                    );
-                })
-                .join("\n│──────────────────\n");
-
-            const dateSP = new Date().toLocaleDateString("pt-BR", {
-                timeZone: "America/Sao_Paulo",
-            });
-
-            const text = `
-╭──❰ 💰 *TOP 30 RICOS* ❱──╮
-│ *${groupName}* - ${dateSP}
-│──────────────────
-${lines}
-╰──────────────────╯
-            `.trim();
-
-            await sock.sendMessage(
-                from,
-                {
-                    text,
-                    mentions: sortedRanking.map(([jid]) => jid),
-                },
-                { quoted: msg }
-            );
-
-            await sock.sendMessage(from, { react: { text: "✅", key: msg.key } });
-
-        } catch (err) {
-            console.error("Erro no comando ranksaldo:", err);
-
-            await sock.sendMessage(from, { react: { text: "❌", key: msg.key } });
-            await sock.sendMessage(
-                from,
-                { text: "❌ Ocorreu um erro ao gerar o ranking." },
-                { quoted: msg }
-            );
-        }
+      await sock.sendMessage(from, { text }, { quoted: msg });
+    } catch (err) {
+      console.error("Erro no comando ranksaldo:", err);
+      await sock.sendMessage(from, { text: "Ocorreu um erro ao gerar o ranking." }, { quoted: msg });
     }
+  }
 };

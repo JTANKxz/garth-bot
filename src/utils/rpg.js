@@ -7,7 +7,7 @@ const ECONOMY_COMMANDS = new Set([
   "explorar", "fianca", "fuga", "hackear", "info", "lavar", "loja",
   "loteria", "mochila", "pagar", "pet", "prender", "pressa",
   "roubar", "saldo", "saquear", "trabalhar", "usar",
-  "tank", "addvip", "getvip", "ranksaldo", "ecohelp", "resetglobaleco",
+  "addvip", "getvip", "ranksaldo", "ecohelp", "resetglobaleco",
   "resetsaldo", "reseteco", "setglobal", "ungive", "conquistas"
 ]);
 
