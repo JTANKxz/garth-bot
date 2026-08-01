@@ -8,14 +8,18 @@ function identity(msg){
 
 async function linkCurrentGroup({sock,msg,jid}){
  if(!jid.endsWith('@g.us')) return sock.sendMessage(jid,{text:'Use este comando dentro do grupo que deseja vincular.'},{quoted:msg});
- const ids=[msg.key?.participant,msg.key?.participantAlt].filter(Boolean),lid=ids.find(id=>id.endsWith('@lid'));
+ const metadata=await sock.groupMetadata(jid);
+ const messageIds=[msg.key?.participant,msg.key?.participantAlt].filter(Boolean);
+ const participant=metadata.participants?.find(item=>[item.id,item.lid,item.phoneNumber].filter(Boolean).some(id=>messageIds.includes(id)));
+ const ids=[...new Set([...messageIds,participant?.id,participant?.lid,participant?.phoneNumber].filter(Boolean))];
+ const lid=ids.find(id=>id.endsWith('@lid'));
  const owners=msg.groupConfig?.botOwners||[];
  if(!ids.some(id=>owners.includes(id))) return sock.sendMessage(jid,{text:'Somente o dono responsável pelo bot neste grupo pode vincular esta comunidade.'},{quoted:msg});
  const expires=Number(msg.groupConfig?.authExpiresAt||0);
  if(!expires||expires<=Date.now()) return sock.sendMessage(jid,{text:'A licença do bot neste grupo está expirada. Renove antes de vincular a comunidade.'},{quoted:msg});
  if(!lid) return sock.sendMessage(jid,{text:'Não consegui identificar seu LID. Use *!login* primeiro.'},{quoted:msg});
  try{
-  const metadata=await sock.groupMetadata(jid);
+
   const result=await linkFyneGroup({whatsapp_lid:lid,group:{jid,name:metadata.subject,member_count:metadata.participants?.length||0,rental_expires_at:new Date(expires).toISOString()}});
   return sock.sendMessage(jid,{text:'Comunidade vinculada com sucesso.\n\n*'+result.group.name+'*\n'+result.group.member_count+' membros\n\nEla aparecerá na seção *Fundador de* enquanto a licença estiver ativa.'},{quoted:msg});
  }catch(error){
@@ -24,10 +28,11 @@ async function linkCurrentGroup({sock,msg,jid}){
  }
 }
 export default {
- name:'fyne', aliases:[], description:'Acessa os recursos da conta FYNE', usage:'fyne perfil', category:'utils',
+ name:'fyne', aliases:['fine'], description:'Acessa os recursos da conta FYNE', usage:'fyne perfil', category:'utils',
  async run({sock,msg,args}){
   const jid=msg.key.remoteJid,sub=String(args[0]||'').toLowerCase();
-  if(sub!=='perfil') return sock.sendMessage(jid,{text:'*FYNE*\n\nUse:\n> !fyne perfil\n\nEm breve: FYNE AI e novos recursos.'},{quoted:msg});
+  if(sub==='grupo' && String(args[1]||'').toLowerCase()==='vincular') return linkCurrentGroup({sock,msg,jid});
+  if(sub!=='perfil') return sock.sendMessage(jid,{text:'*FYNE*\n\nUse:\n> !fyne perfil\n> !fyne grupo vincular\n\nEm breve: FYNE AI e novos recursos.'},{quoted:msg});
   const lid=identity(msg);
   if(!lid) return sock.sendMessage(jid,{text:'Não consegui identificar sua conta. Use *!login* primeiro.'},{quoted:msg});
   await sock.sendMessage(jid,{react:{text:'⏳',key:msg.key}});
