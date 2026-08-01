@@ -1,4 +1,4 @@
-﻿import { confirmFyneLink } from '../../services/fyneApi.js';
+import { confirmFyneLink } from '../../services/fyneApi.js';
 import { readJSON } from '../../utils/readJSON.js';
 import { calculateLevel } from '../../features/progress/levelSystem.js';
 import { getJobByKey } from '../../features/jobs/catalog.js';
@@ -59,9 +59,28 @@ export default {
 
   async run({ sock, msg, args }) {
     const groupId = msg.key.remoteJid;
-    const code = String(args[0] || '').trim().toUpperCase();
+    const rawCode = String(args[0] || '').trim();
+
+    if (!rawCode) {
+      return sock.sendMessage(groupId, {
+        text:
+          `🔐 *COMO VINCULAR SUA CONTA FYNE*\n\n` +
+          `Primeiro, envie *!login* para receber o endereço do Portal FYNE.\n\n` +
+          `No portal, será gerado um código temporário. Depois volte aqui e envie:\n\n` +
+          `> !vincular FYNE-AB12-CD34\n\n` +
+          `O código expira em 5 minutos e funciona apenas uma vez.`
+      }, { quoted: msg });
+    }
+
+    const code = rawCode.toUpperCase();
     if (!/^FYNE-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) {
-      return sock.sendMessage(groupId, { text: '❌ Código inválido. Abra o Portal FYNE, copie o comando completo e envie novamente.' }, { quoted: msg });
+      return sock.sendMessage(groupId, {
+        text:
+          `❌ *Código de vinculação inválido.*\n\n` +
+          `Use *!login* para acessar o Portal FYNE e gerar seu código.\n\n` +
+          `Depois envie o comando completo neste formato:\n\n` +
+          `> !vincular FYNE-AB12-CD34`
+      }, { quoted: msg });
     }
 
     const identity = messageIdentity(msg);
