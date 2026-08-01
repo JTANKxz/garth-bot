@@ -35,8 +35,8 @@ async function updateCurrentGroup({sock,msg,jid}){
   const permission=await groupPermission(sock,msg,jid);
   if(!permission.ok)return sock.sendMessage(jid,{text:permission.text},{quoted:msg});
   const avatar=await groupAvatarData(sock,jid);
-  const result=await updateFyneGroup({group_jid:jid,name:permission.metadata.subject,avatar_data:avatar});
-  return sock.sendMessage(jid,{text:'Comunidade atualizada com sucesso.\n\n*'+result.group.name+'*\nNome e foto foram sincronizados.'},{quoted:msg});
+  const result=await updateFyneGroup({group_jid:jid,name:permission.metadata.subject,member_count:permission.metadata.participants?.length||0,avatar_data:avatar});
+  return sock.sendMessage(jid,{text:'Comunidade atualizada com sucesso.\n\n*'+result.group.name+'*\n'+result.group.member_count+' membros\n\nNome, foto e quantidade de membros foram sincronizados.'},{quoted:msg});
  }catch(error){
   const text=error.status===404?'Esta comunidade ainda não foi vinculada. Use *!fyne grupo vincular* primeiro.':'Não foi possível atualizar a comunidade.\n\n'+error.message;
   return sock.sendMessage(jid,{text},{quoted:msg});
@@ -58,8 +58,8 @@ async function linkCurrentGroup({sock,msg,jid}){
  if(!lid) return sock.sendMessage(jid,{text:'Não consegui identificar seu LID. Use *!login* primeiro.'},{quoted:msg});
  try{
 
-  const result=await linkFyneGroup({whatsapp_lid:lid,group:{jid,name:metadata.subject,member_count:metadata.participants?.length||0,rental_expires_at:new Date(expires).toISOString()}});
-  return sock.sendMessage(jid,{text:'Comunidade vinculada com sucesso.\n\n*'+result.group.name+'*\n'+result.group.member_count+' membros\n\nEla aparecerá na seção *Fundador de* enquanto a licença estiver ativa.'},{quoted:msg});
+  const result=await linkFyneGroup({whatsapp_lid:lid,group:{jid,name:metadata.subject,rental_expires_at:new Date(expires).toISOString()}});
+  return sock.sendMessage(jid,{text:'Comunidade vinculada com sucesso.\n\n*'+result.group.name+'*\n\nEla aparecerá na seção *Fundador de* enquanto a licença estiver ativa. Use *!fyne grupo atualizar* para sincronizar foto e quantidade de membros.'},{quoted:msg});
  }catch(error){
   const text=error.status===404?'Você precisa criar sua conta FYNE primeiro. Use *!login*.':'Não foi possível vincular a comunidade.\n\n'+error.message;
   return sock.sendMessage(jid,{text},{quoted:msg});
@@ -71,7 +71,7 @@ export default {
   const jid=msg.key.remoteJid,sub=String(args[0]||'').toLowerCase();
   if(sub==='grupo' && String(args[1]||'').toLowerCase()==='vincular') return linkCurrentGroup({sock,msg,jid});
   if(sub==='grupo' && String(args[1]||'').toLowerCase()==='atualizar') return updateCurrentGroup({sock,msg,jid});
-  if(sub!=='perfil') return sock.sendMessage(jid,{text:'*FYNE*\n\nUse:\n> !fyne perfil\n> !fyne grupo vincular\n\nEm breve: FYNE AI e novos recursos.'},{quoted:msg});
+  if(sub!=='perfil') return sock.sendMessage(jid,{text:'*FYNE*\n\nUse:\n> !fyne perfil\n> !fyne grupo vincular\n> !fyne grupo atualizar\n\nEm breve: FYNE AI e novos recursos.'},{quoted:msg});
   const lid=identity(msg);
   if(!lid) return sock.sendMessage(jid,{text:'Não consegui identificar sua conta. Use *!login* primeiro.'},{quoted:msg});
   await sock.sendMessage(jid,{react:{text:'⏳',key:msg.key}});

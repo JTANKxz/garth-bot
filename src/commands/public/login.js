@@ -32,7 +32,6 @@ export default {
       const group = metadata && rentalExpiresAt > Date.now() ? {
         jid: originJid,
         name: metadata.subject,
-        member_count: metadata.participants?.length || 0,
         rental_expires_at: new Date(rentalExpiresAt).toISOString(),
       } : undefined;
       const result = await createFyneLoginLink({ whatsapp_lid: identity.lid, phone_jid: identity.phoneJid, display_name: displayName, avatar_data: await avatarData(sock, identity.lid), profile: profileSnapshot(originJid, identity.lid, metadata?.subject), group });
