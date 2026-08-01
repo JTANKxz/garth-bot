@@ -88,7 +88,7 @@ export default {
         `🏙️ *Cidades (ordem alfabética):*\n\n` +
         `${cityList}` +
         `${remaining > 0 ? `\n\n> + ${remaining} cidades restantes...` : ""}\n\n` +
-        `> By GARTH-BOT V4`;
+        `> By ${botConfig.botName}`;
 
       return sock.sendMessage(jid, { text }, { quoted: msg });
     } catch (err) {

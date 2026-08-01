@@ -154,7 +154,7 @@ export default {
         `> *Email(s):* ${emailText}\n\n` +
         `> *Sócios / Administração:*\n` +
         `${membersLines.join("\n")}\n\n` +
-        `> By GARTH-BOT V4`;
+        `> By ${botConfig.botName}`;
 
       return sock.sendMessage(jid, { text }, { quoted: msg });
     } catch {

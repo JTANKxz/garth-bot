@@ -3,8 +3,9 @@ import path from 'path'
 import readline from 'readline'
 import { connectBot } from './connection.js'
 import messageHandler from './src/handler/messageHandler.js'
+import { getBotConfig } from './src/config/botConfig.js'
 
-console.log('🤖 GARTH BOT v4 - INICIANDO')
+console.log(`?? ${getBotConfig().botName} - INICIANDO`)
 
 async function askConnectionMethod() {
     const rl = readline.createInterface({

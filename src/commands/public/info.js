@@ -1,6 +1,7 @@
 import { readJSON } from "../../utils/readJSON.js";
 import { commands } from "../../handler/commandsHandler.js";
 import { JOBS } from "../../features/jobs/catalog.js";
+import { getBotConfig } from "../../config/botConfig.js";
 
 function normalizeText(value = "") {
   return value
@@ -33,6 +34,7 @@ function getJobInfoText(job, prefix) {
 }
 
 function getBotInfoText() {
+  const botName = getBotConfig().botName;
   const messageCounts = readJSON("database/messageCounts.json") || {};
   const allGroups = Object.keys(messageCounts);
   let totalUsers = 0;
@@ -62,7 +64,7 @@ function getBotInfoText() {
     `Grupos registrados: ${allGroups.length}\n` +
     `Online ha: ${hours}h ${minutes}min\n` +
     (topCmds ? `\n*Comandos mais usados:*\n${topCmds}\n` : "") +
-    `\n> *GARTH-BOT V5*`
+    `\n> *${botName}*`
   );
 }
 

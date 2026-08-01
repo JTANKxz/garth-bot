@@ -42,7 +42,7 @@ export default {
 
       const res = await fetch(url, {
         headers: {
-          "User-Agent": "Mozilla/5.0 (GarthBot)",
+          "User-Agent": `Mozilla/5.0 (${botConfig.botName})`,
           "Accept": "application/json"
         }
       });
@@ -66,7 +66,7 @@ export default {
         `🌍 *País:* ${data.country?.emoji || ""} ${data.country?.name || "—"} (${data.country?.alpha2 || ""})\n` +
         `> *Moeda:* ${data.country?.currency || "—"}\n\n` +
         `🏦 *Banco:* ${data.bank?.name || "—"}\n\n` +
-        `> By GARTH-BOT V4`;
+        `> By ${botConfig.botName}`;
 
       return sock.sendMessage(jid, { text }, { quoted: msg });
 

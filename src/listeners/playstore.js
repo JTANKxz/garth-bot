@@ -1,4 +1,5 @@
 import gplay from "google-play-scraper";
+import { getBotConfig } from "../config/botConfig.js";
 
 const pendingAppSearch = new Map();
 /*
@@ -51,6 +52,7 @@ export async function buscarAppListener(sock, msg, text) {
     }
 
     const app = fullApp || baseApp;
+    const botName = getBotConfig().botName;
 
     let priceInfo = "Indefinido";
     if (app.free === true) {
@@ -67,7 +69,7 @@ export async function buscarAppListener(sock, msg, text) {
                 : "Não informado";
                 
     const detailText =
-`╔════ ❖ *GARTH BOT* ❖ ════╗
+`╔════ ❖ *${botName}* ❖ ════╗
 > Título:
 > ${app.title || "Desconhecido"}
 

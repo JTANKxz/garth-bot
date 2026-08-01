@@ -18,3 +18,7 @@ export function isRpgEnabled(groupConfig) {
 export function isEconomyCommand(command) {
   return ECONOMY_COMMANDS.has(command?.name);
 }
+
+export function getEconomyCommandNames() {
+  return [...ECONOMY_COMMANDS];
+}

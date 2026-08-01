@@ -84,7 +84,7 @@ export default {
         `> *Mobile:* ${yn(data.mobile)}\n` +
         `> *Proxy/VPN/Tor:* ${yn(data.proxy)}\n` +
         `> *Hosting/DC:* ${yn(data.hosting)}\n\n` +
-        `> By GARTH-BOT V4`;
+        `> By ${botConfig.botName}`;
 
       return sock.sendMessage(jid, { text: texto }, { quoted: msg });
 

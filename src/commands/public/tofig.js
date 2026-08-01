@@ -6,6 +6,7 @@ import path from "path";
 import { tmpdir } from "os";
 import { downloadContentFromMessage } from "baileys";
 import { processStaticSticker, processAnimatedStickerFromVideo } from "../../services/sticker.js";
+import { getBotConfig } from "../../config/botConfig.js";
 
 export default {
     name: "tofig",
@@ -49,7 +50,7 @@ export default {
             .split("/")
             .map(s => s?.trim());
 
-        const packName = packArg || msg.pushName || "GARTH-BOT";
+        const packName = packArg || msg.pushName || getBotConfig().botName;
         const authorName = authorArg || "";
 
         const metadata = {

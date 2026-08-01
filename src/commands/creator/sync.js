@@ -141,7 +141,7 @@ export default {
           `✅ *SINCRONIZAÇÃO CONCLUÍDA*\n\n` +
           statusText +
           `\nTotal de registros removidos: *${totalRemoved}*\n` +
-          `> By GARTH-BOT V4`;
+          `> By ${botConfig.botName}`;
       }
 
       return sock.sendMessage(groupId, { text: finalMsg }, { quoted: msg });

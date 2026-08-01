@@ -24,7 +24,7 @@ export default {
 
       const res = await fetch(url, {
         headers: {
-          "User-Agent": "Mozilla/5.0 (GarthBot)",
+          "User-Agent": `Mozilla/5.0 (${botConfig.botName})`,
           "Accept": "application/json",
           "Accept-Language": "pt-BR,pt;q=0.9",
         },
@@ -81,7 +81,7 @@ export default {
         `════════════════════\n\n` +
         rows.slice(0, 20).map(fmtLine).join("\n") +
         `\n\n════════════════════\n` +
-        `> By GARTH-BOT V4`;
+        `> By ${botConfig.botName}`;
 
       return sock.sendMessage(jid, { text }, { quoted: msg });
 

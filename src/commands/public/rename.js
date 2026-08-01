@@ -3,6 +3,7 @@ import path from "path";
 import { tmpdir } from "os";
 import { downloadContentFromMessage } from "baileys";
 import { processStaticSticker, processAnimatedSticker, isAnimatedSticker } from "../../services/sticker.js";
+import { getBotConfig } from "../../config/botConfig.js";
 
 export default {
     name: "rename",
@@ -27,7 +28,7 @@ export default {
         }
 
         const [packArg, authorArg] = args.join(" ").split("/").map(s => s?.trim());
-        const packName = packArg || msg.pushName || "GARTH-BOT";
+        const packName = packArg || msg.pushName || getBotConfig().botName;
         const authorName = authorArg || "";
         const metadata = { username: packName, botName: authorName };
 

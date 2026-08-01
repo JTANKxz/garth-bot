@@ -48,7 +48,7 @@ export default {
     for (const [, cmd] of commands) {
       if (!cmd?.name || cmd.showInMenu === false) continue
       if (isCommandDisabled(cmd.name)) continue
-      if (!isRpgEnabled(groupConfig) && isEconomyCommand(cmd)) continue
+      if (isEconomyCommand(cmd)) continue
       if (categoryOrder.includes(cmd.category)) {
         cats[cmd.category].push(`> *${prefix}${cmd.name}*`)
       }
@@ -78,7 +78,9 @@ export default {
     text += `\n📌 *Outros Menus:* \n` +
       `> *${prefix}menuadm* - Admins do Grupo\n` +
       `> *${prefix}menudono* - Dono do Bot\n` +
-      `> *${prefix}menucriador* - Criador do Bot\n\n` +
+      `> *${prefix}menucriador* - Criador do Bot\n` +
+      (isRpgEnabled(groupConfig) ? `> *${prefix}menurpg* - Comandos do RPG\n` : "") +
+      `\n` +
       `> 🤖 *Criador:* @${botConfig.botCreator.split("@")[0]}`
 
     const imagePath = path.join(__dirname, "../../../assets/images/cirilo.png")
