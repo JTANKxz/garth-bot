@@ -1,9 +1,27 @@
-import { getFyneProfile } from '../../services/fyneApi.js';
+import { getFyneProfile, linkFyneGroup } from '../../services/fyneApi.js';
 import { renderFyneProfileCard } from '../../utils/fyneProfileCard.js';
 
 function identity(msg){
  const ids=[msg.key?.participant,msg.key?.participantAlt,msg.key?.remoteJid,msg.key?.remoteJidAlt].filter(Boolean);
  return ids.find(id=>id.endsWith('@lid'))||null;
+}
+
+async function linkCurrentGroup({sock,msg,jid}){
+ if(!jid.endsWith('@g.us')) return sock.sendMessage(jid,{text:'Use este comando dentro do grupo que deseja vincular.'},{quoted:msg});
+ const ids=[msg.key?.participant,msg.key?.participantAlt].filter(Boolean),lid=ids.find(id=>id.endsWith('@lid'));
+ const owners=msg.groupConfig?.botOwners||[];
+ if(!ids.some(id=>owners.includes(id))) return sock.sendMessage(jid,{text:'Somente o dono responsável pelo bot neste grupo pode vincular esta comunidade.'},{quoted:msg});
+ const expires=Number(msg.groupConfig?.authExpiresAt||0);
+ if(!expires||expires<=Date.now()) return sock.sendMessage(jid,{text:'A licença do bot neste grupo está expirada. Renove antes de vincular a comunidade.'},{quoted:msg});
+ if(!lid) return sock.sendMessage(jid,{text:'Não consegui identificar seu LID. Use *!login* primeiro.'},{quoted:msg});
+ try{
+  const metadata=await sock.groupMetadata(jid);
+  const result=await linkFyneGroup({whatsapp_lid:lid,group:{jid,name:metadata.subject,member_count:metadata.participants?.length||0,rental_expires_at:new Date(expires).toISOString()}});
+  return sock.sendMessage(jid,{text:'Comunidade vinculada com sucesso.\n\n*'+result.group.name+'*\n'+result.group.member_count+' membros\n\nEla aparecerá na seção *Fundador de* enquanto a licença estiver ativa.'},{quoted:msg});
+ }catch(error){
+  const text=error.status===404?'Você precisa criar sua conta FYNE primeiro. Use *!login*.':'Não foi possível vincular a comunidade.\n\n'+error.message;
+  return sock.sendMessage(jid,{text},{quoted:msg});
+ }
 }
 export default {
  name:'fyne', aliases:[], description:'Acessa os recursos da conta FYNE', usage:'fyne perfil', category:'utils',

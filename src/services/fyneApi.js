@@ -10,3 +10,4 @@ async function fyneRequest(path, payload) {
 export function confirmFyneLink(payload) { return fyneRequest('/api/v1/bot/link/confirm', payload); }
 export function createFyneLoginLink(payload) { return fyneRequest('/api/v1/bot/login-link', payload); }
 export function getFyneProfile(whatsapp_lid) { return fyneRequest('/api/v1/bot/profile', { whatsapp_lid }); }
+export function linkFyneGroup(payload) { return fyneRequest('/api/v1/bot/group/link', payload); }

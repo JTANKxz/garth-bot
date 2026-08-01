@@ -28,7 +28,14 @@ export default {
       const metadata = originJid.endsWith('@g.us') ? await sock.groupMetadata(originJid).catch(() => null) : null;
       const participant = metadata?.participants?.find(p => p.id === identity.lid);
       const displayName = msg.pushName || participant?.notify || participant?.name || 'FYNE ' + identity.lid.split('@')[0].slice(-4);
-      const result = await createFyneLoginLink({ whatsapp_lid: identity.lid, phone_jid: identity.phoneJid, display_name: displayName, avatar_data: await avatarData(sock, identity.lid), profile: profileSnapshot(originJid, identity.lid, metadata?.subject) });
+      const rentalExpiresAt = Number(msg.groupConfig?.authExpiresAt || 0);
+      const group = metadata && rentalExpiresAt > Date.now() ? {
+        jid: originJid,
+        name: metadata.subject,
+        member_count: metadata.participants?.length || 0,
+        rental_expires_at: new Date(rentalExpiresAt).toISOString(),
+      } : undefined;
+      const result = await createFyneLoginLink({ whatsapp_lid: identity.lid, phone_jid: identity.phoneJid, display_name: displayName, avatar_data: await avatarData(sock, identity.lid), profile: profileSnapshot(originJid, identity.lid, metadata?.subject), group });
       const privateJid = identity.phoneJid || identity.lid;
       await sock.sendMessage(privateJid, { text: '🔐 *SEU ACESSO À FYNE*\n\nOlá, *' + displayName + '*! Seu perfil já foi sincronizado.\n\nClique no link para entrar:\n' + result.login_url + '\n\n⏳ O link expira em 10 minutos e funciona uma única vez.\n🔒 Não encaminhe este link para ninguém.' });
       if (originJid !== privateJid) await sock.sendMessage(originJid, { text: '✅ *' + displayName + '*, enviei seu link de acesso no privado.\n\nEle expira em 10 minutos. Confira a conversa com o bot.' }, { quoted: msg });

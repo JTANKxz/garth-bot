@@ -18,8 +18,10 @@ export async function renderFyneProfileCard(profile){
  ctx.fillStyle='#fff';ctx.font='700 '+fit(ctx,profile.name,68,600)+'px Arial';ctx.fillText(profile.name,370,315);
  ctx.fillStyle='#888891';ctx.font='400 27px Arial';ctx.fillText('@'+profile.identifier,370,365);
  if(profile.bio){ctx.fillStyle='#d0d0d4';ctx.font='400 28px Arial';wrap(ctx,profile.bio,72,550,930,42,3)}
+ const community=(profile.communities||[]).find(item=>item.role==='founder')||(profile.communities||[])[0];
  ctx.fillStyle='#151517';round(ctx,72,700,936,150,28);ctx.fill();ctx.fillStyle=accent;round(ctx,72,700,8,150,4);ctx.fill();
- ctx.fillStyle='#77717e';ctx.font='700 17px Arial';ctx.fillText('COMUNIDADE',110,750);ctx.fillStyle='#fff';ctx.font='700 34px Arial';ctx.fillText(profile.group_name||'Comunidade FYNE',110,805);
+ ctx.fillStyle='#77717e';ctx.font='700 17px Arial';ctx.fillText(community?.role==='founder'?'FUNDADOR DE':'COMUNIDADE',110,750);ctx.fillStyle='#fff';ctx.font='700 34px Arial';ctx.fillText(community?.name||'Comunidade FYNE',110,805);
+ if(community){ctx.fillStyle='#77717e';ctx.font='400 18px Arial';ctx.fillText(String(community.member_count||0)+' membros',760,805)}
  ctx.strokeStyle='#29272d';ctx.beginPath();ctx.moveTo(72,930);ctx.lineTo(1008,930);ctx.stroke();
  ctx.fillStyle='#747078';ctx.font='700 17px Arial';ctx.fillText('FYNE.ONLINE',72,990);ctx.fillStyle=accent;ctx.beginPath();ctx.arc(948,983,8,0,Math.PI*2);ctx.fill();ctx.fillStyle='#747078';ctx.fillText('ATIVO',968,990);
  return canvas.toBuffer('image/png');
