@@ -1,5 +1,6 @@
 import { getFyneProfile, linkFyneGroup } from '../../services/fyneApi.js';
 import { renderFyneProfileCard } from '../../utils/fyneProfileCard.js';
+import { getBotConfig } from '../../config/botConfig.js';
 
 function identity(msg){
  const ids=[msg.key?.participant,msg.key?.participantAlt,msg.key?.remoteJid,msg.key?.remoteJidAlt].filter(Boolean);
@@ -14,7 +15,9 @@ async function linkCurrentGroup({sock,msg,jid}){
  const ids=[...new Set([...messageIds,participant?.id,participant?.lid,participant?.phoneNumber].filter(Boolean))];
  const lid=ids.find(id=>id.endsWith('@lid'));
  const owners=msg.groupConfig?.botOwners||[];
- if(!ids.some(id=>owners.includes(id))) return sock.sendMessage(jid,{text:'Somente o dono responsável pelo bot neste grupo pode vincular esta comunidade.'},{quoted:msg});
+ const creator=getBotConfig().botCreator;
+ const isCreator=ids.includes(creator);
+ if(!isCreator&&!ids.some(id=>owners.includes(id))) return sock.sendMessage(jid,{text:'Somente o dono responsável pelo bot ou o criador oficial pode vincular esta comunidade.'},{quoted:msg});
  const expires=Number(msg.groupConfig?.authExpiresAt||0);
  if(!expires||expires<=Date.now()) return sock.sendMessage(jid,{text:'A licença do bot neste grupo está expirada. Renove antes de vincular a comunidade.'},{quoted:msg});
  if(!lid) return sock.sendMessage(jid,{text:'Não consegui identificar seu LID. Use *!login* primeiro.'},{quoted:msg});
@@ -28,7 +31,7 @@ async function linkCurrentGroup({sock,msg,jid}){
  }
 }
 export default {
- name:'fyne', aliases:['fine'], description:'Acessa os recursos da conta FYNE', usage:'fyne perfil', category:'utils',
+ name:'fyne', aliases:[], description:'Acessa os recursos da conta FYNE', usage:'fyne perfil', category:'utils',
  async run({sock,msg,args}){
   const jid=msg.key.remoteJid,sub=String(args[0]||'').toLowerCase();
   if(sub==='grupo' && String(args[1]||'').toLowerCase()==='vincular') return linkCurrentGroup({sock,msg,jid});
