@@ -1,17 +1,11 @@
 import { createFyneLoginLink } from '../../services/fyneApi.js';
-import { readJSON } from '../../utils/readJSON.js';
-import { calculateLevel } from '../../features/progress/levelSystem.js';
-import { getJobByKey } from '../../features/jobs/catalog.js';
 
 function messageIdentity(msg) {
   const candidates = [msg.key?.participant, msg.key?.participantAlt, msg.key?.remoteJid, msg.key?.remoteJidAlt].filter(Boolean);
   return { lid: candidates.find(id => id.endsWith('@lid')) || null, phoneJid: candidates.find(id => id.endsWith('@s.whatsapp.net')) || null };
 }
 function profileSnapshot(groupId, lid, groupName) {
-  const counts = readJSON('database/messageCounts.json') || {}, lucky = readJSON('database/lucky.json') || {}, jobs = readJSON('database/jobs.json') || {}, achievements = readJSON('database/conquistas.json') || {};
-  const countData = counts[groupId]?.[lid] || {}, luckyData = lucky[groupId]?.[lid] || {}, jobData = jobs[groupId]?.[lid] || {}, progress = achievements[groupId]?.[lid] || {};
-  const job = jobData.job ? getJobByKey(jobData.job) : null;
-  return { level: calculateLevel(countData.xp || 0), xp: countData.xp || 0, money: luckyData.money || 0, achievements: Array.isArray(progress.achievements) ? progress.achievements.length : 0, job: job?.name || 'Desempregado', messages: countData.messages || 0, popularity: countData.popularity || 0, victories: countData.victories || 0, group_name: groupName || 'Grupo FYNE' };
+  return { group_name: groupName || 'Comunidade FYNE' };
 }
 async function avatarData(sock, lid) {
   try {
