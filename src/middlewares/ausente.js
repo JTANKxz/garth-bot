@@ -23,7 +23,9 @@ export async function ausenteMiddleware(msg, sock) {
     let handled = false;
 
     // 1. O próprio usuário ausente falou algo? (Remove a ausência)
-    if (db[from]?.[sender]) {
+    const ownAbsence = db[from]?.[sender];
+    // A ausencia so pode ser removida por uma mensagem no mesmo grupo.
+    if (ownAbsence && (!ownAbsence.groupId || ownAbsence.groupId === from)) {
         const text = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
         
         // Se a mensagem for o próprio comando ativando, ignoramos para não desativar no mesmo milissegundo

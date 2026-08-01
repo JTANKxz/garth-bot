@@ -85,8 +85,7 @@ export default {
 
       if (failed) {
         saveJSON(dbLuckyPath, luckyDB);
-        const text = `🚑 *ATENDIMENTO DE EMERGÊNCIA FALHOU!*\n\nO Dr(a). @${sender.split("@")[0]} tentou socorrer @${target.split("@")[0]}, mas o procedimento foi mal sucedido!\n\n` +
-                     `💔 O paciente não conseguiu recuperar os fyne coins perdidos no acidente.`;
+        const text = "Atendimento falhou. O paciente nao recuperou o saldo.";
         return sock.sendMessage(from, { text, mentions: [target, sender] }, { quoted: msg });
       }
 
@@ -103,9 +102,7 @@ export default {
       saveJSON(dbLuckyPath, luckyDB);
 
       const mentions = [target, sender];
-      const text = `🚑 *ATENDIMENTO DE EMERGÊNCIA!*\n\nO Dr(a). @${sender.split("@")[0]} socorreu @${target.split("@")[0]} a tempo!\n\n` +
-                   `💖 O seguro cobriu o acidente e o trabalhador recuperou *${formatMoney(refund)} fyne coins* perdidos!\n` +
-                   `💼 O médico recebeu um repasse de *${formatMoney(medicReward)} fyne coins* pelo atendimento!`;
+      const text = `Atendimento concluido. @${target.split("@")[0]}: +${formatMoney(refund)} coins | Medico: +${formatMoney(medicReward)} coins.`;
 
       await sock.sendMessage(from, { text, mentions }, { quoted: msg });
 

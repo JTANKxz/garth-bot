@@ -103,8 +103,7 @@ export default {
         
         saveJSON(dbLuckyPath, luckyDB);
 
-        const text = `🚨 *OPERAÇÃO FEDERAL!*\n\nA casa caiu, @${sender.split("@")[0]}!\nA Receita Federal descobriu suas empresas fantasmas e confiscou seus *${formatMoney(cost)} fyne coins*!\n\n` +
-                     `🚔 Você foi preso direto e ficará em regime fechado por *${formatTimeLeft(jailTimeMs)}*.`;
+        const text = `Lavagem descoberta. -${formatMoney(cost)} coins | Prisao: ${formatTimeLeft(jailTimeMs)}.`;
         return sock.sendMessage(from, { text, mentions: [sender] }, { quoted: msg });
       }
 
@@ -114,8 +113,7 @@ export default {
 
       saveJSON(dbLuckyPath, luckyDB);
 
-      const text = `🕴️💼 *DINHEIRO LAVADO!*\n\n@${sender.split("@")[0]} movimentou o dinheiro nas ilhas Cayman com sucesso!\n\n` +
-                   `💸 Seu esquema gerou um lucro limpo de *${formatMoney(profit)} fyne coins*!`;
+      const text = `Lavagem concluida: +${formatMoney(profit)} coins.`;
 
       await sock.sendMessage(from, { text, mentions: [sender] }, { quoted: msg });
 

@@ -1,3 +1,4 @@
+﻿import './src/config/loadEnv.js'
 import fs from 'fs'
 import path from 'path'
 import readline from 'readline'
@@ -14,7 +15,7 @@ async function askConnectionMethod() {
     })
 
     return new Promise(resolve => {
-        rl.question('\n🔐 Escolha o método de conexão:\n1 - QR Code\n2 - Código de Pareamento\n\nOpção (1 ou 2): ', (choice) => {
+        rl.question('\nðŸ” Escolha o mÃ©todo de conexÃ£o:\n1 - QR Code\n2 - CÃ³digo de Pareamento\n\nOpÃ§Ã£o (1 ou 2): ', (choice) => {
             rl.close()
             resolve(choice.trim())
         })
@@ -28,7 +29,7 @@ async function askPhoneNumber() {
     })
 
     return new Promise(resolve => {
-        rl.question('📞 Digite o número para conectar (somente dígitos, ex: 55869999999): ', (num) => {
+        rl.question('ðŸ“ž Digite o nÃºmero para conectar (somente dÃ­gitos, ex: 55869999999): ', (num) => {
             rl.close()
             resolve(num.trim())
         })
@@ -40,7 +41,7 @@ async function start() {
     const hasAuth = fs.existsSync(authPath)
 
     if (hasAuth) {
-        console.log("🔁 Sessão detectada! Conectando automaticamente...")
+        console.log("ðŸ” SessÃ£o detectada! Conectando automaticamente...")
         connectBot(null, messageHandler, 'qr')
         return
     }
@@ -48,22 +49,23 @@ async function start() {
     const authDir = path.dirname(authPath)
     if (!fs.existsSync(authDir)) fs.mkdirSync(authDir, { recursive: true })
 
-    // Pede método de conexão
+    // Pede mÃ©todo de conexÃ£o
     const method = await askConnectionMethod()
     
     if (method === '1') {
-        // Conexão via QR Code
-        console.log('\n📱 Modo QR Code selecionado')
+        // ConexÃ£o via QR Code
+        console.log('\nðŸ“± Modo QR Code selecionado')
         connectBot(null, messageHandler, 'qr')
     } else if (method === '2') {
-        // Conexão via Código de Pareamento
-        console.log('\n📲 Modo Código de Pareamento selecionado')
+        // ConexÃ£o via CÃ³digo de Pareamento
+        console.log('\nðŸ“² Modo CÃ³digo de Pareamento selecionado')
         const phoneNumber = await askPhoneNumber()
         connectBot(phoneNumber, messageHandler, 'pairing')
     } else {
-        console.log('❌ Opção inválida! Usando QR Code por padrão...')
+        console.log('âŒ OpÃ§Ã£o invÃ¡lida! Usando QR Code por padrÃ£o...')
         connectBot(null, messageHandler, 'qr')
     }
 }
 
 start()
+

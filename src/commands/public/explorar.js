@@ -1,6 +1,6 @@
 import { readJSON, writeJSON } from "../../utils/readJSON.js";
 import { formatMoney } from "../../utils/saldo.js";
-import { ensureUser, gainPetXP } from "../../features/pet/service.js";
+import { ensureUser, gainPetXP, sync as syncPet } from "../../features/pet/service.js";
 
 const DB_PETS = "database/pets.json";
 const DB_LUCKY = "database/lucky.json";
@@ -27,10 +27,17 @@ export default {
 
         const petsDB = readJSON(DB_PETS) || {};
         const userPetData = ensureUser(petsDB, from, sender);
+        syncPet(petsDB, from, sender);
         const pet = userPetData.pet;
 
+        // A mesma sincronizacao do comando pet impede recompensas para pet morto.
+        writeJSON(DB_PETS, petsDB);
+
         if (!pet) {
-            return sock.sendMessage(from, { text: "🐾 Você não tem um pet! Use !pet adotar para começar." }, { quoted: msg });
+            const text = userPetData.petFarewell
+                ? "Seu pet morreu ou fugiu. Adote outro antes de explorar."
+                : "Voce nao tem um pet. Use !pet adotar para comecar.";
+            return sock.sendMessage(from, { text }, { quoted: msg });
         }
 
         const now = Date.now();

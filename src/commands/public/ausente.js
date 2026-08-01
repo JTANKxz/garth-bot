@@ -28,7 +28,8 @@ export default {
         if (!db[from]) db[from] = {};
         db[from][sender] = {
             reason,
-            time: Date.now()
+            time: Date.now(),
+            groupId: from
         };
 
         writeJSON(DB_AUSENTES, db);

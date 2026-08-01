@@ -97,49 +97,38 @@ export default {
       const success = randInt(0, 99) < 65;
 
       if (!success) {
-        // Bloqueio de rede por 4h (impede trabalhar)
         hackerJobData.workCooldownUntil = now + (4 * 60 * 60 * 1000);
-        saveJSON(dbJobsPath, jobsDB);
-
-        // Coloca o hacker como procurado por 20 minutos
         if (!luckyDB[from][sender]) luckyDB[from][sender] = { money: 0 };
         luckyDB[from][sender].wantedUntil = now + (20 * 60 * 1000);
         luckyDB[from][sender].wantedCaseId = `${from}-${sender}-${now}`;
-        saveJSON(dbLuckyPath, luckyDB);
 
-        const text = `📡 *BLOQUEIO DE REDE E FLAGRANTE!*\n\n🚫 O firewall da conta de @${target.split("@")[0]} detectou sua invasão!\n` +
-                     `🔒 Seu IP foi banido e você não poderá trabalhar nas próximas *4 horas*.\n` +
-                     `🚔 A polícia cibernética rastreou você. Você está *PROCURADO* por 20 minutos!`;
-        
-        return sock.sendMessage(from, { text, mentions: [target] }, { quoted: msg });
+        saveJSON(dbJobsPath, jobsDB);
+        saveJSON(dbLuckyPath, luckyDB);
+        return sock.sendMessage(from, {
+          text: "Hack falhou. Bloqueio: 4h | Procurado: 20min.",
+          mentions: [target]
+        }, { quoted: msg });
       }
 
-      // Rouba 15 a 25% do dinheiro da vítima ignorando proteções
       const percent = randInt(5, 12) / 100;
       const potential = Math.floor(vitima.money * percent);
       const roubado = Math.min(vitima.money, potential, rollHackRewardLimit());
 
       vitima.money -= roubado;
-      
       if (!luckyDB[from][sender]) luckyDB[from][sender] = { money: 0 };
       luckyDB[from][sender].money = (luckyDB[from][sender].money || 0) + roubado;
 
       saveJSON(dbLuckyPath, luckyDB);
       saveJSON(dbJobsPath, jobsDB);
 
-      const text = `💻 *SISTEMA INVADIDO!*\n\n` +
-                   `@${sender.split("@")[0]} furou todas as defesas digitais de @${target.split("@")[0]}!\n\n` +
-                   `💸 Dinheiro transferido para offshore: *${formatMoney(roubado)} fyne coins*!\n` +
-                   `🔍 _Análise do banco de dados revelou que o alvo ficou com exatos *${formatMoney(vitima.money)} fyne coins* na conta._`;
-
+      const text = `Hack concluido. @${sender.split("@")[0]} roubou ${formatMoney(roubado)} coins de @${target.split("@")[0]}. Saldo do alvo: ${formatMoney(vitima.money)}.`;
       await sock.sendMessage(from, { text, mentions: [sender, target] }, { quoted: msg });
 
-      // Conquista de hack bem-sucedido
       await grantJobActionAchievement({
-          sock, groupId: from, user: sender,
-          actionStat: "hackear_success",
-          targetIds: ["ja_hack_1", "ja_hack_10"],
-          quoted: msg, pushName
+        sock, groupId: from, user: sender,
+        actionStat: "hackear_success",
+        targetIds: ["ja_hack_1", "ja_hack_10"],
+        quoted: msg, pushName
       });
 
     } catch (err) {
