@@ -11,3 +11,4 @@ export function confirmFyneLink(payload) { return fyneRequest('/api/v1/bot/link/
 export function createFyneLoginLink(payload) { return fyneRequest('/api/v1/bot/login-link', payload); }
 export function getFyneProfile(whatsapp_lid) { return fyneRequest('/api/v1/bot/profile', { whatsapp_lid }); }
 export function linkFyneGroup(payload) { return fyneRequest('/api/v1/bot/group/link', payload); }
+export function updateFyneGroup(payload) { return fyneRequest('/api/v1/bot/group/update', payload); }
