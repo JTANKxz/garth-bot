@@ -162,11 +162,7 @@ export default {
             await sock.sendMessage(jid, { react: { text: "❌", key: msg.key } });
             await sock.sendMessage(
                 jid,
-                {
-                    text: String(err?.message || "").includes("Sign in to confirm")
-                        ? "❌ O YouTube solicitou uma verificação temporária. Tente novamente mais tarde."
-                        : "❌ Ocorreu um erro ao processar sua solicitação."
-                },
+                { text: "❌ Ocorreu um erro ao processar sua solicitação." },
                 { quoted: msg }
             );
         } finally {
