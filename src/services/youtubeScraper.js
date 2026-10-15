@@ -1,5 +1,5 @@
 import fs from "fs";
-import yt from "@vreden/youtube_scraper";
+import { ytmp3, ytmp4 } from "./vredenYoutubeScraper.js";
 
 async function downloadFromProvider(result, outputFile) {
   const downloadUrl = result?.download?.url;
@@ -17,11 +17,11 @@ async function downloadFromProvider(result, outputFile) {
 }
 
 export async function downloadYoutubeAudio(url, outputFile) {
-  const result = await yt.ytmp3(url, 128);
+  const result = await ytmp3(url, 128);
   return downloadFromProvider(result, outputFile);
 }
 
 export async function downloadYoutubeVideo(url, outputFile) {
-  const result = await yt.ytmp4(url, 480);
+  const result = await ytmp4(url, 480);
   return downloadFromProvider(result, outputFile);
 }
