@@ -2,11 +2,9 @@
 import fs from "fs";
 import path from "path";
 import yts from "yt-search";
-import dxz from "dxz-ytdl";
 import { getGroupConfig } from "../../utils/groups.js";
 import { getBotConfig } from "../../config/botConfig.js";
-
-const { ytmp3 } = dxz;
+import { downloadYoutubeAudio } from "../../services/youtubeScraper.js";
 
 // Cooldown DB (persistente, funciona mesmo se reiniciar)
 const cooldownPath = path.resolve("src/database/playCooldown.json");
@@ -141,10 +139,7 @@ export default {
 
             outputFile = path.join(process.cwd(), `temp-${Date.now()}.mp3`);
 
-            const result = await ytmp3(videoUrl, "128k", {
-                path: outputFile,
-                retries: 3,
-            });
+            const result = await downloadYoutubeAudio(videoUrl, outputFile);
 
             let thumb = null;
             if (metadata.thumbnail) {
