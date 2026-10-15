@@ -5,6 +5,17 @@ import youtubedl from "youtube-dl-exec";
 
 const TEMP_DIR = path.resolve(process.cwd(), "temp");
 
+function getCookiesFile() {
+  const configuredPath = process.env.YTDLP_COOKIES_FILE?.trim();
+  if (!configuredPath) return undefined;
+
+  const cookiesFile = path.resolve(configuredPath);
+  if (!fs.existsSync(cookiesFile)) {
+    throw new Error("o arquivo configurado em YTDLP_COOKIES_FILE não foi encontrado");
+  }
+  return cookiesFile;
+}
+
 function getOutputPath(extension) {
   fs.mkdirSync(TEMP_DIR, { recursive: true });
   const token = `youtube-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -42,6 +53,9 @@ async function download(url, type) {
     // O YouTube exige um resolvedor JavaScript em vários vídeos atuais.
     // O Node do bot já atende essa dependência do yt-dlp.
     jsRuntimes: "node",
+    // Arquivo Netscape cookies.txt de uma conta dedicada, quando o YouTube
+    // exigir login para o IP do servidor. O arquivo nunca é versionado.
+    cookies: getCookiesFile(),
     output: output.template,
     print: "after_move:filepath",
     ffmpegLocation: ffmpegPath,
