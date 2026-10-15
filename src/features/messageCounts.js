@@ -145,7 +145,7 @@ export function addMessages(groupJid, userJid, amount = 100) {
 
 // Remove usuário do ranking
 export function removeUser(groupJid, userJid) {
-    if (messageCount[groupJid]?.[userJid]) {
+    if (Object.prototype.hasOwnProperty.call(messageCount[groupJid] || {}, userJid)) {
         delete messageCount[groupJid][userJid]
 
         if (Object.keys(messageCount[groupJid]).length === 0) {
@@ -162,4 +162,13 @@ export function removeGroup(groupJid) {
         delete messageCount[groupJid]
         saveCounts()
     }
+}
+
+// Limpa o ranking completo, inclusive o cache em memória.
+// Isso evita que dados antigos sejam gravados novamente após um reset global.
+export function resetAllCounts() {
+    for (const groupJid of Object.keys(messageCount)) {
+        delete messageCount[groupJid]
+    }
+    saveCounts()
 }

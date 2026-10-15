@@ -71,7 +71,7 @@ export function getRanking(groupJid) {
 }
 
 export function removeUser(groupJid, userJid) {
-    if (simpleMessageCount[groupJid]?.[userJid]) {
+    if (Object.prototype.hasOwnProperty.call(simpleMessageCount[groupJid] || {}, userJid)) {
         delete simpleMessageCount[groupJid][userJid]
         if (Object.keys(simpleMessageCount[groupJid]).length === 0) {
             delete simpleMessageCount[groupJid]
@@ -85,4 +85,12 @@ export function resetGroup(groupJid) {
         delete simpleMessageCount[groupJid]
         saveCounts()
     }
+}
+
+// Limpa todos os rankings semanais, inclusive o cache em memória.
+export function resetAllCounts() {
+    for (const groupJid of Object.keys(simpleMessageCount)) {
+        delete simpleMessageCount[groupJid]
+    }
+    saveCounts()
 }

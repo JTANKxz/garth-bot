@@ -237,3 +237,12 @@ export function resetGroupEconomy(groupId) {
   if (changed) saveCache();
   return changed;
 }
+
+// Apaga todas as configurações de grupos e mantém o cache sincronizado.
+export function resetAllGroupConfigs() {
+  loadCache();
+  const count = Object.keys(groupCache).length;
+  groupCache = {};
+  saveCache();
+  return count;
+}

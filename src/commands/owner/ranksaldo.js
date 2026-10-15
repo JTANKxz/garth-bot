@@ -1,72 +1,75 @@
 import fs from "fs";
 import path from "path";
+import { getBotConfig } from "../../config/botConfig.js";
+import { formatMoney } from "../../utils/saldo.js";
 
 const dbPath = path.resolve("src/database/lucky.json");
 
 function loadDB() {
-  if (!fs.existsSync(dbPath)) fs.writeFileSync(dbPath, JSON.stringify({}, null, 2));
-  return JSON.parse(fs.readFileSync(dbPath, "utf8"));
+  if (!fs.existsSync(dbPath)) fs.writeFileSync(dbPath, "{}\n", "utf-8");
+  const content = fs.readFileSync(dbPath, "utf-8").trim();
+  return content ? JSON.parse(content) : {};
 }
 
 function isGroupJid(value) {
   return /^\d+-\d+@g\.us$/.test(value || "");
 }
 
-function formatMoney(value) {
-  return Number(value || 0).toLocaleString("pt-BR");
-}
-
 export default {
   name: "ranksaldo",
   aliases: ["ricos"],
-  description: "Mostra os maiores saldos; o criador pode informar o ID de outro grupo",
+  description: "Mostra o ranking de saldo do grupo",
   category: "owner",
 
   async run({ sock, msg, args }) {
     const from = msg.key.remoteJid;
-    const targetGroup = isGroupJid(args[0]) ? args[0] : from;
+    const sender = msg.key.participant || from;
+    const botConfig = getBotConfig();
+    const requestedGroup = isGroupJid(args[0]) ? args[0] : from;
+    // Só o criador pode consultar o saldo de outro grupo.
+    const targetGroup = sender === botConfig.botCreator ? requestedGroup : from;
+
+    await sock.sendMessage(from, { react: { text: "⏳", key: msg.key } });
 
     try {
       const db = loadDB();
       const users = db[targetGroup] || {};
       const ranking = Object.entries(users)
-        .filter(([, data]) => data && typeof data.money === "number")
-        .sort(([, a], [, b]) => b.money - a.money)
-        .slice(0, 30);
+        .filter(([, data]) => data && Number.isFinite(Number(data.money)) && Number(data.money) > 0)
+        .sort(([, a], [, b]) => Number(b.money) - Number(a.money))
+        .slice(0, 10);
 
       if (!ranking.length) {
-        return sock.sendMessage(from, { text: "Nenhum usuario com saldo encontrado nesse grupo." }, { quoted: msg });
+        await sock.sendMessage(from, { text: "💰 Ninguém possui saldo ainda." }, { quoted: msg });
+        return;
       }
 
-      let groupName = targetGroup;
-      try {
-        const metadata = await sock.groupMetadata(targetGroup);
-        groupName = metadata.subject || targetGroup;
-      } catch {}
+      let groupName = "Grupo";
+      if (targetGroup.endsWith("@g.us")) {
+        try {
+          groupName = (await sock.groupMetadata(targetGroup)).subject || groupName;
+        } catch {}
+      }
 
       const lines = ranking.map(([jid, data], index) => {
-        const kind = jid.endsWith("@lid") ? "LID" : "ID";
-        return [
-          `${index + 1}. ${jid.split("@")[0]}`,
-          `   ${kind}: ${jid}`,
-          `   Saldo: ${formatMoney(data.money)} fyne coins`
-        ].join("\n");
-      }).join("\n--------------------\n");
+        return `│ ${index + 1} - @${jid.split("@")[0]}\n│ 💰 *${formatMoney(Number(data.money))}*`;
+      }).join("\n│──────────────────\n");
 
       const date = new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
       const text = [
-        "TOP 30 RICOS",
-        `Grupo: ${groupName}`,
-        `Grupo ID: ${targetGroup}`,
-        `Data: ${date}`,
-        "--------------------",
-        lines
+        "╭──❰ 💰 *TOP 10 MAIS RICOS* ❱──╮",
+        `│ *${groupName}* - ${date}`,
+        "│──────────────────",
+        lines,
+        "╰──────────────────╯"
       ].join("\n");
 
-      await sock.sendMessage(from, { text }, { quoted: msg });
+      await sock.sendMessage(from, { text, mentions: ranking.map(([jid]) => jid) }, { quoted: msg });
+      await sock.sendMessage(from, { react: { text: "✅", key: msg.key } });
     } catch (err) {
       console.error("Erro no comando ranksaldo:", err);
-      await sock.sendMessage(from, { text: "Ocorreu um erro ao gerar o ranking." }, { quoted: msg });
+      await sock.sendMessage(from, { react: { text: "❌", key: msg.key } });
+      await sock.sendMessage(from, { text: "❌ Ocorreu um erro ao gerar o ranking de saldo." }, { quoted: msg });
     }
   }
 };
