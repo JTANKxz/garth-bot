@@ -2,9 +2,11 @@
 import fs from "fs";
 import path from "path";
 import yts from "yt-search";
+import dxz from "dxz-ytdl";
 import { getGroupConfig } from "../../utils/groups.js";
 import { getBotConfig } from "../../config/botConfig.js";
-import { downloadYoutubeAudio } from "../../services/youtubeDownload.js";
+
+const { ytmp3 } = dxz;
 
 // Cooldown DB (persistente, funciona mesmo se reiniciar)
 const cooldownPath = path.resolve("src/database/playCooldown.json");
@@ -137,7 +139,12 @@ export default {
 
             await sock.sendMessage(jid, { react: { text: "🔄", key: msg.key } });
 
-            outputFile = await downloadYoutubeAudio(videoUrl);
+            outputFile = path.join(process.cwd(), `temp-${Date.now()}.mp3`);
+
+            const result = await ytmp3(videoUrl, "128k", {
+                path: outputFile,
+                retries: 3,
+            });
 
             let thumb = null;
             if (metadata.thumbnail) {
@@ -153,11 +160,11 @@ export default {
 
             const caption =
                 `╔════ *${botName}* ════╗
-> Título: ${metadata.title || "Vídeo do YouTube"}
+> Título: ${metadata.title || result.title}
 
-> Duração: ${metadata.duration || "Desconhecida"}
+> Duração: ${metadata.duration || `${result.duration}s`}
 
-> Canal: ${metadata.channel || "Canal desconhecido"}
+> Canal: ${metadata.channel || result.author}
 
 > ${metadata.views || ""}
 

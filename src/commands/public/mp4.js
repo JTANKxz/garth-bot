@@ -1,9 +1,11 @@
 import fs from "fs";
 import path from "path";
 import yts from "yt-search";
+import dxz from "dxz-ytdl";
 import { getGroupConfig } from "../../utils/groups.js";
 import { getBotConfig } from "../../config/botConfig.js";
-import { downloadYoutubeVideo } from "../../services/youtubeDownload.js";
+
+const { ytmp4 } = dxz;
 
 // Cooldown DB (persistente, funciona mesmo se reiniciar)
 const cooldownPath = path.resolve("src/database/mp4Cooldown.json");
@@ -135,12 +137,17 @@ export default {
 
             await sock.sendMessage(jid, { react: { text: "🔄", key: msg.key } });
 
-            outputFile = await downloadYoutubeVideo(videoUrl);
+            outputFile = path.join(process.cwd(), `temp-${Date.now()}.mp4`);
+
+            const result = await ytmp4(videoUrl, "480p", {
+                path: outputFile,
+                retries: 3
+            });
 
             const caption = `╔════ *${botName}* ════╗\n` +
-                `> Título: ${metadata.title || "Vídeo do YouTube"}\n` +
-                `> Duração: ${metadata.duration || "Desconhecida"}\n` +
-                `> Canal: ${metadata.channel || "Canal desconhecido"}\n` +
+                `> Título: ${metadata.title || result.title}\n` +
+                `> Duração: ${metadata.duration || `${result.duration}s`}\n` +
+                `> Canal: ${metadata.channel || result.author}\n` +
                 `> ${metadata.views || ""}\n` +
                 `> Link: ${videoUrl}\n` +
                 `╚═════════════════╝`;
