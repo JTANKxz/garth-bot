@@ -2,8 +2,8 @@ import { pendingChoices as pendingMovieChoices, pendingSerieChoices } from '../.
 import { getGroupConfig } from '../../utils/groups.js';
 import fetch from 'node-fetch';
 
-const WATCH_MOVIE_URL = 'https://fynecine.online/filme/';
-const WATCH_SERIE_URL = 'https://fynecine.online/serie/';
+const WATCH_MOVIE_URL = 'https://fynecine.fun/filme/';
+const WATCH_SERIE_URL = 'https://fynecine.fun/serie/';
 const TMDB_API_KEY = 'edcd52275afd8b8c152c82f1ce3933a2';
 
 let genreMap = {};
